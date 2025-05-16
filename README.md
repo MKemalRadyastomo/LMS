@@ -43,7 +43,7 @@ cp .env.example .env
 ```bash
 # Using psql
 psql -U postgres
-CREATE DATABASE lms_database;
+CREATE DATABASE test_project;
 \q
 
 # Or use your preferred PostgreSQL admin tool
@@ -94,7 +94,7 @@ src/
 | DB_PORT           | PostgreSQL database port                          | 5432        |
 | DB_USER           | PostgreSQL database user                          | postgres    |
 | DB_PASSWORD       | PostgreSQL database password                      | postgres    |
-| DB_NAME           | PostgreSQL database name                          | lms_database|
+| DB_NAME           | PostgreSQL database name                          | test_project|
 | JWT_SECRET        | Secret key for JWT tokens                         | -           |
 | JWT_EXPIRATION    | JWT token expiration                              | 1d          |
 | RATE_LIMIT_WINDOW | Rate limiting window in minutes                   | 15          |
