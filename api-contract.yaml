@@ -1,0 +1,2412 @@
+openapi: 3.0.3
+info:
+  title: Online Learning Platform API
+  description: API for managing users, roles, courses, enrollments, content, assignments, and progress in an online learning system with RBAC.
+  version: 1.0.0
+servers:
+  - url: https://api.onlinelearning.com/v{version}
+    variables:
+      version:
+        enum:
+          - '1'
+          - '2'
+        default: '1'
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api-version:
+    get:
+      summary: Get API version information
+      security: []
+      tags:
+        - System
+      responses:
+        '200':
+          description: API version information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version: 
+                    type: string
+                  release_date:
+                    type: string
+                    format: date
+                  deprecated:
+                    type: boolean
+                  sunset_date:
+                    type: string
+                    format: date
+                    nullable: true
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+
+  /auth/login:
+    post:
+      summary: User login
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required: [username, password]
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT authentication token
+                  user_id:
+                    type: integer
+                    description: ID of authenticated user
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/register:
+    post:
+      summary: User registration
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      summary: User logout
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logout successful
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users:
+    get:
+      summary: List users
+      tags:
+        - Users
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: role
+          in: query
+          description: Filter users by role
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search users by name or email
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort field
+          schema:
+            type: string
+            enum: [username, email, created_at]
+        - name: order
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserPublic'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      summary: Create user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/bulk:
+    post:
+      summary: Create multiple users at once
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                users:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UserCreate'
+              required: [users]
+      responses:
+        '201':
+          description: Users created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_count:
+                    type: integer
+                  failed_count:
+                    type: integer
+                  created_users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserPublic'
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                        error:
+                          type: string
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get user by ID
+      tags:
+        - Users
+      responses:
+        '200':
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update user by ID
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete user by ID
+      tags:
+        - Users
+      responses:
+        '204':
+          description: User deleted
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{id}/profile-picture:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      summary: Upload or update user profile picture
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profile_picture:
+                  type: string
+                  format: binary
+                  description: Image file for profile picture (max 2MB, jpg, png, gif)
+              required:
+                - profile_picture
+      responses:
+        '200':
+          description: Profile picture updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  profile_picture_url:
+                    type: string
+                    format: uri
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '413':
+          description: File size too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Unsupported file type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /roles:
+    get:
+      summary: List roles
+      tags:
+        - Roles
+      responses:
+        '200':
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      summary: Create role
+      tags:
+        - Roles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleCreate'
+      responses:
+        '201':
+          description: Role created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /roles/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get role by ID
+      tags:
+        - Roles
+      responses:
+        '200':
+          description: Role data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update role
+      tags:
+        - Roles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleUpdate'
+      responses:
+        '200':
+          description: Role updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete role
+      tags:
+        - Roles
+      responses:
+        '204':
+          description: Role deleted
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /roles/assign:
+    post:
+      summary: Assign role to user
+      tags:
+        - Roles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                role_id:
+                  type: integer
+              required: [user_id, role_id]
+      responses:
+        '200':
+          description: Role assigned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /roles/assign/bulk:
+    post:
+      summary: Assign roles to users in bulk
+      tags:
+        - Roles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assignments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                      role_id:
+                        type: integer
+                    required: [user_id, role_id]
+              required: [assignments]
+      responses:
+        '200':
+          description: Roles assigned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_count:
+                    type: integer
+                  failed_count:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                        error:
+                          type: string
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /categories:
+    get:
+      summary: List course categories
+      tags:
+        - Categories
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create category
+      tags:
+        - Categories
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreate'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /courses:
+    get:
+      summary: List courses
+      tags:
+        - Courses
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: category_id
+          in: query
+          description: Filter by category
+          schema:
+            type: integer
+        - name: instructor_id
+          in: query
+          description: Filter by instructor
+          schema:
+            type: integer
+        - name: search
+          in: query
+          description: Search in title and description
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort field
+          schema:
+            type: string
+            enum: [title, created_at, popularity]
+        - name: order
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: A list of courses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Course'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create course
+      tags:
+        - Courses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseCreate'
+      responses:
+        '201':
+          description: Course created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /courses/bulk:
+    post:
+      summary: Create multiple courses at once
+      tags:
+        - Courses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                courses:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CourseCreate'
+              required: [courses]
+      responses:
+        '201':
+          description: Courses created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_count:
+                    type: integer
+                  failed_count:
+                    type: integer
+                  created_courses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Course'
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                        error:
+                          type: string
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /courses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get course by ID
+      tags:
+        - Courses
+      responses:
+        '200':
+          description: Course data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update course
+      tags:
+        - Courses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseUpdate'
+      responses:
+        '200':
+          description: Course updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete course
+      tags:
+        - Courses
+      responses:
+        '204':
+          description: Course deleted
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /courses/{course_id}/content:
+    parameters:
+      - name: course_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get all content for a course
+      tags:
+        - Course Content
+      responses:
+        '200':
+          description: Course content
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Content'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      summary: Add content to course
+      tags:
+        - Course Content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentCreate'
+      responses:
+        '201':
+          description: Content created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /courses/{course_id}/content/bulk:
+    parameters:
+      - name: course_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      summary: Add multiple content items to course
+      tags:
+        - Course Content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content_items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ContentCreate'
+              required: [content_items]
+      responses:
+        '201':
+          description: Content items created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_count:
+                    type: integer
+                  failed_count:
+                    type: integer
+                  created_items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Content'
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                        error:
+                          type: string
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /courses/{course_id}/assignments:
+    parameters:
+      - name: course_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get assignments for a course
+      tags:
+        - Assignments
+      responses:
+        '200':
+          description: Course assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      summary: Create assignment for course
+      tags:
+        - Assignments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentCreate'
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/AssignmentCreate'
+                - type: object
+                  properties:
+                    files:
+                      type: array
+                      items:
+                        type: string
+                        format: binary
+      responses:
+        '201':
+          description: Assignment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /courses/{course_id}/assignments/bulk:
+    parameters:
+      - name: course_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      summary: Create multiple assignments for course
+      tags:
+        - Assignments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assignments:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AssignmentCreate'
+              required: [assignments]
+      responses:
+        '201':
+          description: Assignments created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_count:
+                    type: integer
+                  failed_count:
+                    type: integer
+                  created_assignments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Assignment'
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                        error:
+                          type: string
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /assignments/{assignment_id}/file:
+    parameters:
+      - name: assignment_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      summary: Upload file to assignment
+      tags:
+        - Assignments
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+              required:
+                - file
+      responses:
+        '201':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  file_id:
+                    type: string
+                  filename:
+                    type: string
+                  size:
+                    type: integer
+                  url:
+                    type: string
+                    format: uri
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /assignments/{assignment_id}/submissions:
+    parameters:
+      - name: assignment_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get all submissions for an assignment
+      tags:
+        - Submissions
+      responses:
+        '200':
+          description: Assignment submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Submission'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      summary: Submit assignment
+      tags:
+        - Submissions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionCreate'
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/SubmissionCreate'
+                - type: object
+                  properties:
+                    files:
+                      type: array
+                      items:
+                        type: string
+                        format: binary
+      responses:
+        '201':
+          description: Submission created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /submissions/{submission_id}/file:
+    parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      summary: Upload file to submission
+      tags:
+        - Submissions
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+              required:
+                - file
+      responses:
+        '201':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  file_id:
+                    type: string
+                  filename:
+                    type: string
+                  size:
+                    type: integer
+                  url:
+                    type: string
+                    format: uri
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /submissions/{submission_id}/grade:
+    parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      summary: Grade a submission
+      tags:
+        - Grades
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeCreate'
+      responses:
+        '200':
+          description: Submission graded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /enrollments:
+    get:
+      summary: List enrollments
+      tags:
+        - Enrollments
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: user_id
+          in: query
+          description: Filter by user
+          schema:
+            type: integer
+        - name: course_id
+          in: query
+          description: Filter by course
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of enrollments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Enrollment'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      summary: Enroll user in course
+      tags:
+        - Enrollments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                course_id:
+                  type: integer
+              required: [user_id, course_id]
+      responses:
+        '201':
+          description: Enrollment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: User already enrolled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /enrollments/bulk:
+    post:
+      summary: Enroll multiple users in courses
+      tags:
+        - Enrollments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enrollments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                      course_id:
+                        type: integer
+                    required: [user_id, course_id]
+              required: [enrollments]
+      responses:
+        '201':
+          description: Enrollments processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_count:
+                    type: integer
+                  failed_count:
+                    type: integer
+                  created_enrollments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Enrollment'
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                        error:
+                          type: string
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /enrollments/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      summary: Cancel enrollment
+      tags:
+        - Enrollments
+      responses:
+        '204':
+          description: Enrollment canceled
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{user_id}/progress:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get user's progress across all courses
+      tags:
+        - Progress
+      responses:
+        '200':
+          description: User progress
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Progress'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{user_id}/courses/{course_id}/progress:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: course_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get user's progress for specific course
+      tags:
+        - Progress
+      responses:
+        '200':
+          description: Course progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Progress'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      summary: Update user's progress for a course
+      tags:
+        - Progress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgressUpdate'
+      responses:
+        '200':
+          description: Progress updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Progress'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /search:
+    get:
+      summary: Global search across platform
+      tags:
+        - Search
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [course, user, content, assignment]
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  courses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Course'
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserPublic'
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Content'
+                  assignments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Assignment'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    LimitParam:
+      name: limit
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  headers:
+    X-RateLimit-Limit:
+      schema:
+        type: integer
+      description: The number of allowed requests in the current period
+    X-RateLimit-Remaining:
+      schema:
+        type: integer
+      description: The number of remaining requests in the current period
+    X-RateLimit-Reset:
+      schema:
+        type: integer
+      description: The time in seconds until the rate limit resets
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      headers:
+        X-RateLimit-Limit:
+          $ref: '#/components/headers/X-RateLimit-Limit'
+        X-RateLimit-Remaining:
+          $ref: '#/components/headers/X-RateLimit-Remaining'
+        X-RateLimit-Reset:
+          $ref: '#/components/headers/X-RateLimit-Reset'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      headers:
+        X-RateLimit-Limit:
+          $ref: '#/components/headers/X-RateLimit-Limit'
+        X-RateLimit-Remaining:
+          $ref: '#/components/headers/X-RateLimit-Remaining'
+        X-RateLimit-Reset:
+          $ref: '#/components/headers/X-RateLimit-Reset'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      headers:
+        X-RateLimit-Limit:
+          $ref: '#/components/headers/X-RateLimit-Limit'
+        X-RateLimit-Remaining:
+          $ref: '#/components/headers/X-RateLimit-Remaining'
+        X-RateLimit-Reset:
+          $ref: '#/components/headers/X-RateLimit-Reset'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserCreate:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+        password:
+          type: string
+          format: password
+          minLength: 8
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+      required: [username, password, email]
+
+    UserUpdate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        password:
+          type: string
+          format: password
+          minLength: 8
+
+    UserPublic:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        full_name:
+          type: string
+        role_ids:
+          type: array
+          items:
+            type: integer
+        profile_picture_url:
+          type: string
+          format: uri
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    RoleCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+      required: [name]
+
+    RoleUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CategoryCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        parent_id:
+          type: integer
+          nullable: true
+      required: [name]
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        parent_id:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CourseCreate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        instructor_id:
+          type: integer
+        category_id:
+          type: integer
+        is_public:
+          type: boolean
+          default: false
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        image_url:
+          type: string
+          format: uri
+        difficulty_level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+      required: [title, instructor_id, category_id]
+
+    CourseUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        instructor_id:
+          type: integer
+        category_id:
+          type: integer
+        is_public:
+          type: boolean
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        image_url:
+          type: string
+          format: uri
+        difficulty_level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        instructor_id:
+          type: integer
+        instructor_username:
+          type: string
+        category_id:
+          type: integer
+        category_name:
+          type: string
+        is_public:
+          type: boolean
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        image_url:
+          type: string
+          format: uri
+        difficulty_level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        enrollment_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CourseDetail:
+      allOf:
+        - $ref: '#/components/schemas/Course'
+        - type: object
+          properties:
+            content_count:
+              type: integer
+            assignment_count:
+              type: integer
+            average_rating:
+              type: number
+              format: float
+
+    ContentCreate:
+      type: object
+      properties:
+        title:
+          type: string
+        content_type:
+          type: string
+          enum: [video, document, quiz, text, link]
+        content:
+          type: string
+        duration:
+          type: integer
+          description: Duration in minutes (for video content)
+        order:
+          type: integer
+      required: [title, content_type, content]
+
+    Content:
+      type: object
+      properties:
+        id:
+          type: integer
+        course_id:
+          type: integer
+        title:
+          type: string
+        content_type:
+          type: string
+          enum: [video, document, quiz, text, link]
+        content:
+          type: string
+        duration:
+          type: integer
+        order:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AssignmentCreate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        due_date:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        content_id:
+          type: integer
+          nullable: true
+      required: [title, due_date, points]
+
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: integer
+        course_id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        due_date:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        content_id:
+          type: integer
+          nullable: true
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              filename:
+                type: string
+              url:
+                type: string
+                format: uri
+              size:
+                type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SubmissionCreate:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        content:
+          type: string
+      required: [user_id, content]
+
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+        assignment_id:
+          type: integer
+        user_id:
+          type: integer
+        content:
+          type: string
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              filename:
+                type: string
+              url:
+                type: string
+                format: uri
+              size:
+                type: integer
+        submission_date:
+          type: string
+          format: date-time
+        grade_id:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    GradeCreate:
+      type: object
+      properties:
+        score:
+          type: number
+          format: float
+        feedback:
+          type: string
+        graded_by:
+          type: integer
+      required: [score, graded_by]
+
+    Grade:
+      type: object
+      properties:
+        id:
+          type: integer
+        submission_id:
+          type: integer
+        score:
+          type: number
+          format: float
+        feedback:
+          type: string
+        graded_by:
+          type: integer
+        grader_username:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Enrollment:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        user_username:
+          type: string
+        course_id:
+          type: integer
+        course_title:
+          type: string
+        enrollment_date:
+          type: string
+          format: date-time
+        completion_date:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [active, completed, dropped]
+          default: active
+
+    ProgressUpdate:
+      type: object
+      properties:
+        content_id:
+          type: integer
+        status:
+          type: string
+          enum: [not_started, in_progress, completed]
+        completion_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+      required: [content_id, status]
+
+    Progress:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        course_id:
+          type: integer
+        overall_progress:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+        content_progress:
+          type: array
+          items:
+            type: object
+            properties:
+              content_id:
+                type: integer
+              title:
+                type: string
+              status:
+                type: string
+                enum: [not_started, in_progress, completed]
+              completion_percentage:
+                type: number
+                minimum: 0
+                maximum: 100
+              last_accessed:
+                type: string
+                format: date-time
+        assignment_progress:
+          type: array
+          items:
+            type: object
+            properties:
+              assignment_id:
+                type: integer
+              title:
+                type: string
+              status:
+                type: string
+                enum: [not_started, submitted, graded]
+              score:
+                type: number
+                nullable: true
+        last_activity:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        per_page:
+          type: integer
+        current_page:
+          type: integer
+        last_page:
+          type: integer
+        from:
+          type: integer
+        to:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string

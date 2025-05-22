@@ -11,9 +11,10 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: process.env.NODE_ENV === 'production',
-  max: 20, // Maximum number of clients the pool should contain
-  idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
-  connectionTimeoutMillis: 2000, // How long to wait before timing out when connecting a new client
+  max: process.env.NODE_ENV === 'test' ? 5 : 20, // Reduce pool size in test environment
+  idleTimeoutMillis: process.env.NODE_ENV === 'test' ? 5000 : 30000,
+  connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT) || 2000,
+  statement_timeout: process.env.NODE_ENV === 'test' ? 5000 : 30000, // Set statement timeout
 });
 
 // Test the database connection
@@ -29,6 +30,8 @@ pool.connect((err, client, release) => {
 // Export the pool to be used in other modules
 module.exports = {
   query: (text, params) => pool.query(text, params),
+  pool, // Export the pool for direct access
+  end: () => pool.end(), // Add end method for tests
   getClient: async () => {
     const client = await pool.connect();
     const query = client.query;

@@ -14,26 +14,26 @@ class User {
   static async create(userData) {
     try {
       const { email, password, name, role = 'siswa', profileImage = null } = userData;
-      
+
       // Hash the password
       const passwordHash = await hashPassword(password);
-      
+
       const query = `
         INSERT INTO users (email, password_hash, name, role, profile_image)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING id, email, name, role, profile_image, created_at
       `;
-      
+
       const values = [email, passwordHash, name, role, profileImage];
       const result = await db.query(query, values);
-      
+
       return result.rows[0];
     } catch (error) {
       logger.error(`Error creating user: ${error.message}`);
       throw error;
     }
   }
-  
+
   /**
    * Find a user by email
    * @param {string} email - User email
@@ -43,14 +43,14 @@ class User {
     try {
       const query = 'SELECT * FROM users WHERE email = $1';
       const result = await db.query(query, [email]);
-      
+
       return result.rows[0] || null;
     } catch (error) {
       logger.error(`Error finding user by email: ${error.message}`);
       throw error;
     }
   }
-  
+
   /**
    * Find a user by ID
    * @param {number} id - User ID
@@ -60,14 +60,14 @@ class User {
     try {
       const query = 'SELECT id, email, name, role, profile_image, created_at FROM users WHERE id = $1';
       const result = await db.query(query, [id]);
-      
+
       return result.rows[0] || null;
     } catch (error) {
       logger.error(`Error finding user by ID: ${error.message}`);
       throw error;
     }
   }
-  
+
   /**
    * Update a user
    * @param {number} id - User ID
@@ -76,15 +76,15 @@ class User {
    */
   static async update(id, userData) {
     const client = await db.getClient();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       let query = 'UPDATE users SET ';
       const values = [];
       const updates = [];
       let paramCount = 1;
-      
+
       // Dynamically build the query based on provided fields
       for (const [key, value] of Object.entries(userData)) {
         // Handle password specially
@@ -100,20 +100,20 @@ class User {
         }
         paramCount++;
       }
-      
+
       // If no fields to update
       if (updates.length === 0) {
         await client.query('ROLLBACK');
         return null;
       }
-      
+
       query += updates.join(', ');
       query += ` WHERE id = $${paramCount} RETURNING id, email, name, role, profile_image as "profileImage", created_at`;
       values.push(id);
-      
+
       const result = await client.query(query, values);
       await client.query('COMMIT');
-      
+
       return result.rows[0] || null;
     } catch (error) {
       await client.query('ROLLBACK');
@@ -123,7 +123,7 @@ class User {
       client.release();
     }
   }
-  
+
   /**
    * Delete a user
    * @param {number} id - User ID
@@ -133,14 +133,14 @@ class User {
     try {
       const query = 'DELETE FROM users WHERE id = $1 RETURNING id';
       const result = await db.query(query, [id]);
-      
+
       return result.rowCount > 0;
     } catch (error) {
       logger.error(`Error deleting user: ${error.message}`);
       throw error;
     }
   }
-  
+
   /**
    * List all users with pagination and filtering
    * @param {Object} options - List options (page, limit, role, search)
@@ -155,22 +155,22 @@ class User {
         FROM
           users
       `;
-      
+
       const countQuery = 'SELECT COUNT(*) FROM users';
       const params = [];
       const countParams = [];
       let whereClause = '';
-      
+
       // Add filters if provided
       if (role || search) {
         whereClause = ' WHERE';
-        
+
         if (role) {
           whereClause += ' role = $1';
           params.push(role);
           countParams.push(role);
         }
-        
+
         if (search) {
           if (role) {
             whereClause += ' AND';
@@ -180,25 +180,25 @@ class User {
             params.push(`%${search}%`);
             countParams.push(`%${search}%`);
           }
-          
+
           whereClause += ` (name ILIKE $${params.length} OR email ILIKE $${params.length})`;
         }
       }
-      
+
       // Complete the queries
       query += whereClause + ` ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
       params.push(limit, offset);
-      
+
       const countQueryWithWhere = countQuery + whereClause;
-      
+
       // Execute queries
       const [usersResult, countResult] = await Promise.all([
         db.query(query, params),
         db.query(countQueryWithWhere, countParams)
       ]);
-      
+
       const total = parseInt(countResult.rows[0].count, 10);
-      
+
       return {
         data: usersResult.rows,
         pagination: {
@@ -214,6 +214,15 @@ class User {
       logger.error(`Error listing users: ${error.message}`);
       throw error;
     }
+  }
+
+  /**
+   * Hash a password
+   * @param {string} password - Password to hash
+   * @returns {Promise<string>} Hashed password
+   */
+  static async hashPassword(password) {
+    return await hashPassword(password);
   }
 }
 

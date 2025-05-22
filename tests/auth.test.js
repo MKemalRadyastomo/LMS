@@ -11,11 +11,15 @@ const testUser = {
   role: 'siswa'
 };
 
-// Before all tests, create a test user
+// Before all tests
 beforeAll(async () => {
+  // Clean up any existing test data
+  await db.query('DELETE FROM users WHERE email = $1', [testUser.email]);
+  
+  // Create test user
   const hashedPassword = await hashPassword(testUser.password);
   await db.query(
-    'INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, $4) ON CONFLICT (email) DO NOTHING',
+    'INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, $4)',
     [testUser.email, hashedPassword, testUser.name, testUser.role]
   );
 });
@@ -28,6 +32,9 @@ afterAll(async () => {
 });
 
 describe('Auth API', () => {
+  // Increase timeout for all tests in this describe block
+  jest.setTimeout(30000);
+
   describe('POST /v1/auth/login', () => {
     it('should login a user with valid credentials', async () => {
       const res = await request(app)

@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 const { apiLimiter } = require('./middleware/rateLimiter');
+const timeoutMiddleware = require('./middleware/timeout');
 const routes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/error');
 const logger = require('./utils/logger');
@@ -29,13 +31,18 @@ app.use(morgan('combined', { stream: logger.stream }));
 // Apply rate limiting to all requests
 app.use(apiLimiter);
 
-// Mount API routes
+// Apply timeout middleware (30 seconds timeout)
+app.use(timeoutMiddleware(30000));
+
+// API routes with v1 prefix
 app.use('/v1', routes);
 
-// 404 handler
-app.use(notFound);
+// Serve static files
+app.use(express.static('public'));
+app.use('/profile_pictures', express.static(path.join(__dirname, '../public/profile_pictures')));
 
-// Error handler
+// Error handling middlewares
+app.use(notFound);
 app.use(errorHandler);
 
 module.exports = app;

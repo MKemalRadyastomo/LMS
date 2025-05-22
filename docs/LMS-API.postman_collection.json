@@ -63,7 +63,7 @@
                 "register"
               ]
             },
-            "description": "Register a new user account"
+            "description": "Register a new user account (Requires Admin privileges)"
           },
           "response": []
         },
@@ -89,6 +89,31 @@
               ]
             },
             "description": "Get information about the currently authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Logout from the system"
           },
           "response": []
         }
@@ -119,6 +144,244 @@
         }
       ],
       "description": "System-related endpoints"
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Get user profile by ID. Only self or admin allowed."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"full_name\": \"User Name\",\n  \"password\": \"newpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Update user profile. Only self or admin allowed."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile Picture",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "profile_picture",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/users/{{userId}}/profile-picture",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "users",
+                "{{userId}}",
+                "profile-picture"
+              ]
+            },
+            "description": "Upload or update user profile picture. Only jpg, png, gif. Max 2MB. Only self or admin allowed."
+          },
+          "response": []
+        }
+      ],
+      "description": "User profile management endpoints (view, update, upload profile picture)"
+    },
+    {
+      "name": "Class Management",
+      "item": [
+        {
+          "name": "Create Class",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mathematics 101\",\n  \"description\": \"Introduction to Basic Mathematics\",\n  \"privacy\": \"public\",\n  \"teacherId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes"
+              ]
+            },
+            "description": "Create a new class (Admin/Teacher only)"
+          },
+          "response": []
+        },
+        {
+          "name": "List Classes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes?page=1&limit=10&search=math&privacy=public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "math"
+                },
+                {
+                  "key": "privacy",
+                  "value": "public"
+                }
+              ]
+            },
+            "description": "List all classes with pagination and filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Class Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes/{{classId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes",
+                "{{classId}}"
+              ]
+            },
+            "description": "Get details of a specific class"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Class",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mathematics 101 - Updated\",\n  \"description\": \"Updated description\",\n  \"privacy\": \"private\",\n  \"teacherId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes/{{classId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes",
+                "{{classId}}"
+              ]
+            },
+            "description": "Update class details (Admin/Teacher only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Class management endpoints"
     }
   ],
   "auth": {
