@@ -45,4 +45,18 @@ app.use('/profile_pictures', express.static(path.join(__dirname, '../public/prof
 app.use(notFound);
 app.use(errorHandler);
 
+// Add server and cleanup handling for tests
+if (process.env.NODE_ENV === 'test') {
+  let server;
+  app.startServer = () => {
+    server = app.listen(0); // Use port 0 to get random available port
+    return server;
+  };
+  app.closeServer = async () => {
+    if (server) {
+      await new Promise(resolve => server.close(resolve));
+    }
+  };
+}
+
 module.exports = app;

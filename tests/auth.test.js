@@ -1,24 +1,22 @@
 const request = require('supertest');
-const app = require('../src/app');
-const db = require('../src/config/db');
 const { hashPassword } = require('../src/utils/password');
 
-// Mock user data
+// Test data
 const testUser = {
   email: 'test@example.com',
   password: 'Test123!',
   name: 'Test User',
-  role: 'siswa'
+  role: 'admin'
 };
 
-// Before all tests
+// Before all tests in this file
 beforeAll(async () => {
   // Clean up any existing test data
-  await db.query('DELETE FROM users WHERE email = $1', [testUser.email]);
+  await global.__DB__.query('DELETE FROM users WHERE email LIKE $1', ['%@example.com']);
   
-  // Create test user
+  // Create test user with admin role
   const hashedPassword = await hashPassword(testUser.password);
-  await db.query(
+  await global.__DB__.query(
     'INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, $4)',
     [testUser.email, hashedPassword, testUser.name, testUser.role]
   );
@@ -26,24 +24,21 @@ beforeAll(async () => {
 
 // After all tests, clean up
 afterAll(async () => {
-  await db.query('DELETE FROM users WHERE email = $1', [testUser.email]);
-  // Close the pool to end the process
-  await db.end();
+  await global.__DB__.query('DELETE FROM users WHERE email LIKE $1', ['%@example.com']);
 });
 
 describe('Auth API', () => {
-  // Increase timeout for all tests in this describe block
-  jest.setTimeout(30000);
-
+  const server = global.__SERVER__;
+  
   describe('POST /v1/auth/login', () => {
     it('should login a user with valid credentials', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .post('/v1/auth/login')
         .send({
           username: testUser.email,
           password: testUser.password
         });
-      
+
       expect(res.statusCode).toEqual(200);
       expect(res.body).toHaveProperty('token');
       expect(res.body).toHaveProperty('user_id');
@@ -56,7 +51,7 @@ describe('Auth API', () => {
           username: testUser.email,
           password: 'wrongpassword'
         });
-      
+
       expect(res.statusCode).toEqual(401);
       expect(res.body).toHaveProperty('message');
     });
@@ -68,7 +63,7 @@ describe('Auth API', () => {
           // Missing password
           username: testUser.email
         });
-      
+
       expect(res.statusCode).toEqual(400);
       expect(res.body).toHaveProperty('errors');
     });
@@ -90,7 +85,7 @@ describe('Auth API', () => {
       const res = await request(app)
         .post('/v1/auth/register')
         .send(newUser);
-      
+
       expect(res.statusCode).toEqual(201);
       expect(res.body).toHaveProperty('id');
       expect(res.body).toHaveProperty('email', newUser.email);
@@ -107,7 +102,7 @@ describe('Auth API', () => {
           password: '123', // Too short
           full_name: ''    // Empty
         });
-      
+
       expect(res.statusCode).toEqual(400);
       expect(res.body).toHaveProperty('errors');
       expect(res.body.errors.length).toBeGreaterThan(0);
@@ -118,12 +113,12 @@ describe('Auth API', () => {
       await request(app)
         .post('/v1/auth/register')
         .send(newUser);
-      
+
       // Second registration with same email should fail
       const res = await request(app)
         .post('/v1/auth/register')
         .send(newUser);
-      
+
       expect(res.statusCode).toEqual(409);
       expect(res.body).toHaveProperty('message');
       expect(res.body.message).toContain('already registered');
@@ -141,7 +136,7 @@ describe('Auth API', () => {
           username: testUser.email,
           password: testUser.password
         });
-      
+
       authToken = res.body.token;
     });
 
@@ -149,7 +144,7 @@ describe('Auth API', () => {
       const res = await request(app)
         .get('/v1/auth/me')
         .set('Authorization', `Bearer ${authToken}`);
-      
+
       expect(res.statusCode).toEqual(200);
       expect(res.body).toHaveProperty('id');
       expect(res.body).toHaveProperty('email', testUser.email);
@@ -161,7 +156,7 @@ describe('Auth API', () => {
     it('should return 401 without authentication', async () => {
       const res = await request(app)
         .get('/v1/auth/me');
-      
+
       expect(res.statusCode).toEqual(401);
     });
 
@@ -169,7 +164,7 @@ describe('Auth API', () => {
       const res = await request(app)
         .get('/v1/auth/me')
         .set('Authorization', 'Bearer invalid-token');
-      
+
       expect(res.statusCode).toEqual(401);
     });
   });

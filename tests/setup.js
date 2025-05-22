@@ -21,5 +21,5 @@ jest.setTimeout(10000);
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Promise Rejection:', err);
+    console.error('Unhandled Promise Rejection:', err);
 });
