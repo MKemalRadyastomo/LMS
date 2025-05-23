@@ -13,7 +13,7 @@ class User {
    */
   static async create(userData) {
     try {
-      const { email, password, name, role = 'siswa', profileImage = null } = userData;
+      const { email, password, name, role, profileImage = null } = userData;
 
       // Hash the password
       const passwordHash = await hashPassword(password);

@@ -10,7 +10,7 @@ psql postgres -c "CREATE DATABASE lms_database;" 2>/dev/null || echo "Database m
 
 # Grant privileges to current user
 echo "Granting privileges..."
-psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE lms_database TO $USER;"
+psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE lms_database TO postgres;"
 
 # Initialize database schema
 echo "Initializing database schema..."

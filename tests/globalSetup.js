@@ -5,7 +5,7 @@ const db = require('../src/config/db');
 module.exports = async () => {
   // Create server instance
   const server = createServer(app);
-  
+
   // Start server on random port
   await new Promise(resolve => {
     server.listen(0, () => {

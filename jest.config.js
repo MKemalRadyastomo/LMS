@@ -1,7 +1,7 @@
 module.exports = {
-    testEnvironment: 'node',
-    setupFilesAfterEnv: ['./tests/setup.js'],
-  testTimeout: 60000,
+  testEnvironment: 'node',
+  setupFilesAfterEnv: ['./tests/setup.js'],
+  testTimeout: 20000, // 20 seconds
   verbose: true,
   forceExit: true,
   clearMocks: true,

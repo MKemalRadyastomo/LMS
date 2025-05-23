@@ -19,11 +19,11 @@ router.post('/login', authLimiter, ...loginValidation, validate(), AuthControlle
  * @desc User registration
  * @access Public
  */
-router.post('/register', 
-  authLimiter, 
+router.post('/register',
+  authLimiter,
   process.env.NODE_ENV === 'test' ? [] : [authenticate, authorize(['admin'])],
-  ...registerValidation, 
-  validate(), 
+  ...registerValidation,
+  validate(),
   AuthController.register
 );
 

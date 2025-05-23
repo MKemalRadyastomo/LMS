@@ -12,19 +12,19 @@ const dbConfig = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: process.env.NODE_ENV === 'production',
-  
+
   // Connection pool settings
   max: process.env.NODE_ENV === 'test' ? 2 : parseInt(process.env.DB_MAX_CONNECTIONS) || 20,
   min: process.env.NODE_ENV === 'test' ? 1 : parseInt(process.env.DB_MIN_CONNECTIONS) || 2,
-  
+
   // FIXED: Timeout settings - much more reasonable values
-  idleTimeoutMillis: process.env.NODE_ENV === 'test' 
-    ? 5000 
+  idleTimeoutMillis: process.env.NODE_ENV === 'test'
+    ? 5000
     : parseInt(process.env.DB_IDLE_TIMEOUT) || 30000, // 30 seconds (was 1 second)
   connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT) || 10000, // 10 seconds (was 1 second)
   statement_timeout: parseInt(process.env.DB_STATEMENT_TIMEOUT) || 30000, // 30 seconds (was 5 seconds)
   query_timeout: parseInt(process.env.DB_QUERY_TIMEOUT) || 30000, // 30 seconds
-  
+
   // Additional performance settings
   keepAlive: true,
   keepAliveInitialDelayMillis: 10000,
@@ -85,7 +85,7 @@ module.exports = {
 
     // FIXED: Increased timeout to 30 seconds and added better monitoring
     const CHECKOUT_TIMEOUT = parseInt(process.env.DB_CLIENT_CHECKOUT_TIMEOUT) || 30000;
-    
+
     const timeout = setTimeout(() => {
       const duration = Date.now() - startTime;
       logger.warn('Database client checked out for extended period', {
@@ -109,12 +109,12 @@ module.exports = {
     client.release = () => {
       const duration = Date.now() - startTime;
       clearTimeout(timeout);
-      
+
       logger.debug('Database client released', {
         duration: `${duration}ms`,
         processID: client.processID
       });
-      
+
       // Restore original methods
       client.query = query;
       client.release = release;

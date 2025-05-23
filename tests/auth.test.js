@@ -13,7 +13,7 @@ const testUser = {
 beforeAll(async () => {
   // Clean up any existing test data
   await global.__DB__.query('DELETE FROM users WHERE email LIKE $1', ['%@example.com']);
-  
+
   // Create test user with admin role
   const hashedPassword = await hashPassword(testUser.password);
   await global.__DB__.query(
@@ -29,7 +29,7 @@ afterAll(async () => {
 
 describe('Auth API', () => {
   const server = global.__SERVER__;
-  
+
   describe('POST /v1/auth/login', () => {
     it('should login a user with valid credentials', async () => {
       const res = await request(server)
@@ -45,7 +45,7 @@ describe('Auth API', () => {
     });
 
     it('should return 401 with invalid credentials', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .post('/v1/auth/login')
         .send({
           username: testUser.email,
@@ -57,7 +57,7 @@ describe('Auth API', () => {
     });
 
     it('should validate the request body', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .post('/v1/auth/login')
         .send({
           // Missing password
@@ -78,11 +78,11 @@ describe('Auth API', () => {
 
     afterEach(async () => {
       // Clean up after each test
-      await db.query('DELETE FROM users WHERE email = $1', [newUser.email]);
+      await global.__DB__.query('DELETE FROM users WHERE email = $1', [newUser.email]);
     });
 
     it('should register a new user', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .post('/v1/auth/register')
         .send(newUser);
 
@@ -95,7 +95,7 @@ describe('Auth API', () => {
     });
 
     it('should validate the request body', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .post('/v1/auth/register')
         .send({
           email: 'invalid-email',
@@ -110,12 +110,12 @@ describe('Auth API', () => {
 
     it('should not allow duplicate email registration', async () => {
       // First registration should succeed
-      await request(app)
+      await request(server)
         .post('/v1/auth/register')
         .send(newUser);
 
       // Second registration with same email should fail
-      const res = await request(app)
+      const res = await request(server)
         .post('/v1/auth/register')
         .send(newUser);
 
@@ -130,7 +130,7 @@ describe('Auth API', () => {
 
     beforeAll(async () => {
       // Login to get token
-      const res = await request(app)
+      const res = await request(server)
         .post('/v1/auth/login')
         .send({
           username: testUser.email,
@@ -141,7 +141,7 @@ describe('Auth API', () => {
     });
 
     it('should return the current user profile', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .get('/v1/auth/me')
         .set('Authorization', `Bearer ${authToken}`);
 
@@ -154,14 +154,14 @@ describe('Auth API', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .get('/v1/auth/me');
 
       expect(res.statusCode).toEqual(401);
     });
 
     it('should return 401 with invalid token', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .get('/v1/auth/me')
         .set('Authorization', 'Bearer invalid-token');
 
