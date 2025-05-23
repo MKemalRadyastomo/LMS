@@ -12,7 +12,7 @@ const router = express.Router();
  * @desc User login
  * @access Public
  */
-router.post('/login', authLimiter, loginValidation, validate, AuthController.login);
+router.post('/login', authLimiter, ...loginValidation, validate(), AuthController.login);
 
 /**
  * @route POST /auth/register
@@ -22,8 +22,8 @@ router.post('/login', authLimiter, loginValidation, validate, AuthController.log
 router.post('/register', 
   authLimiter, 
   process.env.NODE_ENV === 'test' ? [] : [authenticate, authorize(['admin'])],
-  registerValidation, 
-  validate, 
+  ...registerValidation, 
+  validate(), 
   AuthController.register
 );
 

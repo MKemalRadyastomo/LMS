@@ -3,7 +3,7 @@ const { badRequest } = require('../utils/ApiError');
 const logger = require('../utils/logger');
 
 /**
- * Authentication Controller
+ * Authentication Controller with Performance Monitoring
  */
 class AuthController {
   /**
@@ -13,18 +13,56 @@ class AuthController {
    * @param {Function} next - Express next middleware function
    */
   static async login(req, res, next) {
+    const startTime = Date.now();
+    const requestId = req.id || Math.random().toString(36).substr(2, 9);
+    
+    logger.info('Login attempt started', {
+      requestId,
+      username: req.body.username,
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    
     try {
       const { username, password } = req.body;
 
       if (!username || !password) {
+        const duration = Date.now() - startTime;
+        logger.warn('Login failed: Missing credentials', {
+          requestId,
+          duration: `${duration}ms`,
+          hasUsername: !!username,
+          hasPassword: !!password
+        });
         return next(badRequest('Username and password are required'));
       }
 
+      logger.debug('Starting AuthService.login', {
+        requestId,
+        username,
+        elapsed: `${Date.now() - startTime}ms`
+      });
+      
       const result = await AuthService.login(username, password);
-
+      
+      const duration = Date.now() - startTime;
+      logger.info('Login successful', {
+        requestId,
+        username,
+        userId: result.user_id,
+        duration: `${duration}ms`
+      });
+      
       return res.status(200).json(result);
     } catch (error) {
-      logger.error(`Login controller error: ${error.message}`);
+      const duration = Date.now() - startTime;
+      logger.error('Login controller error', {
+        requestId,
+        username: req.body.username,
+        duration: `${duration}ms`,
+        error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
       return next(error);
     }
   }
@@ -36,6 +74,17 @@ class AuthController {
    * @param {Function} next - Express next middleware function
    */
   static async register(req, res, next) {
+    const startTime = Date.now();
+    const requestId = req.id || Math.random().toString(36).substr(2, 9);
+    
+    logger.info('Registration attempt started', {
+      requestId,
+      email: req.body.email,
+      role: req.body.role,
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    
     try {
       const { email, password, full_name, role } = req.body;
 
@@ -47,14 +96,46 @@ class AuthController {
       };
 
       if (!userData.email || !userData.password || !userData.name || !userData.role) {
+        const duration = Date.now() - startTime;
+        logger.warn('Registration failed: Missing required fields', {
+          requestId,
+          duration: `${duration}ms`,
+          hasEmail: !!userData.email,
+          hasPassword: !!userData.password,
+          hasName: !!userData.name,
+          hasRole: !!userData.role
+        });
         return next(badRequest('Email, password, name, and role are required'));
       }
 
+      logger.debug('Starting AuthService.register', {
+        requestId,
+        email: userData.email,
+        role: userData.role,
+        elapsed: `${Date.now() - startTime}ms`
+      });
+      
       const result = await AuthService.register(userData);
+      
+      const duration = Date.now() - startTime;
+      logger.info('Registration successful', {
+        requestId,
+        email: userData.email,
+        userId: result.id,
+        role: result.role,
+        duration: `${duration}ms`
+      });
 
       return res.status(201).json(result);
     } catch (error) {
-      logger.error(`Registration controller error: ${error.message}`);
+      const duration = Date.now() - startTime;
+      logger.error('Registration controller error', {
+        requestId,
+        email: req.body.email,
+        duration: `${duration}ms`,
+        error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
       return next(error);
     }
   }

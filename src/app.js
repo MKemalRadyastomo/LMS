@@ -31,8 +31,8 @@ app.use(morgan('combined', { stream: logger.stream }));
 // Apply rate limiting to all requests
 app.use(apiLimiter);
 
-// Apply timeout middleware (30 seconds timeout)
-app.use(timeoutMiddleware(30000));
+// Apply timeout middleware (uses environment variable or defaults to 60 seconds)
+app.use(timeoutMiddleware());
 
 // API routes with v1 prefix
 app.use('/v1', routes);

@@ -1,28 +1,73 @@
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
+const logger = require('../utils/logger');
 
 dotenv.config();
 
-// Create a connection pool
-const pool = new Pool({
+// Database configuration with environment variables and sensible defaults
+const dbConfig = {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: process.env.NODE_ENV === 'production',
-  max: process.env.NODE_ENV === 'test' ? 2 : 20, // Reduce pool size in test environment
-  idleTimeoutMillis: 1000, // Short idle timeout for tests
-  connectionTimeoutMillis: 1000, // Short connection timeout
-  statement_timeout: 5000 // Short statement timeout
+  
+  // Connection pool settings
+  max: process.env.NODE_ENV === 'test' ? 2 : parseInt(process.env.DB_MAX_CONNECTIONS) || 20,
+  min: process.env.NODE_ENV === 'test' ? 1 : parseInt(process.env.DB_MIN_CONNECTIONS) || 2,
+  
+  // FIXED: Timeout settings - much more reasonable values
+  idleTimeoutMillis: process.env.NODE_ENV === 'test' 
+    ? 5000 
+    : parseInt(process.env.DB_IDLE_TIMEOUT) || 30000, // 30 seconds (was 1 second)
+  connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT) || 10000, // 10 seconds (was 1 second)
+  statement_timeout: parseInt(process.env.DB_STATEMENT_TIMEOUT) || 30000, // 30 seconds (was 5 seconds)
+  query_timeout: parseInt(process.env.DB_QUERY_TIMEOUT) || 30000, // 30 seconds
+  
+  // Additional performance settings
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
+  application_name: `lms_${process.env.NODE_ENV || 'development'}`
+};
+
+// Create a connection pool
+const pool = new Pool(dbConfig);
+
+// Handle pool errors
+pool.on('error', (err) => {
+  logger.error('Database pool error:', err);
 });
 
-// Test the database connection
+pool.on('connect', (client) => {
+  logger.info(`New database client connected (PID: ${client.processID})`);
+});
+
+pool.on('acquire', (client) => {
+  logger.debug(`Database client acquired (PID: ${client.processID})`);
+});
+
+pool.on('remove', (client) => {
+  logger.info(`Database client removed (PID: ${client.processID})`);
+});
+
+// Test the database connection with better error handling
 pool.connect((err, client, release) => {
   if (err) {
-    console.error('Error connecting to the database:', err.message);
+    logger.error('Error connecting to the database:', {
+      message: err.message,
+      code: err.code,
+      detail: err.detail,
+      hint: err.hint,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   } else {
-    console.log('Successfully connected to the database');
+    logger.info('Successfully connected to the database', {
+      host: dbConfig.host,
+      database: dbConfig.database,
+      user: dbConfig.user,
+      processID: client.processID
+    });
     release();
   }
 });
@@ -36,21 +81,41 @@ module.exports = {
     const client = await pool.connect();
     const query = client.query;
     const release = client.release;
+    const startTime = Date.now();
 
-    // Set a timeout of 5 seconds, after which we will log this client's last query
+    // FIXED: Increased timeout to 30 seconds and added better monitoring
+    const CHECKOUT_TIMEOUT = parseInt(process.env.DB_CLIENT_CHECKOUT_TIMEOUT) || 30000;
+    
     const timeout = setTimeout(() => {
-      console.error('A client has been checked out for more than 5 seconds!');
-      console.error(`The last executed query on this client was: ${client.lastQuery}`);
-    }, 5000);
+      const duration = Date.now() - startTime;
+      logger.warn('Database client checked out for extended period', {
+        duration: `${duration}ms`,
+        processID: client.processID,
+        lastQuery: client.lastQuery,
+        threshold: `${CHECKOUT_TIMEOUT}ms`
+      });
+    }, CHECKOUT_TIMEOUT);
 
     // Monkey patch the query method to keep track of the last query executed
     client.query = (...args) => {
-      client.lastQuery = args;
+      client.lastQuery = {
+        query: args[0],
+        params: args[1] ? '[PARAMS_HIDDEN]' : undefined, // Hide sensitive data
+        timestamp: new Date().toISOString()
+      };
       return query.apply(client, args);
     };
 
     client.release = () => {
+      const duration = Date.now() - startTime;
       clearTimeout(timeout);
+      
+      logger.debug('Database client released', {
+        duration: `${duration}ms`,
+        processID: client.processID
+      });
+      
+      // Restore original methods
       client.query = query;
       client.release = release;
       return release.apply(client);
