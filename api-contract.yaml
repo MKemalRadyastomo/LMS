@@ -3,6 +3,9 @@ info:
   title: Online Learning Platform API
   description: API for managing users, roles, courses, enrollments, content, assignments, and progress in an online learning system with RBAC.
   version: 1.0.0
+  contact:
+    name: LMS Development Team
+    email: dev@lms.com
 servers:
   - url: https://api.onlinelearning.com/v{version}
     variables:
@@ -11,6 +14,10 @@ servers:
           - '1'
           - '2'
         default: '1'
+  - url: http://localhost:3000/api/v1
+    description: Development server
+  - url: https://api.lms.com/v1
+    description: Production server
 
 security:
   - bearerAuth: []
@@ -30,7 +37,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  version: 
+                  version:
                     type: string
                   release_date:
                     type: string
@@ -1794,6 +1801,581 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  # Student Enrollment Endpoints
+  /classes/{classId}/enrollments:
+    get:
+      summary: Get all enrolled students in a class
+      description: Retrieve list of students enrolled in a specific class
+      tags:
+        - Enrollments
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the class
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Number of items per page
+      responses:
+        '200':
+          description: Successfully retrieved enrolled students
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      enrollments:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EnrollmentResponse'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+                  message:
+                    type: string
+                    example: "Students retrieved successfully"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      summary: Enroll single student to class
+      description: Add a single student to a class
+      tags:
+        - Enrollments
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the class
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - studentId
+              properties:
+                studentId:
+                  type: string
+                  description: Unique identifier of the student
+                  example: "student_123"
+                enrollmentDate:
+                  type: string
+                  format: date
+                  description: Date of enrollment (optional, defaults to current date)
+                  example: "2024-01-15"
+                status:
+                  type: string
+                  enum: [active, pending, inactive]
+                  default: active
+                  description: Enrollment status
+      responses:
+        '201':
+          description: Student successfully enrolled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/EnrollmentResponse'
+                  message:
+                    type: string
+                    example: "Student enrolled successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Student already enrolled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: "DUPLICATE_ENROLLMENT"
+                  message: "Student is already enrolled in this class"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /classes/{classId}/enrollments/bulk:
+    post:
+      summary: Bulk enroll students via CSV upload
+      description: Enroll multiple students to a class by uploading CSV file
+      tags:
+        - Enrollments
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the class
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - csvFile
+              properties:
+                csvFile:
+                  type: string
+                  format: binary
+                  description: CSV file containing student data
+                skipDuplicates:
+                  type: boolean
+                  default: true
+                  description: Skip students who are already enrolled
+                sendNotifications:
+                  type: boolean
+                  default: true
+                  description: Send enrollment notifications to students
+            encoding:
+              csvFile:
+                contentType: text/csv
+      responses:
+        '200':
+          description: Bulk enrollment completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      totalProcessed:
+                        type: integer
+                        example: 50
+                      successfulEnrollments:
+                        type: integer
+                        example: 45
+                      failedEnrollments:
+                        type: integer
+                        example: 5
+                      duplicates:
+                        type: integer
+                        example: 3
+                      errors:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            row:
+                              type: integer
+                            studentId:
+                              type: string
+                            error:
+                              type: string
+                      enrolledStudents:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EnrollmentResponse'
+                  message:
+                    type: string
+                    example: "Bulk enrollment completed"
+        '400':
+          description: Invalid CSV file or format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: "INVALID_CSV_FORMAT"
+                  message: "CSV file format is invalid. Required columns: studentId, email, name"
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /classes/{classId}/enrollment-code:
+    get:
+      summary: Get class enrollment code
+      description: Retrieve the enrollment code for a class
+      tags:
+        - Enrollments
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the class
+      responses:
+        '200':
+          description: Successfully retrieved enrollment code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      enrollmentCode:
+                        type: string
+                        example: "ABC123"
+                      isActive:
+                        type: boolean
+                        example: true
+                      expiresAt:
+                        type: string
+                        format: date-time
+                        example: "2024-12-31T23:59:59Z"
+                      maxEnrollments:
+                        type: integer
+                        example: 100
+                      currentEnrollments:
+                        type: integer
+                        example: 45
+                  message:
+                    type: string
+                    example: "Enrollment code retrieved successfully"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      summary: Generate new enrollment code
+      description: Generate a new enrollment code for a class
+      tags:
+        - Enrollments
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the class
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expiresAt:
+                  type: string
+                  format: date-time
+                  description: When the enrollment code expires
+                  example: "2024-12-31T23:59:59Z"
+                maxEnrollments:
+                  type: integer
+                  description: Maximum number of students who can use this code
+                  example: 100
+                isActive:
+                  type: boolean
+                  default: true
+                  description: Whether the code is active
+      responses:
+        '201':
+          description: Enrollment code generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      enrollmentCode:
+                        type: string
+                        example: "XYZ789"
+                      isActive:
+                        type: boolean
+                        example: true
+                      expiresAt:
+                        type: string
+                        format: date-time
+                      maxEnrollments:
+                        type: integer
+                      createdAt:
+                        type: string
+                        format: date-time
+                  message:
+                    type: string
+                    example: "Enrollment code generated successfully"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    put:
+      summary: Update enrollment code settings
+      description: Update enrollment code settings for a class
+      tags:
+        - Enrollments
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isActive:
+                  type: boolean
+                  description: Activate or deactivate the enrollment code
+                expiresAt:
+                  type: string
+                  format: date-time
+                  description: Update expiration date
+                maxEnrollments:
+                  type: integer
+                  description: Update maximum enrollments
+      responses:
+        '200':
+          description: Enrollment code updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      enrollmentCode:
+                        type: string
+                      isActive:
+                        type: boolean
+                      expiresAt:
+                        type: string
+                        format: date-time
+                      maxEnrollments:
+                        type: integer
+                  message:
+                    type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /enrollments/join:
+    post:
+      summary: Student self-enrollment using code
+      description: Allow students to enroll themselves using enrollment code
+      tags:
+        - Enrollments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - enrollmentCode
+              properties:
+                enrollmentCode:
+                  type: string
+                  description: The enrollment code for the class
+                  example: "ABC123"
+      responses:
+        '201':
+          description: Successfully enrolled in class
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      enrollment:
+                        $ref: '#/components/schemas/EnrollmentResponse'
+                      class:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          name:
+                            type: string
+                          description:
+                            type: string
+                  message:
+                    type: string
+                    example: "Successfully enrolled in class"
+        '400':
+          description: Invalid or expired enrollment code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_code:
+                  value:
+                    success: false
+                    error:
+                      code: "INVALID_ENROLLMENT_CODE"
+                      message: "Enrollment code is invalid or expired"
+                max_capacity:
+                  value:
+                    success: false
+                    error:
+                      code: "ENROLLMENT_LIMIT_REACHED"
+                      message: "Maximum enrollment capacity has been reached"
+        '409':
+          description: Already enrolled in class
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /classes/{classId}/enrollments/{enrollmentId}:
+    delete:
+      summary: Remove student from class
+      description: Remove a student's enrollment from a class
+      tags:
+        - Enrollments
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: enrollmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Student removed from class successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Student removed from class successfully"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # Students Management
+  /students:
+    get:
+      summary: Get available students for enrollment
+      description: Retrieve list of students available for enrollment
+      tags:
+        - Students
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search students by name or email
+        - name: excludeClassId
+          in: query
+          schema:
+            type: string
+          description: Exclude students already enrolled in this class
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successfully retrieved students
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      students:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Student'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
 components:
   parameters:
     PageParam:
@@ -1874,6 +2456,55 @@ components:
           $ref: '#/components/headers/X-RateLimit-Remaining'
         X-RateLimit-Reset:
           $ref: '#/components/headers/X-RateLimit-Reset'
+    EnrollmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "enroll_123"
+        studentId:
+          type: string
+          example: "student_123"
+        classId:
+          type: string
+          example: "class_456"
+        enrollmentDate:
+          type: string
+          format: date
+          example: "2024-01-15"
+        status:
+          type: string
+          enum: [active, pending, inactive, completed, dropped]
+          example: "active"
+        student:
+          $ref: '#/components/schemas/Student'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "The provided data is invalid"
+            details:
+              type: object
+              description: Additional error details
 
   securitySchemes:
     bearerAuth:
@@ -2410,3 +3041,67 @@ components:
             type: array
             items:
               type: string
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "student_123"
+        email:
+          type: string
+          format: email
+          example: "student@example.com"
+        name:
+          type: string
+          example: "John Doe"
+        studentId:
+          type: string
+          example: "STD001"
+        avatar:
+          type: string
+          format: uri
+          example: "https://example.com/avatar.jpg"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+
+tags:
+  - name: System
+    description: System related endpoints
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User management
+  - name: Roles
+    description: Role and permission management
+  - name: Categories
+    description: Course category management
+  - name: Courses
+    description: Course management
+  - name: Course Content
+    description: Managing content within courses
+  - name: Assignments
+    description: Assignment management
+  - name: Submissions
+    description: Assignment submissions
+  - name: Grades
+    description: Grading submissions
+  - name: Enrollments
+    description: User enrollment in courses
+  - name: Progress
+    description: Tracking user progress
+  - name: Search
+    description: Global search functionality
+  - name: Enrollments
+    description: Student enrollment management
+  - name: Students
+    description: Student management

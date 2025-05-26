@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "60f8a5d5-1a1d-4b7c-957a-8f42ce89e7c1",
     "name": "LMS API",
-    "description": "API collection for Online Learning Platform",
+    "description": "API collection for Online Learning Platform, including user, role, course, enrollment, content, assignment, progress, and student management.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -382,6 +382,331 @@
         }
       ],
       "description": "Class management endpoints"
+    },
+    {
+      "name": "Enrollment Management",
+      "item": [
+        {
+          "name": "Get Enrolled Students in Class",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes/{{classId}}/enrollments?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes",
+                "{{classId}}",
+                "enrollments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Retrieve list of students enrolled in a specific class"
+          },
+          "response": []
+        },
+        {
+          "name": "Enroll Single Student to Class",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"enrollmentDate\": \"2024-01-15\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes/{{classId}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes",
+                "{{classId}}",
+                "enrollments"
+              ]
+            },
+            "description": "Add a single student to a class"
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Enroll Students via CSV",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "csvFile",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "skipDuplicates",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "sendNotifications",
+                  "value": "true",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes/{{classId}}/enrollments/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes",
+                "{{classId}}",
+                "enrollments",
+                "bulk"
+              ]
+            },
+            "description": "Enroll multiple students to a class by uploading CSV file"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Class Enrollment Code",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes/{{classId}}/enrollment-code",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes",
+                "{{classId}}",
+                "enrollment-code"
+              ]
+            },
+            "description": "Retrieve the enrollment code for a class"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate New Enrollment Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expiresAt\": \"2024-12-31T23:59:59Z\",\n  \"maxEnrollments\": 100,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes/{{classId}}/enrollment-code",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes",
+                "{{classId}}",
+                "enrollment-code"
+              ]
+            },
+            "description": "Generate a new enrollment code for a class"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Enrollment Code Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false,\n  \"expiresAt\": \"2025-12-31T23:59:59Z\",\n  \"maxEnrollments\": 200\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes/{{classId}}/enrollment-code",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes",
+                "{{classId}}",
+                "enrollment-code"
+              ]
+            },
+            "description": "Update enrollment code settings for a class"
+          },
+          "response": []
+        },
+        {
+          "name": "Student Self-Enrollment using Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollmentCode\": \"ABC123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/enrollments/join",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "enrollments",
+                "join"
+              ]
+            },
+            "description": "Allow students to enroll themselves using enrollment code"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Student from Class",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes/{{classId}}/enrollments/{{enrollmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes",
+                "{{classId}}",
+                "enrollments",
+                "{{enrollmentId}}"
+              ]
+            },
+            "description": "Remove a student's enrollment from a class"
+          },
+          "response": []
+        }
+      ],
+      "description": "Student enrollment management"
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "Get Available Students for Enrollment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/students?page=1&limit=20&search=John&excludeClassId={{classId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": "John"
+                },
+                {
+                  "key": "excludeClassId",
+                  "value": "{{classId}}"
+                }
+              ]
+            },
+            "description": "Retrieve list of students available for enrollment"
+          },
+          "response": []
+        }
+      ],
+      "description": "Student management"
     }
   ],
   "auth": {
@@ -431,6 +756,24 @@
       "key": "authToken",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "classId",
+      "value": "1",
+      "type": "string",
+      "description": "ID of the class"
+    },
+    {
+      "key": "studentId",
+      "value": "1",
+      "type": "string",
+      "description": "ID of the student"
+    },
+    {
+      "key": "enrollmentId",
+      "value": "1",
+      "type": "string",
+      "description": "ID of the enrollment"
     }
   ]
 }
