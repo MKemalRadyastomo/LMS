@@ -1,9 +1,11 @@
 {
   "info": {
-    "_postman_id": "60f8a5d5-1a1d-4b7c-957a-8f42ce89e7c1",
+    "_postman_id": "f646348a-7538-42a4-8896-72b232ff96d1",
     "name": "LMS API",
     "description": "API collection for Online Learning Platform, including user, role, course, enrollment, content, assignment, progress, and student management.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "45324042",
+    "_collection_link": "https://mkemalradyastomo-1388103.postman.co/workspace/M-Kemal-Radyastomo's-Workspace~c5f498d7-90ca-4b61-821b-9b0211d88504/collection/45324042-f646348a-7538-42a4-8896-72b232ff96d1?action=share&source=collection_link&creator=45324042"
   },
   "item": [
     {
@@ -11,6 +13,21 @@
       "item": [
         {
           "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.environment.set('authToken', responseJson.token);\r",
+                  "pm.environment.set('userId', responseJson.user_id);\r",
+                  "console.log('Authentication token saved to environment');"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -21,7 +38,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"username\": \"newuser@example.com\",\n  \"password\": \"Password123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/auth/login",
@@ -50,7 +67,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Password123!\",\n  \"full_name\": \"New User\"\n}"
+              "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"Password123!\",\n    \"full_name\": \"New User\",\n    \"role\" : \"siswa\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/auth/register",
@@ -221,8 +238,8 @@
               "formdata": [
                 {
                   "key": "profile_picture",
-                  "type": "file",
-                  "src": ""
+                  "value": "",
+                  "type": "file"
                 }
               ]
             },
@@ -471,8 +488,8 @@
               "formdata": [
                 {
                   "key": "csvFile",
-                  "type": "file",
-                  "src": ""
+                  "value": "",
+                  "type": "file"
                 },
                 {
                   "key": "skipDuplicates",
@@ -760,20 +777,17 @@
     {
       "key": "classId",
       "value": "1",
-      "type": "string",
-      "description": "ID of the class"
+      "type": "string"
     },
     {
       "key": "studentId",
       "value": "1",
-      "type": "string",
-      "description": "ID of the student"
+      "type": "string"
     },
     {
       "key": "enrollmentId",
       "value": "1",
-      "type": "string",
-      "description": "ID of the enrollment"
+      "type": "string"
     }
   ]
 }
