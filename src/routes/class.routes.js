@@ -10,4 +10,7 @@ router.get('/', authenticate, validate(classValidation.listClasses), classContro
 router.get('/:id', authenticate, validate(classValidation.getClass), classController.getClass);
 router.put('/:id', authenticate, validate(classValidation.updateClass), classController.updateClass);
 
+// Route for enrolling a single student
+router.post('/:classId/enrollments', authenticate, validate(classValidation.enrollStudent), classController.enrollStudent);
+
 module.exports = router;

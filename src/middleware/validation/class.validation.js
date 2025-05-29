@@ -37,9 +37,21 @@ const listClasses = {
     })
 };
 
+const enrollStudent = {
+    params: Joi.object({
+        classId: Joi.number().integer().positive().required()
+    }),
+    body: Joi.object({
+        studentId: Joi.number().integer().positive().required(),
+        enrollmentDate: Joi.date().required(),
+        status: Joi.string().required()
+    })
+};
+
 module.exports = {
     createClass,
     updateClass,
     getClass,
-    listClasses
+    listClasses,
+    enrollStudent
 };

@@ -1,4 +1,5 @@
 const Class = require('../models/class.model');
+const Enrollment = require('../models/enrollment.model'); // Import Enrollment model
 const { forbidden } = require('../utils/ApiError');
 
 exports.createClass = async (req, res, next) => {
@@ -17,6 +18,21 @@ exports.createClass = async (req, res, next) => {
 
         const newClass = await Class.create(classData);
         res.status(201).json(newClass);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.enrollStudent = async (req, res, next) => {
+    try {
+        // TODO: Implement authorization check (e.g., only admin or teacher can enroll students)
+
+        const classId = req.params.classId;
+        const { studentId, enrollmentDate, status } = req.body;
+
+        const enrollment = await Enrollment.create({ classId, studentId, enrollmentDate, status });
+
+        res.status(201).json(enrollment); // Send the created enrollment data
     } catch (err) {
         next(err);
     }
