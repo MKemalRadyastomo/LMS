@@ -82,6 +82,41 @@
             },
             "description": "Register a new user account (Requires Admin privileges)"
           },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const randomString = (length) => {",
+                  "    let result = '';",
+                  "    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321';",
+                  "    const charactersLength = characters.length;",
+                  "    for (let i = 0; i < length; i++) {",
+                  "        result += characters.charAt(Math.floor(Math.random() * charactersLength));",
+                  "    }",
+                  "    return result;",
+                  "};",
+                  "",
+                  "const randomEmail = `user_${randomString(8)}@example.com`;",
+                  "const randomUsername = `user_${randomString(6)}`;",
+                  "const roles = [\"siswa\", \"guru\", \"admin\"];",
+                  "const randomRole = roles[Math.floor(Math.random() * roles.length)];",
+                  "",
+                  "const requestBody = JSON.parse(pm.request.body.raw);",
+                  "requestBody.email = randomEmail;",
+                  "requestBody.full_name = randomUsername; // Assuming full_name can be used as username",
+                  "requestBody.role = randomRole;",
+                  "",
+                  "pm.request.body.raw = JSON.stringify(requestBody, null, 2);",
+                  "",
+                  "console.log(`Generated Email: ${randomEmail}`);",
+                  "console.log(`Generated Username: ${randomUsername}`);",
+                  "console.log(`Generated Role: ${randomRole}`);"
+                ]
+              }
+            }
+          ],
           "response": []
         },
         {
@@ -481,6 +516,10 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
             "body": {
