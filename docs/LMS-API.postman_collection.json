@@ -436,10 +436,659 @@
       "description": "Class management endpoints"
     },
     {
-      "name": "Enrollment Management",
+      "name": "Course Content",
       "item": [
         {
-          "name": "Get Enrolled Students in Class",
+          "name": "Get all content for a course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "content"
+              ]
+            },
+            "description": "Get all content for a course"
+          },
+          "response": []
+        },
+        {
+          "name": "Add content to course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Content\",\n  \"description\": \"Content description\",\n  \"content_type\": \"text\",\n  \"content\": \"This is the rich text content.\",\n  \"duration\": null,\n  \"order\": 1,\n  \"publication_date\": \"2025-05-30T10:00:00Z\",\n  \"video_url\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "content"
+              ]
+            },
+            "description": "Add content to course"
+          },
+          "response": []
+        },
+        {
+          "name": "Add multiple content items to course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content_items\": [\n    {\n      \"title\": \"Content 1\",\n      \"description\": \"Description 1\",\n      \"content_type\": \"text\",\n      \"content\": \"Content for item 1\",\n      \"order\": 1\n    },\n    {\n      \"title\": \"Content 2\",\n      \"description\": \"Description 2\",\n      \"content_type\": \"video\",\n      \"content\": \"https://www.youtube.com/watch?v=example\",\n      \"order\": 2,\n      \"video_url\": \"https://www.youtube.com/watch?v=example\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "content",
+                "bulk"
+              ]
+            },
+            "description": "Add multiple content items to course"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Content by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content/{{contentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "content",
+                "{{contentId}}"
+              ]
+            },
+            "description": "Get details of a specific content item by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Content by ID",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Content Title\",\n  \"description\": \"Updated description\",\n  \"content_type\": \"text\",\n  \"content\": \"Updated rich text content\",\n  \"duration\": 60,\n  \"order\": 1,\n  \"publication_date\": \"2025-06-01T10:00:00Z\",\n  \"video_url\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content/{{contentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "content",
+                "{{contentId}}"
+              ]
+            },
+            "description": "Update a specific content item by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Content by ID",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content/{{contentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "content",
+                "{{contentId}}"
+              ]
+            },
+            "description": "Delete a specific content item by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload File to Content",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "value": "",
+                  "type": "file"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content/{{contentId}}/file",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "content",
+                "{{contentId}}",
+                "file"
+              ]
+            },
+            "description": "Upload a file to a specific content item (max 50MB)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Managing content within courses"
+    },
+    {
+      "name": "Assignments",
+      "item": [
+        {
+          "name": "Get assignments for a course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/assignments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "assignments"
+              ]
+            },
+            "description": "Get assignments for a course"
+          },
+          "response": []
+        },
+        {
+          "name": "Create assignment for course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Assignment\",\n  \"description\": \"Assignment description\",\n  \"due_date\": \"2025-06-15T23:59:59Z\",\n  \"points\": 100,\n  \"content_id\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/assignments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "assignments"
+              ]
+            },
+            "description": "Create assignment for course"
+          },
+          "response": []
+        },
+        {
+          "name": "Create multiple assignments for course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignments\": [\n    {\n      \"title\": \"Assignment 1\",\n      \"description\": \"Description 1\",\n      \"due_date\": \"2025-06-15T23:59:59Z\",\n      \"points\": 50\n    },\n    {\n      \"title\": \"Assignment 2\",\n      \"description\": \"Description 2\",\n      \"due_date\": \"2025-06-22T23:59:59Z\",\n      \"points\": 75\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/assignments/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "assignments",
+                "bulk"
+              ]
+            },
+            "description": "Create multiple assignments for course"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload file to assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "value": "",
+                  "type": "file"
+                },
+                {
+                  "key": "description",
+                  "value": "Optional file description",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/assignments/{{assignmentId}}/file",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "assignments",
+                "{{assignmentId}}",
+                "file"
+              ]
+            },
+            "description": "Upload file to assignment"
+          },
+          "response": []
+        }
+      ],
+      "description": "Assignment management"
+    },
+    {
+      "name": "Submissions",
+      "item": [
+        {
+          "name": "Get all submissions for an assignment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/assignments/{{assignmentId}}/submissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "assignments",
+                "{{assignmentId}}",
+                "submissions"
+              ]
+            },
+            "description": "Get all submissions for an assignment"
+          },
+          "response": []
+        },
+        {
+          "name": "Submit assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{userId}},\n  \"content\": \"Submission content\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/assignments/{{assignmentId}}/submissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "assignments",
+                "{{assignmentId}}",
+                "submissions"
+              ]
+            },
+            "description": "Submit assignment"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload file to submission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "value": "",
+                  "type": "file"
+                },
+                {
+                  "key": "description",
+                  "value": "Optional file description",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/submissions/{{submissionId}}/file",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "submissions",
+                "{{submissionId}}",
+                "file"
+              ]
+            },
+            "description": "Upload file to submission"
+          },
+          "response": []
+        }
+      ],
+      "description": "Assignment submissions"
+    },
+    {
+      "name": "Grades",
+      "item": [
+        {
+          "name": "Grade a submission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 95.5,\n  \"feedback\": \"Excellent work!\",\n  \"graded_by\": {{userId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/submissions/{{submissionId}}/grade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "submissions",
+                "{{submissionId}}",
+                "grade"
+              ]
+            },
+            "description": "Grade a submission"
+          },
+          "response": []
+        }
+      ],
+      "description": "Grading submissions"
+    },
+    {
+      "name": "Enrollments",
+      "item": [
+        {
+          "name": "List enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/enrollments?page=1&limit=20&user_id={{userId}}&course_id={{courseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "enrollments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{userId}}"
+                },
+                {
+                  "key": "course_id",
+                  "value": "{{courseId}}"
+                }
+              ]
+            },
+            "description": "List enrollments with pagination and filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Enroll user in course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{userId}},\n  \"course_id\": {{courseId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "enrollments"
+              ]
+            },
+            "description": "Enroll user in course"
+          },
+          "response": []
+        },
+        {
+          "name": "Enroll multiple users in courses",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollments\": [\n    {\n      \"user_id\": 1,\n      \"course_id\": 1\n    },\n    {\n      \"user_id\": 2,\n      \"course_id\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/enrollments/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "enrollments",
+                "bulk"
+              ]
+            },
+            "description": "Enroll multiple users in courses"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel enrollment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/enrollments/{{enrollmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "enrollments",
+                "{{enrollmentId}}"
+              ]
+            },
+            "description": "Cancel enrollment by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get all enrolled students in a class",
           "request": {
             "method": "GET",
             "header": [

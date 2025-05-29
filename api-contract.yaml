@@ -1092,6 +1092,163 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /courses/{course_id}/content/{content_id}:
+    parameters:
+      - name: course_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: content_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get content by ID
+      tags:
+        - Course Content
+      responses:
+        '200':
+          description: Content data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update content by ID
+      tags:
+        - Course Content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentUpdate'
+      responses:
+        '200':
+          description: Content updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete content by ID
+      tags:
+        - Course Content
+      responses:
+        '204':
+          description: Content deleted
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /courses/{course_id}/content/{content_id}/file:
+    parameters:
+      - name: course_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: content_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      summary: Upload file to content
+      tags:
+        - Course Content
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to upload (max 50MB)
+              required:
+                - file
+      responses:
+        '201':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  file_id:
+                    type: string
+                  filename:
+                    type: string
+                  size:
+                    type: integer
+                  url:
+                    type: string
+                    format: uri
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '413':
+          description: File size too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /courses/{course_id}/assignments:
     parameters:
       - name: course_id
@@ -2747,17 +2904,65 @@ components:
       properties:
         title:
           type: string
+        description:
+          type: string
         content_type:
           type: string
-          enum: [video, document, quiz, text, link]
+          enum: [video, document, quiz, text, link, file]
         content:
           type: string
+          description: Rich text content for text type, URL for video/link, file path/ID for file type
         duration:
           type: integer
           description: Duration in minutes (for video content)
         order:
           type: integer
-      required: [title, content_type, content]
+        publication_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: Date and time when the content should be published
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
+          description: Files to upload as part of the content (for file type)
+        video_url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL of the embedded video (for video type)
+      required: [title, content_type]
+
+    ContentUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        content_type:
+          type: string
+          enum: [video, document, quiz, text, link, file]
+        content:
+          type: string
+          description: Rich text content for text type, URL for video/link, file path/ID for file type
+        duration:
+          type: integer
+          description: Duration in minutes (for video content)
+        order:
+          type: integer
+        publication_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: Date and time when the content should be published
+        video_url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL of the embedded video (for video type)
 
     Content:
       type: object
@@ -2768,15 +2973,39 @@ components:
           type: integer
         title:
           type: string
+        description:
+          type: string
         content_type:
           type: string
-          enum: [video, document, quiz, text, link]
+          enum: [video, document, quiz, text, link, file]
         content:
           type: string
         duration:
           type: integer
         order:
           type: integer
+        publication_date:
+          type: string
+          format: date-time
+          nullable: true
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              filename:
+                type: string
+              url:
+                type: string
+                format: uri
+              size:
+                type: integer
+        video_url:
+          type: string
+          format: uri
+          nullable: true
         created_at:
           type: string
           format: date-time
