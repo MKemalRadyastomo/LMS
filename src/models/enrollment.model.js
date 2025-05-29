@@ -1,3 +1,5 @@
+
+
 const db = require('../config/db');
 const logger = require('../utils/logger');
 
@@ -17,7 +19,7 @@ class Enrollment {
             const query = `
                 INSERT INTO class_enrollments (class_id, user_id, enrollment_date, status)
                 VALUES ($1, $2, $3, $4)
-                RETURNING id, class_id, user_id, enrollment_date, status, created_at
+                RETURNING id, class_id, user_id, enrollment_date, status
             `;
 
             const values = [classId, studentId, enrollmentDate, status];

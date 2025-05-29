@@ -21,12 +21,12 @@ const pool = new Pool({
  */
 async function initializeDatabase() {
   const client = await pool.connect();
-  
+
   try {
     console.log('Reading SQL initialization script...');
-    const sqlPath = path.join(__dirname, '..', 'database', 'init.sql');
+    const sqlPath = path.join(__dirname, '..', '..', 'database', 'init.sql');
     const sql = fs.readFileSync(sqlPath, 'utf8');
-    
+
     console.log('Executing SQL initialization script...');
     await client.query(sql);
     console.log('Database initialized successfully!');

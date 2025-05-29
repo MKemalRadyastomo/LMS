@@ -504,7 +504,7 @@
                 "enrollments"
               ]
             },
-            "description": "Add a single student to a class"
+            "description": "Add a single student to a class with enrollment date and status"
           },
           "response": []
         },

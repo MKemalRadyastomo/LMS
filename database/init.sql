@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS class_enrollments (
     id SERIAL PRIMARY KEY,
     class_id INTEGER REFERENCES classes (id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    enrollment_date TIMESTAMP, -- Added enrollment_date column
+    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Added enrollment_date column
     status VARCHAR(50), -- Added status column
     UNIQUE (class_id, user_id)
 );
