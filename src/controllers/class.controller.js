@@ -82,7 +82,7 @@ exports.listClasses = async (req, res, next) => {
         // For non-admin users, only show public classes and their own classes
         if (req.user.role !== 'admin') {
             if (req.user.role === 'guru') {
-                options.teacherId = req.user.id;
+                // options.teacherId = req.user.id; // Allow teachers to see all classes
             } else {
                 options.privacy = 'public';
                 // TODO: Include classes where student is enrolled
