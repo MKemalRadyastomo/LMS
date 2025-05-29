@@ -316,7 +316,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Mathematics 101\",\n  \"description\": \"Introduction to Basic Mathematics\",\n  \"privacy\": \"public\",\n  \"teacherId\": 1\n}"
+              "raw": "{\n  \"name\": \"Mathematics 101\",\n  \"description\": \"Introduction to Basic Mathematics\",\n  \"privacy\": \"public\",\n  \"teacherId\": {{userId}}\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/classes",
