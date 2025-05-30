@@ -2,36 +2,36 @@ const db = require('../config/db');
 const logger = require('../utils/logger');
 const crypto = require('crypto');
 
-class Class {
+class Course {
     /**
-     * Generate a unique class code
+     * Generate a unique course code
      * @returns {string} - A 6-character unique code
      */
-    static generateClassCode() {
+    static generateCourseCode() {
         // Generate a 6-character alphanumeric code
         return crypto.randomBytes(3).toString('hex').toUpperCase();
     }
 
     /**
-     * Create a new class
-     * @param {Object} classData - Class data
-     * @returns {Promise<Object>} Created class
+     * Create a new course
+     * @param {Object} courseData - Course data
+     * @returns {Promise<Object>} Created course
      */
-    static async create(classData) {
+    static async create(courseData) {
         const client = await db.getClient();
         try {
             await client.query('BEGIN');
 
-            const { name, description, privacy = 'private', teacherId } = classData;
+            const { name, description, privacy = 'private', teacherId } = courseData;
             let code;
             let attempts = 0;
             const maxAttempts = 5;
 
             // Generate unique code with retries
             do {
-                code = this.generateClassCode();
+                code = this.generateCourseCode();
                 const existing = await client.query(
-                    'SELECT id FROM classes WHERE code = $1',
+                    'SELECT id FROM courses WHERE code = $1',
                     [code]
                 );
                 if (existing.rows.length === 0) break;
@@ -39,11 +39,11 @@ class Class {
             } while (attempts < maxAttempts);
 
             if (attempts >= maxAttempts) {
-                throw new Error('Failed to generate unique class code');
+                throw new Error('Failed to generate unique course code');
             }
 
             const query = `
-                INSERT INTO classes (name, description, privacy, code, teacher_id)
+                INSERT INTO courses (name, description, privacy, code, teacher_id)
                 VALUES ($1, $2, $3, $4, $5)
                 RETURNING id, name, description, privacy, code, teacher_id, created_at
             `;
@@ -55,7 +55,7 @@ class Class {
             return result.rows[0];
         } catch (error) {
             await client.query('ROLLBACK');
-            logger.error(`Error creating class: ${error.message}`);
+            logger.error(`Error creating course: ${error.message}`);
             throw error;
         } finally {
             client.release();
@@ -63,30 +63,30 @@ class Class {
     }
 
     /**
-     * Get a class by ID
-     * @param {number} id - Class ID
-     * @returns {Promise<Object|null>} Found class or null
+     * Get a course by ID
+     * @param {number} id - Course ID
+     * @returns {Promise<Object|null>} Found course or null
      */
     static async findById(id) {
         try {
             const query = `
-                SELECT c.*, u.name as teacher_name 
-                FROM classes c
+                SELECT c.*, u.name as teacher_name
+                FROM courses c
                 LEFT JOIN users u ON c.teacher_id = u.id
                 WHERE c.id = $1
             `;
             const result = await db.query(query, [id]);
             return result.rows[0] || null;
         } catch (error) {
-            logger.error(`Error finding class: ${error.message}`);
+            logger.error(`Error finding course: ${error.message}`);
             throw error;
         }
     }
 
     /**
-     * List all classes with pagination and filtering
+     * List all courses with pagination and filtering
      * @param {Object} options - List options
-     * @returns {Promise<Object>} List of classes and pagination info
+     * @returns {Promise<Object>} List of courses and pagination info
      */
     static async list({ page = 1, limit = 20, teacherId, search, privacy }) {
         try {
@@ -94,7 +94,7 @@ class Class {
             let query = `
                 SELECT c.*, u.name as teacher_name,
                        COUNT(*) OVER() as total_count
-                FROM classes c
+                FROM courses c
                 LEFT JOIN users u ON c.teacher_id = u.id
             `;
 
@@ -131,8 +131,8 @@ class Class {
 
             return {
                 data: result.rows.map(row => {
-                    const { total_count, ...classData } = row;
-                    return classData;
+                    const { total_count, ...courseData } = row;
+                    return courseData;
                 }),
                 pagination: {
                     total: totalCount,
@@ -144,25 +144,25 @@ class Class {
                 }
             };
         } catch (error) {
-            logger.error(`Error listing classes: ${error.message}`);
+            logger.error(`Error listing courses: ${error.message}`);
             throw error;
         }
     }
 
     /**
-     * Update a class
-     * @param {number} id - Class ID
-     * @param {Object} classData - Class data to update
-     * @returns {Promise<Object|null>} Updated class or null
+     * Update a course
+     * @param {number} id - Course ID
+     * @param {Object} courseData - Course data to update
+     * @returns {Promise<Object|null>} Updated course or null
      */
-    static async update(id, classData) {
+    static async update(id, courseData) {
         try {
             const allowedFields = ['name', 'description', 'privacy', 'teacher_id'];
             const updates = [];
             const values = [];
             let paramCount = 1;
 
-            for (const [key, value] of Object.entries(classData)) {
+            for (const [key, value] of Object.entries(courseData)) {
                 if (allowedFields.includes(key)) {
                     updates.push(`${key} = $${paramCount}`);
                     values.push(value);
@@ -175,7 +175,7 @@ class Class {
             values.push(id);
 
             const query = `
-                UPDATE classes
+                UPDATE courses
                 SET ${updates.join(', ')}
                 WHERE id = $${paramCount}
                 RETURNING id, name, description, privacy, code, teacher_id, created_at
@@ -184,10 +184,10 @@ class Class {
             const result = await db.query(query, values);
             return result.rows[0] || null;
         } catch (error) {
-            logger.error(`Error updating class: ${error.message}`);
+            logger.error(`Error updating course: ${error.message}`);
             throw error;
         }
     }
 }
 
-module.exports = Class;
+module.exports = Course;

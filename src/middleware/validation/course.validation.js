@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const createClass = {
+const createCourse = {
     body: Joi.object({
         name: Joi.string().required().min(3).max(255),
         description: Joi.string().optional(),
@@ -9,7 +9,7 @@ const createClass = {
     })
 };
 
-const updateClass = {
+const updateCourse = {
     params: Joi.object({
         id: Joi.number().integer().positive().required()
     }),
@@ -21,13 +21,13 @@ const updateClass = {
     })
 };
 
-const getClass = {
+const getCourse = {
     params: Joi.object({
         id: Joi.number().integer().positive().required()
     })
 };
 
-const listClasses = {
+const listCourses = {
     query: Joi.object({
         page: Joi.number().integer().min(1).optional(),
         limit: Joi.number().integer().min(1).max(100).optional(),
@@ -39,7 +39,7 @@ const listClasses = {
 
 const enrollStudent = {
     params: Joi.object({
-        classId: Joi.number().integer().positive().required()
+        courseId: Joi.number().integer().positive().required()
     }),
     body: Joi.object({
         studentId: Joi.number().integer().positive().required(),
@@ -49,9 +49,9 @@ const enrollStudent = {
 };
 
 module.exports = {
-    createClass,
-    updateClass,
-    getClass,
-    listClasses,
+    createCourse,
+    updateCourse,
+    getCourse,
+    listCourses,
     enrollStudent
 };
