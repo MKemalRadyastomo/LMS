@@ -29,10 +29,11 @@ exports.createCourse = async (req, res, next) => {
 exports.addContentToCourse = async (req, res, next) => {
     try {
         const courseId = req.params.courseId;
-        const { type } = req.body;
+        let { type } = req.body;
 
-        if (type === 'material') {
-            const { title, description, video_url, publish_date } = req.body;
+        if (req.headers['content-type'] === 'multipart/form-data' || type === 'material') {
+            type = 'material';
+            const { title, description, video_url, publish_date, content } = req.body;
             let file_path = null;
             if (req.file) {
                 file_path = req.file.path;
@@ -41,7 +42,7 @@ exports.addContentToCourse = async (req, res, next) => {
                 course_id: courseId,
                 title,
                 description,
-                content: req.body.content,
+                content: content,
                 file_path,
                 video_url,
                 publish_date

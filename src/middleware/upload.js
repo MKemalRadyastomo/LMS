@@ -44,6 +44,6 @@ const compressAndSaveImage = async (req, res, next) => {
 };
 
 module.exports = {
-    upload,
+    upload: upload,
     compressAndSaveImage,
 };

@@ -38,7 +38,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"newuser@example.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"username\": \"user@example.com\",\n  \"password\": \"newpassword\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/auth/login",
@@ -496,6 +496,88 @@
             },
             "description": "Add content to course"
           },
+          "response": []
+        },
+        {
+          "name": "Add content to course with file upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "New Material",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Material description",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "This is the rich text content.",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "value": "",
+                  "type": "file"
+                },
+                {
+                  "key": "video_url",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "publish_date",
+                  "value": "2025-05-30T10:00:00Z",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "material",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "courses",
+                "{{courseId}}",
+                "content"
+              ]
+            },
+            "description": "Add content to course with file upload"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.request.headers.remove('Content-Type');",
+                  "pm.request.headers.add('Content-Type', 'multipart/form-data');"
+                ]
+              }
+            }
+          ],
           "response": []
         },
         {

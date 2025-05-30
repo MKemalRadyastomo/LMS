@@ -15,6 +15,6 @@ router.put('/:id', authenticate, validate(courseValidation.updateCourse), course
 router.post('/:courseId/enrollments', authenticate, validate(courseValidation.enrollStudent), courseController.enrollStudent);
 
 // Route for adding content (materials/assignments) to a course
-router.post('/:courseId/content', authenticate, upload.single('file'), courseController.addContentToCourse);
+router.post('/:courseId/content', authenticate, upload.upload.single('file'), courseController.addContentToCourse);
 
 module.exports = router;
