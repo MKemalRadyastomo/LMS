@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: classes
-CREATE TABLE IF NOT EXISTS classes (
+-- Table: courses
+CREATE TABLE IF NOT EXISTS courses (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -26,20 +26,20 @@ CREATE TABLE IF NOT EXISTS classes (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: class_enrollments
-CREATE TABLE IF NOT EXISTS class_enrollments (
+-- Table: course_enrollments
+CREATE TABLE IF NOT EXISTS course_enrollments (
     id SERIAL PRIMARY KEY,
-    class_id INTEGER REFERENCES classes (id) ON DELETE CASCADE,
+    course_id INTEGER REFERENCES courses (id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
     enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Added enrollment_date column
     status VARCHAR(50), -- Added status column
-    UNIQUE (class_id, user_id)
+    UNIQUE (course_id, user_id)
 );
 
 -- Table: materials
 CREATE TABLE IF NOT EXISTS materials (
     id SERIAL PRIMARY KEY,
-    class_id INTEGER REFERENCES classes (id) ON DELETE CASCADE,
+    course_id INTEGER REFERENCES courses (id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     content TEXT,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS materials (
 -- Table: assignments
 CREATE TABLE IF NOT EXISTS assignments (
     id SERIAL PRIMARY KEY,
-    class_id INTEGER REFERENCES classes (id) ON DELETE CASCADE,
+    course_id INTEGER REFERENCES courses (id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     type VARCHAR(20) CHECK (
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS progress_logs (
 -- Table: grades
 CREATE TABLE IF NOT EXISTS grades (
     id SERIAL PRIMARY KEY,
-    class_id INTEGER REFERENCES classes (id) ON DELETE CASCADE,
+    course_id INTEGER REFERENCES courses (id) ON DELETE CASCADE,
     student_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
     assignment_id INTEGER REFERENCES assignments (id) ON DELETE CASCADE,
     score INTEGER,
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS grades (
 CREATE TABLE IF NOT EXISTS analytics (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users (id),
-    class_id INTEGER REFERENCES classes (id),
+    course_id INTEGER REFERENCES courses (id),
     time_spent_minutes INTEGER,
     difficulty_feedback TEXT,
     analysis_date DATE DEFAULT CURRENT_DATE
