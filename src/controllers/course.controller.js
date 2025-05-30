@@ -1,10 +1,12 @@
 const Course = require('../models/course.model');
-const Enrollment = require('../models/enrollment.model'); // Import Enrollment model
+const Enrollment = require('../models/enrollment.model');
+const Material = require('../models/material.model');
+const Assignment = require('../models/assignment.model');
+const upload = require('../middleware/upload');
 const { forbidden } = require('../utils/ApiError');
 
 exports.createCourse = async (req, res, next) => {
     try {
-        // Check if user is admin or guru
         if (!['admin', 'guru'].includes(req.user.role)) {
             return next(forbidden('Only admin and teachers can create courses'));
         }
@@ -23,12 +25,42 @@ exports.createCourse = async (req, res, next) => {
     }
 };
 
+
 exports.addContentToCourse = async (req, res, next) => {
     try {
-        // Placeholder for adding content (materials/assignments) to a course
         const courseId = req.params.courseId;
-        // TODO: Implement logic to add materials or assignments based on request body
-        res.status(200).json({ message: `Content added to course ${courseId}` });
+        const { type } = req.body;
+
+        if (type === 'material') {
+            const { title, description, video_url, publish_date } = req.body;
+            let file_path = null;
+            if (req.file) {
+                file_path = req.file.path;
+            }
+            const material = await Material.create({
+                course_id: courseId,
+                title,
+                description,
+                content: req.body.content,
+                file_path,
+                video_url,
+                publish_date
+            });
+            res.status(201).json({ message: 'Material added successfully', material });
+        } else if (type === 'assignment') {
+            const { title, description, type: assignment_type, due_date, max_score } = req.body;
+            const assignment = await Assignment.create({
+                course_id: courseId,
+                title,
+                description,
+                type: assignment_type,
+                due_date,
+                max_score
+            });
+            res.status(201).json({ message: 'Assignment added successfully', assignment });
+        } else {
+            res.status(400).json({ message: 'Invalid content type' });
+        }
     } catch (err) {
         next(err);
     }
