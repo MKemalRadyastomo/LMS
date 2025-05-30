@@ -22,12 +22,12 @@ router.get('/api-version', (req, res) => {
  */
 router.get('/health', async (req, res) => {
   const startTime = Date.now();
-  
+
   try {
     // Test database connection
     const db = require('../config/db');
     const dbTest = await db.query('SELECT NOW() as current_time, version() as db_version');
-    
+
     const healthData = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -53,7 +53,7 @@ router.get('/health', async (req, res) => {
         bcrypt_rounds: process.env.BCRYPT_SALT_ROUNDS || '8 (dev) / 12 (prod)'
       }
     };
-    
+
     res.status(200).json(healthData);
   } catch (error) {
     const duration = Date.now() - startTime;
@@ -75,6 +75,6 @@ router.get('/health', async (req, res) => {
  */
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
-router.use('/classes', classRoutes);
+router.use('/courses', classRoutes);
 
 module.exports = router;

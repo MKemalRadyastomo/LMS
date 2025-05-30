@@ -23,6 +23,17 @@ exports.createClass = async (req, res, next) => {
     }
 };
 
+exports.addContentToClass = async (req, res, next) => {
+    try {
+        // Placeholder for adding content (materials/assignments) to a class
+        const classId = req.params.classId;
+        // TODO: Implement logic to add materials or assignments based on request body
+        res.status(200).json({ message: `Content added to course ${classId}` });
+    } catch (err) {
+        next(err);
+    }
+};
+
 exports.enrollStudent = async (req, res, next) => {
     try {
         // TODO: Implement authorization check (e.g., only admin or teacher can enroll students)

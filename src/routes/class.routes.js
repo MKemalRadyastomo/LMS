@@ -13,4 +13,7 @@ router.put('/:id', authenticate, validate(classValidation.updateClass), classCon
 // Route for enrolling a single student
 router.post('/:classId/enrollments', authenticate, validate(classValidation.enrollStudent), classController.enrollStudent);
 
+// Route for adding content (materials/assignments) to a class
+router.post('/:classId/content', authenticate, classController.addContentToClass);
+
 module.exports = router;
