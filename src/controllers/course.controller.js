@@ -2,7 +2,7 @@ const Course = require('../models/course.model');
 const Enrollment = require('../models/enrollment.model');
 const Material = require('../models/material.model');
 const Assignment = require('../models/assignment.model');
-const upload = require('../middleware/upload');
+const path = require('path');
 const { forbidden } = require('../utils/ApiError');
 
 exports.createCourse = async (req, res, next) => {
@@ -36,7 +36,10 @@ exports.addContentToCourse = async (req, res, next) => {
             const { title, description, video_url, publish_date, content } = req.body;
             let file_path = null;
             if (req.file) {
-                file_path = req.file.path;
+                // Construct the relative path for storage in the database
+                // Assuming files are served from the 'public' directory
+                const relativeUploadPath = path.relative(path.join(__dirname, '../../public'), req.file.path);
+                file_path = `/${relativeUploadPath.replace(/\\/g, '/')}`; // Use forward slashes for URL
             }
             const material = await Material.create({
                 course_id: courseId,

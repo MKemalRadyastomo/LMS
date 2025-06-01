@@ -4,7 +4,7 @@ const courseController = require('../controllers/course.controller.js');
 const { authenticate } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const courseValidation = require('../middleware/validation/course.validation');
-const upload = require('../middleware/upload');
+const materialUpload = require('../middleware/materialUpload');
 
 router.post('/', authenticate, validate(courseValidation.createCourse), courseController.createCourse);
 router.get('/', authenticate, validate(courseValidation.listCourses), courseController.listCourses);
@@ -15,6 +15,6 @@ router.put('/:id', authenticate, validate(courseValidation.updateCourse), course
 router.post('/:courseId/enrollments', authenticate, validate(courseValidation.enrollStudent), courseController.enrollStudent);
 
 // Route for adding content (materials/assignments) to a course
-router.post('/:courseId/content', authenticate, upload.upload.single('file'), courseController.addContentToCourse);
+router.post('/:courseId/content', authenticate, materialUpload.single('file'), courseController.addContentToCourse);
 
 module.exports = router;
