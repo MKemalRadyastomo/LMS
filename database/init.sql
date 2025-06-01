@@ -67,6 +67,24 @@ CREATE TABLE IF NOT EXISTS assignments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Table: course_contents (for structuring course materials and assignments)
+CREATE TABLE IF NOT EXISTS course_contents (
+    id SERIAL PRIMARY KEY,
+    course_id INTEGER REFERENCES courses (id) ON DELETE CASCADE,
+    content_type VARCHAR(20) NOT NULL CHECK (
+        content_type IN ('material', 'assignment')
+    ),
+    content_id INTEGER NOT NULL, -- This will reference either material.id or assignment.id
+    title VARCHAR(255) NOT NULL, -- Denormalized title for easier display
+    order_index INTEGER NOT NULL, -- To define the order of content within a course
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (
+        course_id,
+        content_type,
+        content_id
+    ) -- Ensure unique content per course
+);
+
 -- Table: assignment_submissions
 CREATE TABLE IF NOT EXISTS assignment_submissions (
     id SERIAL PRIMARY KEY,

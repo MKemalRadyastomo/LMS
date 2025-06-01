@@ -2,6 +2,7 @@ const Course = require('../models/course.model');
 const Enrollment = require('../models/enrollment.model');
 const Material = require('../models/material.model');
 const Assignment = require('../models/assignment.model');
+const CourseContent = require('../models/courseContent.model'); // Import the new model
 const path = require('path');
 const { forbidden } = require('../utils/ApiError');
 
@@ -50,6 +51,16 @@ exports.addContentToCourse = async (req, res, next) => {
                 video_url,
                 publish_date
             });
+
+            // Add entry to course_contents table
+            await CourseContent.create({
+                course_id: courseId,
+                content_type: 'material',
+                content_id: material.id,
+                title: material.title,
+                order_index: Date.now() // Simple ordering for now
+            });
+
             res.status(201).json({ message: 'Material added successfully', material });
         } else if (type === 'assignment') {
             const { title, description, type: assignment_type, due_date, max_score } = req.body;
@@ -61,6 +72,16 @@ exports.addContentToCourse = async (req, res, next) => {
                 due_date,
                 max_score
             });
+
+            // Add entry to course_contents table
+            await CourseContent.create({
+                course_id: courseId,
+                content_type: 'assignment',
+                content_id: assignment.id,
+                title: assignment.title,
+                order_index: Date.now() // Simple ordering for now
+            });
+
             res.status(201).json({ message: 'Assignment added successfully', assignment });
         } else {
             res.status(400).json({ message: 'Invalid content type' });
