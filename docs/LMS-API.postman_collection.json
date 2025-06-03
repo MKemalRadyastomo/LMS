@@ -564,7 +564,7 @@
                 "content"
               ]
             },
-            "description": "Add content to course with file upload"
+            "description": "Add content (material) to a course with file upload. Supported file types: PDF, DOCX, PPTX, XLSX. Includes title and optional description."
           },
           "event": [
             {

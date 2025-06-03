@@ -19,7 +19,17 @@ const materialUpload = multer({
     storage: storage,
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit for materials
     // No fileFilter here to allow various file types.
-    // Specific file type validation can be done in the controller if needed.
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /pdf|docx|pptx|xlsx/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+
+        if (extname && mimetype) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Only PDF, DOCX, PPTX, and XLSX files are allowed!'));
+        }
+    }
 });
 
 module.exports = materialUpload;
