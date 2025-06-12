@@ -49,3 +49,8 @@ module.exports = {
     upload: upload,
     compressAndSaveImage,
 };
+
+// NOTE: When using this middleware for file uploads (multipart/form-data),
+// DO NOT manually set the 'Content-Type' header in your client (e.g., Postman or frontend).
+// Let the browser or HTTP client set it automatically, as it must include the boundary.
+// Setting it manually will cause 'Header name must be a valid HTTP token' errors.

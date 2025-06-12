@@ -564,7 +564,7 @@
                 "content"
               ]
             },
-            "description": "Add content (material) to a course with file upload. Supported file types: PDF, DOCX, PPTX, XLSX. Includes title and optional description."
+            "description": "Add content (material) to a course with file upload. Only PDF files are accepted."
           },
           "event": [
             {
@@ -738,7 +738,7 @@
                 "file"
               ]
             },
-            "description": "Upload a file to a specific content item (max 50MB)"
+            "description": "Upload a file to a specific content item. Only PDF files are accepted. (max 50MB)"
           },
           "response": []
         }
@@ -840,6 +840,40 @@
               ]
             },
             "description": "Create multiple assignments for course"
+          },
+          "response": []
+        },
+        {
+          "name": "Submit File Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{userId}},\n  \"content\": \"Submission content\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/assignments/{{assignmentId}}/submissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "assignments",
+                "{{assignmentId}}",
+                "submissions"
+              ]
+            },
+            "description": "Submit a file upload assignment. Only PDF files are accepted. Set 'draft' to true to save as draft."
           },
           "response": []
         },
@@ -987,7 +1021,7 @@
                 "file"
               ]
             },
-            "description": "Upload file to submission"
+            "description": "Upload file to submission. Only PDF files are accepted."
           },
           "response": []
         }
