@@ -6,11 +6,13 @@ const fs = require('fs');
 // Multer storage (in memory for processing with sharp)
 const storage = multer.memoryStorage();
 
-// File filter for image type and size
+// File filter for PDF only (for course content and submissions)
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!allowedTypes.includes(file.mimetype)) {
-        return cb(new Error('Only jpg, png, and gif files are allowed'), false);
+    const allowedMimeType = 'application/pdf';
+    const allowedExtension = '.pdf';
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (file.mimetype !== allowedMimeType || ext !== allowedExtension) {
+        return cb(new Error('Only PDF files are allowed'), false);
     }
     cb(null, true);
 };
