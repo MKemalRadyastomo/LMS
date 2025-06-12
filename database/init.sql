@@ -63,7 +63,10 @@ CREATE TABLE IF NOT EXISTS assignments (
         )
     ),
     due_date TIMESTAMP,
-    max_score INTEGER,
+    max_score NUMERIC(5, 2), -- Changed to NUMERIC for float scores
+    quiz_questions_json JSONB, -- For quiz type assignments
+    allowed_file_types TEXT, -- Comma-separated, e.g., 'pdf,docx,jpg'
+    max_file_size_mb INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -92,10 +95,21 @@ CREATE TABLE IF NOT EXISTS assignment_submissions (
     student_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
     submission_text TEXT,
     file_path TEXT,
-    score INTEGER,
+    quiz_answers_json JSONB, -- For quiz type submissions
+    grade NUMERIC(5, 2), -- Changed from score to grade, and type to NUMERIC
     feedback TEXT,
+    status VARCHAR(20) CHECK (
+        status IN (
+            'draft',
+            'submitted',
+            'graded',
+            'late'
+        )
+    ) DEFAULT 'draft', -- Added status column
+    plagiarism_score NUMERIC(5, 2), -- Added for essay anti-plagiarism
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (assignment_id, student_id)
+    -- Removed UNIQUE (assignment_id, student_id) to allow multiple drafts/submissions
+    -- The application logic will handle final submission uniqueness if needed.
 );
 
 -- Table: progress_logs (for tracking material access)
@@ -170,3 +184,93 @@ VALUES (
         'Student User',
         'siswa'
     ) ON CONFLICT (email) DO NOTHING;
+
+-- Additional teacher users (password: teacher123)
+INSERT INTO
+    users (
+        email,
+        password_hash,
+        name,
+        role
+    )
+VALUES (
+        'teacher2@example.com',
+        '$2a$10$gFJmVr1UHzNFZKwqj.aSBOfMAZR2B6TgZt2EBCEJexJOKA3KBg2iO',
+        'Teacher Two',
+        'guru'
+    ),
+    (
+        'teacher3@example.com',
+        '$2a$10$gFJmVr1UHzNFZKwqj.aSBOfMAZR2B6TgZt2EBCEJexJOKA3KBg2iO',
+        'Teacher Three',
+        'guru'
+    );
+
+-- Additional student users (password: student123)
+INSERT INTO
+    users (
+        email,
+        password_hash,
+        name,
+        role
+    )
+VALUES (
+        'student2@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Two',
+        'siswa'
+    ),
+    (
+        'student3@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Three',
+        'siswa'
+    ),
+    (
+        'student4@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Four',
+        'siswa'
+    ),
+    (
+        'student5@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Five',
+        'siswa'
+    ),
+    (
+        'student6@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Six',
+        'siswa'
+    ),
+    (
+        'student7@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Seven',
+        'siswa'
+    ),
+    (
+        'student8@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Eight',
+        'siswa'
+    ),
+    (
+        'student9@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Nine',
+        'siswa'
+    ),
+    (
+        'student10@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Ten',
+        'siswa'
+    ),
+    (
+        'student11@example.com',
+        '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
+        'Student Eleven',
+        'siswa'
+    );
