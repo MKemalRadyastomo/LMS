@@ -77,6 +77,52 @@ exports.getCourseContentById = async (req, res, next) => {
     }
 };
 
+exports.getCourseContents = async (req, res, next) => {
+    try {
+        const { courseId } = req.params;
+
+        // Check course access (similar to getCourse)
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return next(notFound('Course not found'));
+        }
+
+        // If course is private, check if user is admin, teacher of the course, or enrolled student
+        if (course.privacy === 'private' &&
+            req.user.role !== 'admin' &&
+            req.user.id !== course.teacher_id) {
+            const enrollment = await Enrollment.findByCourseAndStudent(courseId, req.user.id);
+            if (!enrollment || enrollment.status !== 'active') {
+                return next(forbidden('You do not have access to this course content'));
+            }
+        }
+
+        // Get all course content entries for the given courseId
+        const courseContents = await CourseContent.findByCourseId(courseId);
+
+        const detailedContents = await Promise.all(courseContents.map(async (content) => {
+            let contentDetails;
+            if (content.content_type === 'material') {
+                contentDetails = await Material.findById(content.content_id);
+            } else if (content.content_type === 'assignment') {
+                contentDetails = await Assignment.findById(content.content_id);
+            }
+            return {
+                id: content.id,
+                course_id: content.course_id,
+                content_type: content.content_type,
+                order_index: content.order_index,
+                details: contentDetails
+            };
+        }));
+
+        res.json(detailedContents);
+
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 exports.addContentToCourse = async (req, res, next) => {
     try {
@@ -85,7 +131,7 @@ exports.addContentToCourse = async (req, res, next) => {
 
         if (req.headers['content-type'] === 'multipart/form-data' || type === 'material') {
             type = 'material';
-            const { title, description, video_url, publish_date, content } = req.body;
+            const { title, description, video_url, publish_date } = req.body;
             let file_path = null;
             if (req.file) {
                 // Construct the relative path for storage in the database
@@ -93,15 +139,21 @@ exports.addContentToCourse = async (req, res, next) => {
                 const relativeUploadPath = path.relative(path.join(__dirname, '../../public'), req.file.path);
                 file_path = `/${relativeUploadPath.replace(/\\/g, '/')}`; // Use forward slashes for URL
             }
-            const material = await Material.create({
+
+            const materialData = {
                 course_id: courseId,
                 title,
                 description,
-                content: content,
+                content: req.body.content, // Use req.body.content directly
                 file_path,
-                video_url,
                 publish_date
-            });
+            };
+
+            if (video_url) {
+                materialData.video_url = video_url;
+            }
+
+            const material = await Material.create(materialData);
 
             // Add entry to course_contents table
             await CourseContent.create({

@@ -534,6 +534,17 @@
           },
           "event": [
             {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "pm.environment.set('contentId', responseJson.material.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            },
+            {
               "listen": "prerequest",
               "script": {
                 "type": "text/javascript",
@@ -544,41 +555,6 @@
               }
             }
           ],
-          "response": []
-        },
-        {
-          "name": "Add multiple content items to course",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"content_items\": [\n    {\n      \"title\": \"Content 1\",\n      \"description\": \"Description 1\",\n      \"content_type\": \"text\",\n      \"content\": \"Content for item 1\",\n      \"order\": 1\n    },\n    {\n      \"title\": \"Content 2\",\n      \"description\": \"Description 2\",\n      \"content_type\": \"video\",\n      \"content\": \"https://www.youtube.com/watch?v=example\",\n      \"order\": 2,\n      \"video_url\": \"https://www.youtube.com/watch?v=example\"\n    }\n  ]\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content/bulk",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "courses",
-                "{{courseId}}",
-                "content",
-                "bulk"
-              ]
-            },
-            "description": "Add multiple content items to course"
-          },
           "response": []
         },
         {
@@ -619,12 +595,48 @@
               },
               {
                 "key": "Content-Type",
-                "value": "application/json"
+                "value": "multipart/form-data"
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated Content Title\",\n  \"description\": \"Updated description\",\n  \"content_type\": \"text\",\n  \"content\": \"Updated rich text content\",\n  \"duration\": 60,\n  \"order\": 1,\n  \"publication_date\": \"2025-06-01T10:00:00Z\",\n  \"video_url\": null\n}"
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Updated Content Title",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated description",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Updated rich text content",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "value": "",
+                  "type": "file"
+                },
+                {
+                  "key": "video_url",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "publish_date",
+                  "value": "2025-06-01T10:00:00Z",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "material",
+                  "type": "text"
+                }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content/{{contentId}}",
@@ -667,44 +679,6 @@
               ]
             },
             "description": "Delete a specific content item by ID"
-          },
-          "response": []
-        },
-        {
-          "name": "Upload File to Content",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              }
-            ],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "file",
-                  "value": "",
-                  "type": "file"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content/{{contentId}}/file",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "courses",
-                "{{courseId}}",
-                "content",
-                "{{contentId}}",
-                "file"
-              ]
-            },
-            "description": "Upload a file to a specific content item. Only PDF files are accepted. (max 50MB)"
           },
           "response": []
         }

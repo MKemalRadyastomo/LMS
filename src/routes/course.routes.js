@@ -20,4 +20,7 @@ router.post('/:courseId/content', authenticate, materialUpload.single('file'), v
 // Route for getting specific content by ID within a course
 router.get('/:courseId/content/:contentId', authenticate, validate(courseValidation.getCourseContentById), courseController.getCourseContentById);
 
+// Route for getting all content for a course
+router.get('/:courseId/content', authenticate, validate(courseValidation.getCourseContents), courseController.getCourseContents);
+
 module.exports = router;
