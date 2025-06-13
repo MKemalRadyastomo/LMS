@@ -206,6 +206,21 @@ VALUES (
         'siswa'
     ) ON CONFLICT (email) DO NOTHING;
 
+-- Create admin user (password: adminadmin)
+INSERT INTO
+    users (
+        email,
+        password_hash,
+        name,
+        role
+    )
+VALUES (
+        'admin2@example.com',
+        '$2a$10$Q9QwQwQwQwQwQwQwQwQwQeQwQwQwQwQwQwQwQwQwQwQwQwQwQwQW',
+        'Admin User 2',
+        'admin'
+    ) ON CONFLICT (email) DO NOTHING;
+
 -- Additional teacher users (password: teacher123)
 INSERT INTO
     users (
