@@ -544,16 +544,6 @@
                 "packages": {}
               }
             },
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.request.headers.remove('Content-Type');",
-                  "pm.request.headers.add('Content-Type', 'multipart/form-data');"
-                ]
-              }
-            }
           ],
           "response": []
         },
