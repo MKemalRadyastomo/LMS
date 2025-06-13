@@ -1,5 +1,26 @@
 -- Initialize the LMS database schema
 
+-- Drop tables if they exist to ensure a clean slate for re-initialization
+DROP TABLE IF EXISTS analytics CASCADE;
+
+DROP TABLE IF EXISTS grades CASCADE;
+
+DROP TABLE IF EXISTS progress_logs CASCADE;
+
+DROP TABLE IF EXISTS assignment_submissions CASCADE;
+
+DROP TABLE IF EXISTS course_contents CASCADE;
+
+DROP TABLE IF EXISTS assignments CASCADE;
+
+DROP TABLE IF EXISTS materials CASCADE;
+
+DROP TABLE IF EXISTS course_enrollments CASCADE;
+
+DROP TABLE IF EXISTS courses CASCADE;
+
+DROP TABLE IF EXISTS users CASCADE;
+
 -- Table: users
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -79,7 +100,7 @@ CREATE TABLE IF NOT EXISTS course_contents (
     ),
     content_id INTEGER NOT NULL, -- This will reference either material.id or assignment.id
     title VARCHAR(255) NOT NULL, -- Denormalized title for easier display
-    order_index INTEGER NOT NULL, -- To define the order of content within a course
+    order_index BIGINT NOT NULL, -- To define the order of content within a course
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (
         course_id,
@@ -107,7 +128,7 @@ CREATE TABLE IF NOT EXISTS assignment_submissions (
         )
     ) DEFAULT 'draft', -- Added status column
     plagiarism_score NUMERIC(5, 2), -- Added for essay anti-plagiarism
-    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     -- Removed UNIQUE (assignment_id, student_id) to allow multiple drafts/submissions
     -- The application logic will handle final submission uniqueness if needed.
 );
@@ -273,4 +294,35 @@ VALUES (
         '$2a$10$UwbsKLSvpjsxudA2M1TdzOFyfdLFXDxNHw2yc9ZJDWyJOLAZw8Jye',
         'Student Eleven',
         'siswa'
+    );
+
+-- Sample courses
+INSERT INTO
+    courses (
+        name,
+        description,
+        privacy,
+        code,
+        teacher_id
+    )
+VALUES (
+        'Introduction to Programming',
+        'Learn the basics of programming with Python.',
+        'public',
+        'PROG101',
+        2
+    ),
+    (
+        'Web Development Fundamentals',
+        'Build interactive websites using HTML, CSS, and JavaScript.',
+        'public',
+        'WEBDEV201',
+        2
+    ),
+    (
+        'Database Management',
+        'Understand relational databases and SQL.',
+        'private',
+        'DB301',
+        2
     );
