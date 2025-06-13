@@ -2,6 +2,7 @@ const express = require('express');
 const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const courseRoutes = require('./course.routes');
+const assignmentRoutes = require('./assignment.routes');
 
 const router = express.Router();
 
@@ -76,5 +77,6 @@ router.get('/health', async (req, res) => {
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/courses', courseRoutes);
+router.use('/courses', assignmentRoutes); // Mount assignment routes under /courses
 
 module.exports = router;

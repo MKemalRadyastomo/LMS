@@ -41,4 +41,14 @@ AssignmentService.queryAssignments = async (filter, options) => {
     };
 };
 
+/**
+ * Create an assignment
+ * @param {Object} assignmentBody
+ * @returns {Promise<Assignment>}
+ */
+AssignmentService.createAssignment = async (assignmentBody) => {
+    const assignment = await Assignment.create(assignmentBody);
+    return assignment;
+};
+
 module.exports = AssignmentService;

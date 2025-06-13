@@ -38,7 +38,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"newpassword\"\n}"
+              "raw": "{\n  \"username\": \"teacher@example.com\",\n  \"password\": \"teacher123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/auth/login",

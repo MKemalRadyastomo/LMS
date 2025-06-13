@@ -17,7 +17,14 @@ const getAssignment = catchAsync(async (req, res) => {
     res.send(assignment);
 });
 
+const createAssignment = catchAsync(async (req, res) => {
+    const assignmentBody = { ...req.body, course_id: req.params.courseId };
+    const assignment = await assignmentService.createAssignment(assignmentBody);
+    res.status(httpStatus.CREATED).send(assignment);
+});
+
 module.exports = {
+    createAssignment,
     getAssignments,
     getAssignment,
 };
