@@ -19,7 +19,13 @@ class CourseContent {
         return result.rows;
     }
 
-    // You might add more methods here, e.g., updateOrder, deleteContentEntry
+    static async findByCourseIdAndContentId(courseId, contentId) {
+        const result = await db.query(
+            `SELECT * FROM course_contents WHERE course_id = $1 AND content_id = $2`,
+            [courseId, contentId]
+        );
+        return result.rows[0];
+    }
 }
 
 module.exports = CourseContent;

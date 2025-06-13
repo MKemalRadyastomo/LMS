@@ -2,9 +2,9 @@ const Course = require('../models/course.model');
 const Enrollment = require('../models/enrollment.model');
 const Material = require('../models/material.model');
 const Assignment = require('../models/assignment.model');
-const CourseContent = require('../models/courseContent.model'); // Import the new model
+const CourseContent = require('../models/courseContent.model');
 const path = require('path');
-const { forbidden } = require('../utils/ApiError');
+const { forbidden, notFound } = require('../utils/ApiError');
 
 exports.createCourse = async (req, res, next) => {
     try {
@@ -21,6 +21,57 @@ exports.createCourse = async (req, res, next) => {
 
         const newCourse = await Course.create(courseData);
         res.status(201).json(newCourse);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.getCourseContentById = async (req, res, next) => {
+    try {
+        const { courseId, contentId } = req.params;
+
+        // Find the course content entry
+        const courseContent = await CourseContent.findByCourseIdAndContentId(courseId, contentId);
+
+        if (!courseContent) {
+            return next(notFound('Course content not found'));
+        }
+
+        // Check course access (similar to getCourse)
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return next(notFound('Course not found'));
+        }
+
+        // If course is private, check if user is admin, teacher of the course, or enrolled student
+        if (course.privacy === 'private' &&
+            req.user.role !== 'admin' &&
+            req.user.id !== course.teacher_id) {
+            const enrollment = await Enrollment.findByCourseAndStudent(courseId, req.user.id);
+            if (!enrollment || enrollment.status !== 'active') {
+                return next(forbidden('You do not have access to this course content'));
+            }
+        }
+
+        let contentDetails;
+        if (courseContent.content_type === 'material') {
+            contentDetails = await Material.findById(courseContent.content_id);
+        } else if (courseContent.content_type === 'assignment') {
+            contentDetails = await Assignment.findById(courseContent.content_id);
+        }
+
+        if (!contentDetails) {
+            return next(notFound('Content details not found'));
+        }
+
+        res.json({
+            id: courseContent.id,
+            course_id: courseContent.course_id,
+            content_type: courseContent.content_type,
+            order_index: courseContent.order_index,
+            details: contentDetails
+        });
+
     } catch (err) {
         next(err);
     }

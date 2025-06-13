@@ -81,11 +81,19 @@ const addContentToCourse = {
     })
 };
 
+const getCourseContentById = {
+    params: Joi.object({
+        courseId: Joi.number().integer().positive().required(),
+        contentId: Joi.number().integer().positive().required()
+    })
+};
+
 module.exports = {
     createCourse,
     updateCourse,
     getCourse,
     listCourses,
     enrollStudent,
-    addContentToCourse
+    addContentToCourse,
+    getCourseContentById
 };

@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load environment variables at the very beginning
+
 const app = require('./app');
 const config = require('./config/config');
 const logger = require('./utils/logger');
@@ -16,7 +18,7 @@ if (configValidation.valid) {
 // Create HTTP server
 const server = app.listen(config.port, () => {
   logger.info(`Server running on port ${config.port} in ${config.env} mode`);
-  
+
   // Log startup performance metrics
   if (process.env.NODE_ENV === 'development') {
     const memUsage = process.memoryUsage();
@@ -33,7 +35,7 @@ const server = app.listen(config.port, () => {
 process.on('unhandledRejection', (err) => {
   logger.error('UNHANDLED REJECTION! 💥 Shutting down...');
   logger.error(err);
-  
+
   // Close server & exit process
   server.close(() => {
     process.exit(1);
@@ -44,7 +46,7 @@ process.on('unhandledRejection', (err) => {
 process.on('uncaughtException', (err) => {
   logger.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   logger.error(err);
-  
+
   // Exit process
   process.exit(1);
 });

@@ -14,4 +14,14 @@ Material.create = async (materialData) => {
     }
 };
 
+Material.findById = async (id) => {
+    try {
+        const query = 'SELECT * FROM materials WHERE id = $1';
+        const { rows } = await db.query(query, [id]);
+        return rows[0];
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = Material;
