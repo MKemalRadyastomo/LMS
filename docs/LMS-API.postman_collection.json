@@ -465,40 +465,6 @@
           "response": []
         },
         {
-          "name": "Add content to course",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"New Content\",\n  \"description\": \"Content description\",\n  \"content_type\": \"text\",\n  \"content\": \"This is the rich text content.\",\n  \"duration\": null,\n  \"order\": 1,\n  \"publication_date\": \"2025-05-30T10:00:00Z\",\n  \"video_url\": null\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/v1/courses/{{courseId}}/content",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "courses",
-                "{{courseId}}",
-                "content"
-              ]
-            },
-            "description": "Add content to course"
-          },
-          "response": []
-        },
-        {
           "name": "Add content to course with file upload",
           "request": {
             "method": "POST",
