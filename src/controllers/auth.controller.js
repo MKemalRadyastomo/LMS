@@ -15,50 +15,50 @@ class AuthController {
   static async login(req, res, next) {
     const startTime = Date.now();
     const requestId = req.id || Math.random().toString(36).substr(2, 9);
-    
+
     logger.info('Login attempt started', {
       requestId,
       username: req.body.username,
       ip: req.ip,
       userAgent: req.get('User-Agent')
     });
-    
-    try {
-      const { username, password } = req.body;
 
-      if (!username || !password) {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
         const duration = Date.now() - startTime;
         logger.warn('Login failed: Missing credentials', {
           requestId,
           duration: `${duration}ms`,
-          hasUsername: !!username,
+          hasEmail: !!email,
           hasPassword: !!password
         });
-        return next(badRequest('Username and password are required'));
+        return next(badRequest('Email and password are required'));
       }
 
       logger.debug('Starting AuthService.login', {
         requestId,
-        username,
+        email,
         elapsed: `${Date.now() - startTime}ms`
       });
-      
-      const result = await AuthService.login(username, password);
-      
+
+      const result = await AuthService.login(email, password);
+
       const duration = Date.now() - startTime;
       logger.info('Login successful', {
         requestId,
-        username,
+        email,
         userId: result.user_id,
         duration: `${duration}ms`
       });
-      
+
       return res.status(200).json(result);
     } catch (error) {
       const duration = Date.now() - startTime;
       logger.error('Login controller error', {
         requestId,
-        username: req.body.username,
+        email: req.body.email,
         duration: `${duration}ms`,
         error: error.message,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
@@ -76,7 +76,7 @@ class AuthController {
   static async register(req, res, next) {
     const startTime = Date.now();
     const requestId = req.id || Math.random().toString(36).substr(2, 9);
-    
+
     logger.info('Registration attempt started', {
       requestId,
       email: req.body.email,
@@ -84,7 +84,7 @@ class AuthController {
       ip: req.ip,
       userAgent: req.get('User-Agent')
     });
-    
+
     try {
       const { email, password, full_name, role } = req.body;
 
@@ -114,9 +114,9 @@ class AuthController {
         role: userData.role,
         elapsed: `${Date.now() - startTime}ms`
       });
-      
+
       const result = await AuthService.register(userData);
-      
+
       const duration = Date.now() - startTime;
       logger.info('Registration successful', {
         requestId,
