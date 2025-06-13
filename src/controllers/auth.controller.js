@@ -24,31 +24,31 @@ class AuthController {
     });
 
     try {
-      const { email, password } = req.body;
+      const { username, password } = req.body;
 
-      if (!email || !password) {
+      if (!username || !password) {
         const duration = Date.now() - startTime;
         logger.warn('Login failed: Missing credentials', {
           requestId,
           duration: `${duration}ms`,
-          hasEmail: !!email,
+          hasUsername: !!username,
           hasPassword: !!password
         });
-        return next(badRequest('Email and password are required'));
+        return next(badRequest('Username and password are required'));
       }
 
       logger.debug('Starting AuthService.login', {
         requestId,
-        email,
+        username,
         elapsed: `${Date.now() - startTime}ms`
       });
 
-      const result = await AuthService.login(email, password);
+      const result = await AuthService.login(username, password);
 
       const duration = Date.now() - startTime;
       logger.info('Login successful', {
         requestId,
-        email,
+        username,
         userId: result.user_id,
         duration: `${duration}ms`
       });
@@ -58,7 +58,7 @@ class AuthController {
       const duration = Date.now() - startTime;
       logger.error('Login controller error', {
         requestId,
-        email: req.body.email,
+        username: req.body.username,
         duration: `${duration}ms`,
         error: error.message,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
