@@ -216,7 +216,7 @@ INSERT INTO
     )
 VALUES (
         'admin2@example.com',
-        '$2a$10$Q9QwQwQwQwQwQwQwQwQwQeQwQwQwQwQwQwQwQwQwQwQwQwQwQwQW',
+        '$2a$10$cHedtnVMnZsBhh.XveUDZ.vjmbhb1IBzQHfZpe7DJitEn1yozM/l6',
         'Admin User 2',
         'admin'
     ) ON CONFLICT (email) DO NOTHING;
