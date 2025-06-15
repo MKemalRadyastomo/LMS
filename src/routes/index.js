@@ -3,6 +3,7 @@ const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const courseRoutes = require('./course.routes');
 const assignmentRoutes = require('./assignment.routes');
+const courseContentRoutes = require('./courseContent.routes');
 
 const router = express.Router();
 
@@ -77,6 +78,7 @@ router.get('/health', async (req, res) => {
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/courses', courseRoutes);
-router.use('/courses', assignmentRoutes); // Mount assignment routes under /courses
+router.use('/courses/:courseId/assignments', assignmentRoutes); // Mount assignment routes under /courses/:courseId/assignments
+router.use('/courses/:courseId/contents', courseContentRoutes); // Mount course content routes under /courses/:courseId/contents
 
 module.exports = router;

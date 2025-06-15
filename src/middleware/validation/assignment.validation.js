@@ -1,14 +1,16 @@
 const Joi = require('joi');
 
 const createAssignment = {
-    params: Joi.object().keys({
-        courseId: Joi.number().integer().required(),
-    }),
     body: Joi.object().keys({
+        course_id: Joi.number().integer().required(),
         title: Joi.string().required(),
         description: Joi.string().required(),
-        dueDate: Joi.date().required(),
-        maxScore: Joi.number().integer().required(),
+        type: Joi.string().required(),
+        due_date: Joi.date().required(),
+        max_score: Joi.number().integer().required(),
+        quiz_questions_json: Joi.object().optional(),
+        allowed_file_types: Joi.string().optional(),
+        max_file_size_mb: Joi.number().integer().optional(),
     }),
 };
 

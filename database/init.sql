@@ -73,7 +73,8 @@ CREATE TABLE IF NOT EXISTS materials (
 -- Table: assignments
 CREATE TABLE IF NOT EXISTS assignments (
     id SERIAL PRIMARY KEY,
-    course_id INTEGER REFERENCES courses (id) ON DELETE CASCADE,
+    course_id INTEGER REFERENCES courses (id) ON DELETE SET NULL, -- Made nullable
+    course_content_id INTEGER REFERENCES course_contents (id) ON DELETE CASCADE, -- New column
     title VARCHAR(255) NOT NULL,
     description TEXT,
     type VARCHAR(20) CHECK (
@@ -84,9 +85,9 @@ CREATE TABLE IF NOT EXISTS assignments (
         )
     ),
     due_date TIMESTAMP,
-    max_score NUMERIC(5, 2), -- Changed to NUMERIC for float scores
-    quiz_questions_json JSONB, -- For quiz type assignments
-    allowed_file_types TEXT, -- Comma-separated, e.g., 'pdf,docx,jpg'
+    max_score NUMERIC(5, 2),
+    quiz_questions_json JSONB,
+    allowed_file_types TEXT,
     max_file_size_mb INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
