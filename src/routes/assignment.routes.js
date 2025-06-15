@@ -8,7 +8,7 @@ const router = express.Router();
 
 router
     .route('/')
-    .post(authorize(['admin', 'teacher']), validate(assignmentValidation.createAssignment), assignmentController.createAssignment)
+    .post(authenticate, authorize(['admin', 'guru']), validate(assignmentValidation.createAssignment), assignmentController.createAssignment)
     .get(authorize('getAssignments'), validate(assignmentValidation.getAssignments), assignmentController.getAssignments);
 
 router

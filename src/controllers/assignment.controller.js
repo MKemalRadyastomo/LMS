@@ -23,7 +23,7 @@ const createAssignment = catchAsync(async (req, res) => {
     const { courseId } = req.body;
     const { id: userId, role } = req.user;
 
-    if (role === 'teacher') {
+    if (role === 'guru') {
         if (!courseId) {
             throw ApiError.badRequest('Course ID is required for teachers to create assignments.');
         }
@@ -35,7 +35,7 @@ const createAssignment = catchAsync(async (req, res) => {
             throw ApiError.forbidden('You are not authorized to create assignments for this course.');
         }
     } else if (role !== 'admin') {
-        throw ApiError.forbidden('Only admins and teachers can create assignments.');
+        throw ApiError.forbidden('Only admins and teachers (guru) can create assignments.');
     }
 
     const assignmentBody = { ...req.body };
