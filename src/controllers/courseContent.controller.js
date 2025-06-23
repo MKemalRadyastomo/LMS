@@ -1,8 +1,27 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { courseContentService } = require('../services');
+const { courseContentService, courseService } = require('../services');
+const ApiError = require('../utils/ApiError');
 
 const createCourseContent = catchAsync(async (req, res) => {
+    const { courseId } = req.body;
+    const { id: userId, role } = req.user;
+
+    if (role === 'guru') {
+        if (!courseId) {
+            throw ApiError.badRequest('Course ID is required for teachers to create course content.');
+        }
+        const course = await courseService.getCourseById(courseId);
+        if (!course) {
+            throw ApiError.notFound('Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw ApiError.forbidden('You are not authorized to create course content for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw ApiError.forbidden('Only admins and teachers (guru) can create course content.');
+    }
+
     const courseContent = await courseContentService.createCourseContent(req.body);
     res.status(httpStatus.CREATED).send(courseContent);
 });

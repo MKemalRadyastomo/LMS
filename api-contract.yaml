@@ -911,6 +911,9 @@ paths:
       summary: Add content to course
       tags:
         - Course Content
+      description: |
+        Allows 'admin' and 'guru' (teacher) roles to add content to a course.
+        Teachers can only add content to courses they own.
       requestBody:
         required: true
         content:
@@ -932,7 +935,11 @@ paths:
             X-RateLimit-Reset:
               $ref: '#/components/headers/X-RateLimit-Reset'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Invalid input or missing course ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1715,6 +1722,7 @@ components:
           type: integer
           description: Order of content within the course
       required:
+        - course_id
         - title
         - type
         - order

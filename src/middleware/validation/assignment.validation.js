@@ -2,7 +2,6 @@ const Joi = require('joi');
 
 const createAssignment = {
     body: Joi.object().keys({
-        course_id: Joi.number().integer().required(),
         title: Joi.string().required(),
         description: Joi.string().required(),
         type: Joi.string().required(),
