@@ -88,7 +88,15 @@ const comparePassword = async (password, hashedPassword) => {
       throw new Error('Hashed password must be a non-empty string');
     }
 
-    const isMatch = password === hashedPassword;
+    // Add timeout protection for bcrypt operations
+    const comparePromise = bcrypt.compare(password, hashedPassword);
+
+    // Add a timeout wrapper
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Password comparison timeout')), COMPARE_TIMEOUT);
+    });
+
+    const isMatch = await Promise.race([comparePromise, timeoutPromise]);
 
     const duration = Date.now() - startTime;
     logger.debug('Password comparison completed', {
@@ -103,6 +111,10 @@ const comparePassword = async (password, hashedPassword) => {
       duration: `${duration}ms`,
       error: error.message
     });
+
+    if (error.message === 'Password comparison timeout') {
+      throw new Error('Password verification took too long - please try again');
+    }
 
     throw error;
   }

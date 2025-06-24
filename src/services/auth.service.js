@@ -65,6 +65,11 @@ class AuthService {
       }
 
       // Create the user
+      // Set default password if no password is provided
+      if (!userData.password) {
+        userData.password = 'Password123!';
+      }
+
       const user = await User.create(userData);
 
       // Remove sensitive data
