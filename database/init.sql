@@ -12,16 +12,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Insert admin user
-INSERT INTO
-    users (
-        email,
-        password_hash,
-        name,
-        role
-    )
-VALUES (
-        'admin@example.com',
-        'adminadmin',
-        'Admin User',
-        'admin'
-    );
+-- Hash the admin password
+DO $$ 
+BEGIN
+  INSERT INTO users (email, password_hash, name, role)
+  VALUES ('admin@example.com', crypt('adminadmin', gen_salt('bf')), 'Admin User', 'admin');
+END $$;

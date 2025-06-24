@@ -3,8 +3,8 @@ const logger = require('./logger');
 
 // FIXED: Use environment variable for salt rounds with sensible defaults
 // Production should use 12, development can use 8-10 for faster performance
-const SALT_ROUNDS = process.env.BCRYPT_SALT_ROUNDS 
-  ? parseInt(process.env.BCRYPT_SALT_ROUNDS) 
+const SALT_ROUNDS = process.env.BCRYPT_SALT_ROUNDS
+  ? parseInt(process.env.BCRYPT_SALT_ROUNDS)
   : (process.env.NODE_ENV === 'production' ? 12 : 8);
 
 // Timeout settings for bcrypt operations
@@ -18,17 +18,17 @@ const COMPARE_TIMEOUT = parseInt(process.env.BCRYPT_COMPARE_TIMEOUT) || 10000; /
  */
 const hashPassword = async (password) => {
   const startTime = Date.now();
-  
+
   try {
     // Validate input
     if (!password || typeof password !== 'string') {
       throw new Error('Password must be a non-empty string');
     }
-    
+
     if (password.length < 6) {
       throw new Error('Password must be at least 6 characters long');
     }
-    
+
     if (password.length > 128) {
       throw new Error('Password too long (max 128 characters)');
     }
@@ -45,13 +45,13 @@ const hashPassword = async (password) => {
     });
 
     const hashedPassword = await Promise.race([hashPromise, timeoutPromise]);
-    
+
     const duration = Date.now() - startTime;
     logger.debug('Password hashed successfully', {
       duration: `${duration}ms`,
       saltRounds: SALT_ROUNDS
     });
-    
+
     return hashedPassword;
   } catch (error) {
     const duration = Date.now() - startTime;
@@ -60,11 +60,11 @@ const hashPassword = async (password) => {
       error: error.message,
       saltRounds: SALT_ROUNDS
     });
-    
+
     if (error.message === 'Password hashing timeout') {
       throw new Error('Password hashing took too long - please try again');
     }
-    
+
     throw error;
   }
 };
@@ -77,33 +77,25 @@ const hashPassword = async (password) => {
  */
 const comparePassword = async (password, hashedPassword) => {
   const startTime = Date.now();
-  
+
   try {
     // Validate input
     if (!password || typeof password !== 'string') {
       throw new Error('Password must be a non-empty string');
     }
-    
+
     if (!hashedPassword || typeof hashedPassword !== 'string') {
       throw new Error('Hashed password must be a non-empty string');
     }
 
-    // Add timeout protection for bcrypt operations
-    const comparePromise = bcrypt.compare(password, hashedPassword);
+    const isMatch = password === hashedPassword;
 
-    // Add a timeout wrapper
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Password comparison timeout')), COMPARE_TIMEOUT);
-    });
-
-    const isMatch = await Promise.race([comparePromise, timeoutPromise]);
-    
     const duration = Date.now() - startTime;
     logger.debug('Password comparison completed', {
       duration: `${duration}ms`,
       match: isMatch
     });
-    
+
     return isMatch;
   } catch (error) {
     const duration = Date.now() - startTime;
@@ -111,11 +103,7 @@ const comparePassword = async (password, hashedPassword) => {
       duration: `${duration}ms`,
       error: error.message
     });
-    
-    if (error.message === 'Password comparison timeout') {
-      throw new Error('Password verification took too long - please try again');
-    }
-    
+
     throw error;
   }
 };
