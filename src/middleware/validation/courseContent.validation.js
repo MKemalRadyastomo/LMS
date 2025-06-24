@@ -7,6 +7,8 @@ const createCourseContent = {
         content_id: Joi.number().integer().required(),
         title: Joi.string().required(),
         order_index: Joi.number().integer().required(),
+        type: Joi.when('content_type', { is: 'assignment', then: Joi.string().required() }),
+        max_score: Joi.when('content_type', { is: 'assignment', then: Joi.number().integer().required() }),
     }),
 };
 

@@ -789,7 +789,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_id\": {{userId}},\n  \"content\": \"Submission content\"\n}"
+              "raw": "{\n  \"user_id\": {{userId}},\n  \"content\": \"Submission content\",\n  \"draft\": false\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/assignments/{{assignmentId}}/submissions",
@@ -803,7 +803,7 @@
                 "submissions"
               ]
             },
-            "description": "Submit a file upload assignment. Only PDF files are accepted. Set 'draft' to true to save as draft."
+            "description": "Submit a text-based assignment. Set 'draft' to true to save as draft."
           },
           "response": []
         },
@@ -815,6 +815,10 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
               }
             ],
             "body": {
@@ -844,7 +848,90 @@
                 "file"
               ]
             },
-            "description": "Upload file to assignment"
+            "description": "Upload a file to an assignment. Only PDF files are accepted."
+          },
+          "response": []
+        },
+        {
+          "name": "Get assignment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/assignments/{{assignmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "assignments",
+                "{{assignmentId}}"
+              ]
+            },
+            "description": "Retrieve a specific assignment by its ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update assignment by ID",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Assignment Title\",\n  \"description\": \"Updated assignment description\",\n  \"due_date\": \"2025-06-20T23:59:59Z\",\n  \"points\": 120\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/assignments/{{assignmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "assignments",
+                "{{assignmentId}}"
+              ]
+            },
+            "description": "Update a specific assignment by its ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete assignment by ID",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/assignments/{{assignmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "assignments",
+                "{{assignmentId}}"
+              ]
+            },
+            "description": "Delete a specific assignment by its ID."
           },
           "response": []
         }
