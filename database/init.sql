@@ -20,7 +20,7 @@ BEGIN
 END $$;
 
 -- Table: assignments
--- Drop the old assignments table if it exists, to ensure a clean slate
+
 DROP TABLE IF EXISTS assignments;
 
 -- Create the new, corrected assignments table
