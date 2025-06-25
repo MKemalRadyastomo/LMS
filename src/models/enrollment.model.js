@@ -1,5 +1,3 @@
-
-
 const db = require('../config/db');
 const logger = require('../utils/logger');
 
@@ -14,15 +12,15 @@ class Enrollment {
         try {
             await client.query('BEGIN');
 
-            const { classId, studentId, enrollmentDate, status } = enrollmentData;
+            const { courseId, studentId, enrollmentDate, status } = enrollmentData;
 
             const query = `
-                INSERT INTO class_enrollments (class_id, user_id, enrollment_date, status)
+                INSERT INTO course_enrollments (course_id, user_id, enrollment_date, status)
                 VALUES ($1, $2, $3, $4)
-                RETURNING id, class_id, user_id, enrollment_date, status
+                RETURNING id, course_id, user_id, enrollment_date, status
             `;
 
-            const values = [classId, studentId, enrollmentDate, status];
+            const values = [courseId, studentId, enrollmentDate, status];
             const result = await client.query(query, values);
 
             await client.query('COMMIT');
