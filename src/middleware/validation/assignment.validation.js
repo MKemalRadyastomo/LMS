@@ -1,6 +1,9 @@
 const Joi = require('joi');
 
 const createAssignment = {
+    params: Joi.object().keys({
+        courseId: Joi.number().integer().required(), // Add validation for courseId from path params
+    }),
     body: Joi.object().keys({
         title: Joi.string().required(),
         description: Joi.string().required(),

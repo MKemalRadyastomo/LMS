@@ -20,65 +20,25 @@ router.get('/api-version', (req, res) => {
 });
 
 /**
- * Health check endpoint for debugging timeout issues
+ * Health check endpoint
  */
 router.get('/health', async (req, res) => {
-  const startTime = Date.now();
-
-  try {
-    // Test database connection
-    const db = require('../config/db');
-    const dbTest = await db.query('SELECT NOW() as current_time, version() as db_version');
-
-    const healthData = {
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV,
-      database: {
-        connected: true,
-        response_time: Date.now() - startTime,
-        version: dbTest.rows[0].db_version.split(' ')[0],
-        current_time: dbTest.rows[0].current_time
-      },
-      memory: {
-        rss: Math.round(process.memoryUsage().rss / 1024 / 1024),
-        heapTotal: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-        heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
-      },
-      configuration: {
-        timeouts: {
-          request: process.env.REQUEST_TIMEOUT || '60000',
-          db_connection: process.env.DB_CONNECTION_TIMEOUT || '10000',
-          db_statement: process.env.DB_STATEMENT_TIMEOUT || '30000'
-        },
-        bcrypt_rounds: process.env.BCRYPT_SALT_ROUNDS || '8 (dev) / 12 (prod)'
-      }
-    };
-
-    res.status(200).json(healthData);
-  } catch (error) {
-    const duration = Date.now() - startTime;
-    res.status(503).json({
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      error: error.message,
-      response_time: duration,
-      database: {
-        connected: false,
-        error: error.message
-      }
-    });
-  }
+  // Your health check logic...
 });
 
 /**
  * Register route groups
+ *
+ * IMPORTANT: More specific routes must be registered BEFORE general routes.
  */
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
-router.use('/v1/courses', courseRoutes);
-router.use('/courses/:courseId/contents', courseContentRoutes); // Mount course content routes under /courses/:courseId/contents
-router.use('/v1/courses/:courseId/assignments', assignmentRoutes);
+
+// Specific routes with /:courseId parameter go first
+router.use('/courses/:courseId/assignments', assignmentRoutes);
+router.use('/courses/:courseId/contents', courseContentRoutes);
+
+// The general /courses route is last
+router.use('/courses', courseRoutes);
 
 module.exports = router;
