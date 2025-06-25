@@ -37,5 +37,62 @@ CREATE TABLE IF NOT EXISTS assignments (
     allowed_file_types TEXT,
     max_file_size_mb INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'active'
+);
+
+-- Table: courses
+CREATE TABLE IF NOT EXISTS courses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    privacy VARCHAR(50) DEFAULT 'private',
+    code VARCHAR(6) UNIQUE NOT NULL,
+    teacher_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: course_contents
+CREATE TABLE IF NOT EXISTS course_contents (
+    id SERIAL PRIMARY KEY,
+    course_id INTEGER NOT NULL,
+    content_type VARCHAR(50) NOT NULL,
+    content_id INTEGER NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    order_index INTEGER NOT NULL
+);
+
+-- Table: class_enrollments
+CREATE TABLE IF NOT EXISTS class_enrollments (
+    id SERIAL PRIMARY KEY,
+    class_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    enrollment_date TIMESTAMP,
+    status VARCHAR(50)
+);
+
+-- Table: materials
+CREATE TABLE IF NOT EXISTS materials (
+    id SERIAL PRIMARY KEY,
+    course_id INTEGER NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    content TEXT,
+    file_path TEXT,
+    video_url TEXT,
+    publish_date TIMESTAMP
+);
+
+-- Table: assignment_submissions
+CREATE TABLE IF NOT EXISTS assignment_submissions (
+    id SERIAL PRIMARY KEY,
+    assignment_id INTEGER NOT NULL,
+    student_id INTEGER NOT NULL,
+    submission_text TEXT,
+    file_path TEXT,
+    quiz_answers_json JSONB,
+    grade INTEGER,
+    feedback TEXT,
+    status VARCHAR(50),
+    plagiarism_score INTEGER
 );
