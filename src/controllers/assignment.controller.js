@@ -1,4 +1,4 @@
-const httpStatus = require('http-status');
+const { default: httpStatus } = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { assignmentService } = require('../services');
 const ApiError = require('../utils/ApiError');
@@ -41,6 +41,10 @@ const createAssignment = catchAsync(async (req, res) => {
 
     const assignmentBody = { ...req.body, course_id: parseInt(courseId, 10) };
     const assignment = await assignmentService.createAssignment(assignmentBody);
+
+    console.log('--- DEBUG START ---');
+    console.log('Value of httpStatus.CREATED:', httpStatus.CREATED);
+    console.log('--- DEBUG END ---');
 
     res.status(httpStatus.CREATED).send(assignment);
 });
