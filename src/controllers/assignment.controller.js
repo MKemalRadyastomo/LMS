@@ -20,7 +20,7 @@ const getAssignment = catchAsync(async (req, res) => {
 });
 
 const createAssignment = catchAsync(async (req, res) => {
-    const { courseId } = req.body;
+    const { courseId } = req.params;
     const { id: userId, role } = req.user;
 
     if (role === 'guru') {
@@ -38,13 +38,25 @@ const createAssignment = catchAsync(async (req, res) => {
         throw ApiError.forbidden('Only admins and teachers (guru) can create assignments.');
     }
 
-    const assignmentBody = { ...req.body };
+    const assignmentBody = { ...req.body, course_id: courseId };
     const assignment = await assignmentService.createAssignment(assignmentBody);
     res.status(httpStatus.CREATED).send(assignment);
+});
+
+const getAssignmentsByCourse = catchAsync(async (req, res) => {
+    const { courseId } = req.params;
+    const filter = { course_id: courseId };
+    const options = {
+        limit: req.query.limit,
+        page: req.query.page,
+    };
+    const result = await assignmentService.queryAssignments(filter, options);
+    res.send(result);
 });
 
 module.exports = {
     createAssignment,
     getAssignments,
     getAssignment,
+    getAssignmentsByCourse,
 };

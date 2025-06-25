@@ -77,8 +77,8 @@ router.get('/health', async (req, res) => {
  */
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
-router.use('/courses', courseRoutes);
-router.use('/courses/:courseId/assignments', assignmentRoutes); // Mount assignment routes under /courses/:courseId/assignments
+router.use('/v1/courses', courseRoutes);
 router.use('/courses/:courseId/contents', courseContentRoutes); // Mount course content routes under /courses/:courseId/contents
+router.use('/v1/courses/:courseId/assignments', assignmentRoutes);
 
 module.exports = router;

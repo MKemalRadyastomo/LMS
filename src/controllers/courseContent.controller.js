@@ -4,14 +4,14 @@ const { courseContentService, courseService } = require('../services');
 const ApiError = require('../utils/ApiError');
 
 const createCourseContent = catchAsync(async (req, res) => {
-    const { courseId } = req.body;
+    const { course_id } = req.body;
     const { id: userId, role } = req.user;
 
     if (role === 'guru') {
-        if (!courseId) {
+        if (!course_id) {
             throw ApiError.badRequest('Course ID is required for teachers to create course content.');
         }
-        const course = await courseService.getCourseById(courseId);
+        const course = await courseService.getCourseById(course_id);
         if (!course) {
             throw ApiError.notFound('Course not found.');
         }

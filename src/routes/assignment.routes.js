@@ -7,12 +7,15 @@ const assignmentController = require('../controllers/assignment.controller');
 const router = express.Router();
 
 router
-    .route('/')
-    .post(authenticate, authorize(['admin', 'guru']), validate(assignmentValidation.createAssignment), assignmentController.createAssignment)
-    .get(authorize('getAssignments'), validate(assignmentValidation.getAssignments), assignmentController.getAssignments);
-
-router
     .route('/:assignmentId')
     .get(authorize('getAssignment'), validate(assignmentValidation.getAssignment), assignmentController.getAssignment);
+
+router
+    .route('/')
+    .get(authorize('getAssignmentsByCourse'), assignmentController.getAssignmentsByCourse);
+
+router
+    .route('/:courseId')
+    .post(authorize('createAssignment'), validate(assignmentValidation.createAssignment), assignmentController.createAssignment);
 
 module.exports = router;
