@@ -1,6 +1,7 @@
-const httpStatus = require('http-status');
+const { default: httpStatus } = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { submissionService } = require('../services');
+const { ApiError } = require('../utils/ApiError');
 
 const submitEssay = catchAsync(async (req, res) => {
     const { assignmentId } = req.params;

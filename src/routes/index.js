@@ -4,6 +4,7 @@ const userRoutes = require('./user.routes');
 const courseRoutes = require('./course.routes');
 const assignmentRoutes = require('./assignment.routes');
 const courseContentRoutes = require('./courseContent.routes');
+const submissionRoutes = require('./submission.routes'); // 1. IMPORT the new router
 
 const router = express.Router();
 
@@ -33,6 +34,7 @@ router.get('/health', async (req, res) => {
  */
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/assignments', submissionRoutes); // 2. USE the new router for the /assignments path
 
 // Specific routes with /:courseId parameter go first
 router.use('/courses/:courseId/assignments', assignmentRoutes);
