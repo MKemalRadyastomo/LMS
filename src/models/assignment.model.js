@@ -63,6 +63,43 @@ Assignment.findByCourseId = async (courseId, filters = {}) => {
     }
 };
 
+// ADDED: Update function for assignments
+Assignment.update = async (id, updateData) => {
+    try {
+        const allowedFields = ['title', 'description', 'type', 'due_date', 'max_score', 'status'];
+        const updates = [];
+        const values = [];
+        let paramCount = 1;
+
+        for (const [key, value] of Object.entries(updateData)) {
+            if (allowedFields.includes(key)) {
+                updates.push(`${key} = $${paramCount}`);
+                values.push(value);
+                paramCount++;
+            }
+        }
+
+        if (updates.length === 0) {
+            return null; // or throw an error if no valid fields are provided
+        }
+
+        updates.push('updated_at = CURRENT_TIMESTAMP');
+        values.push(id);
+
+        const query = `
+            UPDATE assignments
+            SET ${updates.join(', ')}
+            WHERE id = $${paramCount}
+            RETURNING *
+        `;
+
+        const { rows } = await db.query(query, values);
+        return rows[0] || null;
+    } catch (error) {
+        throw error;
+    }
+};
+
 Assignment.findByCourseContentId = async (courseContentId, filters = {}) => {
     try {
         let query = 'SELECT * FROM assignments WHERE course_content_id = $1';

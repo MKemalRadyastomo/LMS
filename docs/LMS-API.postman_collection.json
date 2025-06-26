@@ -90,7 +90,7 @@
                 "exec": [
                   "const randomString = (length) => {",
                   "    let result = '';",
-                  "    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';",
+                  "    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321';",
                   "    const charactersLength = characters.length;",
                   "    for (let i = 0; i < length; i++) {",
                   "        result += characters.charAt(Math.floor(Math.random() * charactersLength));",
@@ -308,37 +308,15 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
             "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "name",
-                  "value": "Mathematics 101",
-                  "type": "text"
-                },
-                {
-                  "key": "description",
-                  "value": "Introduction to Basic Mathematics",
-                  "type": "text"
-                },
-                {
-                  "key": "privacy",
-                  "value": "public",
-                  "type": "text"
-                },
-                {
-                  "key": "teacherId",
-                  "value": "{{userId}}",
-                  "type": "text"
-                },
-                {
-                  "key": "file",
-                  "type": "file",
-                  "value": ""
-                }
-              ]
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mathematics 101\",\n  \"description\": \"Introduction to Basic Mathematics\",\n  \"privacy\": \"public\",\n  \"teacherId\": {{userId}}\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/courses",
@@ -742,7 +720,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"New Assignment\",\n  \"description\": \"Assignment description\",\n  \"due_date\": \"2025-06-15T23:59:59Z\",\n  \"points\": 100,\n  \"content_id\": null\n}"
+              "raw": "{\n  \"title\": \"New Essay Assignment\",\n  \"description\": \"A detailed essay assignment.\",\n  \"type\": \"essay\",\n  \"due_date\": \"2025-08-15T23:59:59Z\",\n  \"max_score\": 100,\n  \"allow_edits\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/courses/{{courseId}}/assignments",
@@ -756,7 +734,7 @@
                 "assignments"
               ]
             },
-            "description": "Create assignment for course"
+            "description": "Create a new assignment for a course. The 'allow_edits' flag determines if students can resubmit after their initial submission."
           },
           "response": []
         },
@@ -1279,7 +1257,7 @@
           "response": []
         },
         {
-          "name": "Enroll Student in Class",
+          "name": "Enroll Single Student to Class",
           "request": {
             "method": "POST",
             "header": [
@@ -1294,7 +1272,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"studentId\": {{studentId}},\n  \"role\": \"student\"\n}"
+              "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"enrollmentDate\": \"2024-01-15\",\n  \"status\": \"active\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/classes/{{classId}}/enrollments",
@@ -1308,7 +1286,7 @@
                 "enrollments"
               ]
             },
-            "description": "Enroll a student in a class"
+            "description": "Add a single student to a class with enrollment date and status"
           },
           "response": []
         },

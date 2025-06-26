@@ -37,11 +37,13 @@ SubmissionService.submitEssay = async (assignmentId, studentId, answerText, isDr
         throw new ApiError(httpStatus.BAD_REQUEST, 'Assignment is not an essay type');
     }
 
-    // Check if already submitted and if it's past due date (if not a draft)
     const existingSubmission = await Submission.findByAssignmentAndStudent(assignmentId, studentId);
-    if (existingSubmission && existingSubmission.status === 'submitted' && !isDraft) {
-        throw new ApiError(httpStatus.CONFLICT, 'Assignment already submitted');
+
+    // Enforce the new rule here
+    if (existingSubmission && existingSubmission.status === 'submitted' && !assignment.allow_edits) {
+        throw new ApiError(httpStatus.CONFLICT, 'This assignment cannot be edited after submission.');
     }
+
     if (assignment.due_date && new Date() > new Date(assignment.due_date) && !isDraft) {
         throw new ApiError(httpStatus.CONFLICT, 'Assignment due date has passed');
     }
@@ -81,11 +83,13 @@ SubmissionService.submitFile = async (assignmentId, studentId, file, isDraft) =>
         throw new ApiError(httpStatus.BAD_REQUEST, 'Assignment is not a file upload type');
     }
 
-    // Check if already submitted and if it's past due date (if not a draft)
     const existingSubmission = await Submission.findByAssignmentAndStudent(assignmentId, studentId);
-    if (existingSubmission && existingSubmission.status === 'submitted' && !isDraft) {
-        throw new ApiError(httpStatus.CONFLICT, 'Assignment already submitted');
+
+    // Enforce the new rule here
+    if (existingSubmission && existingSubmission.status === 'submitted' && !assignment.allow_edits) {
+        throw new ApiError(httpStatus.CONFLICT, 'This assignment cannot be edited after submission.');
     }
+
     if (assignment.due_date && new Date() > new Date(assignment.due_date) && !isDraft) {
         throw new ApiError(httpStatus.CONFLICT, 'Assignment due date has passed');
     }
@@ -145,11 +149,13 @@ SubmissionService.submitQuiz = async (assignmentId, studentId, answers, isDraft)
         throw new ApiError(httpStatus.BAD_REQUEST, 'Assignment is not a quiz type');
     }
 
-    // Check if already submitted and if it's past due date (if not a draft)
     const existingSubmission = await Submission.findByAssignmentAndStudent(assignmentId, studentId);
-    if (existingSubmission && existingSubmission.status === 'submitted' && !isDraft) {
-        throw new ApiError(httpStatus.CONFLICT, 'Assignment already submitted');
+
+    // Enforce the new rule here
+    if (existingSubmission && existingSubmission.status === 'submitted' && !assignment.allow_edits) {
+        throw new ApiError(httpStatus.CONFLICT, 'This assignment cannot be edited after submission.');
     }
+
     if (assignment.due_date && new Date() > new Date(assignment.due_date) && !isDraft) {
         throw new ApiError(httpStatus.CONFLICT, 'Assignment due date has passed');
     }
@@ -205,8 +211,11 @@ SubmissionService.getSubmissionsByAssignmentId = async (assignmentId) => {
  */
 SubmissionService.runPlagiarismCheck = async (text) => {
     // In a real application, this would integrate with a plagiarism detection API
-    console.log('Running plagiarism check for text:', text.substring(0, 50) + '...');
-    return Math.floor(Math.random() * 10); // Simulate a low plagiarism score
+    if (text) {
+        console.log('Running plagiarism check for text:', text.substring(0, 50) + '...');
+        return Math.floor(Math.random() * 10); // Simulate a low plagiarism score
+    }
+    return 0; // Return 0 if there is no text to check
 };
 
 /**
