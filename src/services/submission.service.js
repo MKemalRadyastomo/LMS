@@ -102,13 +102,9 @@ SubmissionService.submitFile = async (assignmentId, studentId, file, isDraft) =>
         throw new ApiError(httpStatus.PAYLOAD_TOO_LARGE, `File size exceeds limit of ${maxFileSizeMB}MB`);
     }
 
-    // Save file to a designated directory (e.g., 'uploads/submissions')
-    const uploadDir = path.join(__dirname, '../../uploads/submissions');
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    const filePath = path.join(uploadDir, `${Date.now()}-${file.originalname}`);
-    fs.writeFileSync(filePath, file.buffer); // Assuming file.buffer is available from multer memory storage
+    // File should already be saved by multer middleware
+    // We just need to get the file path from multer
+    const filePath = file.path; // multer provides the saved file path
 
     const submissionData = {
         assignment_id: assignmentId,

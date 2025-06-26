@@ -3,6 +3,7 @@ const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const courseRoutes = require('./course.routes');
 const assignmentRoutes = require('./assignment.routes');
+const submissionRoutes = require('./submission.routes');
 const courseContentRoutes = require('./courseContent.routes');
 
 const router = express.Router();
@@ -36,6 +37,7 @@ router.use('/users', userRoutes);
 
 // Specific routes with /:courseId parameter go first
 router.use('/courses/:courseId/assignments', assignmentRoutes);
+router.use('/assignments/:assignmentId', submissionRoutes);
 router.use('/courses/:courseId/contents', courseContentRoutes);
 
 // The general /courses route is last

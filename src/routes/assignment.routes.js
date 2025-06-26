@@ -27,6 +27,18 @@ router
         authenticate,
         validate(assignmentValidation.getAssignment),
         assignmentController.getAssignment
+    )
+    .put(
+        authenticate,
+        authorize(['admin', 'guru']),
+        validate(assignmentValidation.updateAssignment),
+        assignmentController.updateAssignment
+    )
+    .delete(
+        authenticate,
+        authorize(['admin', 'guru']),
+        validate(assignmentValidation.deleteAssignment),
+        assignmentController.deleteAssignment
     );
 
 module.exports = router;
