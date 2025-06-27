@@ -23,6 +23,87 @@ const getAssignment = catchAsync(async (req, res) => {
     res.send(assignment);
 });
 
+const updateAssignment = catchAsync(async (req, res) => {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Check if assignment exists and belongs to the course
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
+    }
+
+    // Permission check for teachers
+    if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to update assignments for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Only admins and teachers (guru) can update assignments.');
+    }
+
+    const updatedAssignment = await assignmentService.updateAssignment(assignmentId, req.body);
+    res.send(updatedAssignment);
+});
+
+const deleteAssignment = catchAsync(async (req, res) => {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Check if assignment exists and belongs to the course
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
+    }
+
+    // Permission check for teachers
+    if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to delete assignments for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Only admins and teachers (guru) can delete assignments.');
+    }
+
+    await assignmentService.deleteAssignment(assignmentId);
+    res.status(httpStatus.NO_CONTENT).send();
+});
+
+const getAssignmentAnalytics = catchAsync(async (req, res) => {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Check if assignment exists and belongs to the course
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
+    }
+
+    // Permission check - only teachers and admins can view analytics
+    if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to view analytics for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Only admins and teachers (guru) can view assignment analytics.');
+    }
+
+    const analytics = await assignmentService.getAssignmentAnalytics(assignmentId);
+    res.send(analytics);
+});
+
 const createAssignment = catchAsync(async (req, res) => {
     const { courseId } = req.params;
     const { id: userId, role } = req.user;
@@ -53,4 +134,7 @@ module.exports = {
     createAssignment,
     getAssignments,
     getAssignment,
+    updateAssignment,
+    deleteAssignment,
+    getAssignmentAnalytics,
 };

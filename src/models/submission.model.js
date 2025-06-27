@@ -81,4 +81,17 @@ Submission.findByAssignmentId = async (assignmentId) => {
     }
 };
 
+Submission.findByAssignmentIds = async (assignmentIds) => {
+    try {
+        if (!Array.isArray(assignmentIds) || assignmentIds.length === 0) {
+            return [];
+        }
+        const query = `SELECT * FROM assignment_submissions WHERE assignment_id = ANY($1::int[])`;
+        const { rows } = await db.query(query, [assignmentIds]);
+        return rows;
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = Submission;

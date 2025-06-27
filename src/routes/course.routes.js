@@ -22,5 +22,6 @@ router.get('/:courseId/content/:contentId', authenticate, validate(courseValidat
 
 // Route for getting all content for a course
 router.get('/:courseId/content', authenticate, validate(courseValidation.getCourseContents), courseController.getCourseContents);
+router.get('/:courseId/statistics', authenticate, courseController.getCourseStatistics);
 
 module.exports = router;

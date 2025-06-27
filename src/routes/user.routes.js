@@ -4,11 +4,14 @@ const userController = require('../controllers/user.controller');
 const { authenticate } = require('../middleware/auth');
 const { upload, compressAndSaveImage } = require('../middleware/upload');
 
-// Get user profile
+// Admin routes
+router.get('/', authenticate, userController.listUsers); // GET /users - List all users (admin only)
+router.post('/', authenticate, userController.createUser); // POST /users - Create new user (admin only)
+router.delete('/:id', authenticate, userController.deleteUser); // DELETE /users/:id - Delete user (admin only)
+
+// User profile routes
 router.get('/:id', authenticate, userController.getProfile);
-// Update user profile
 router.put('/:id', authenticate, userController.updateProfile);
-// Update profile picture
 router.post('/:id/profile-picture', authenticate, upload.single('profile_picture'), compressAndSaveImage, userController.updateProfilePicture);
 
 module.exports = router;

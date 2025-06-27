@@ -23,6 +23,16 @@ class Course {
             await client.query('BEGIN');
 
             const { name, description, privacy = 'private', teacherId } = courseData;
+            
+            // Validate required fields
+            if (!name || !name.trim()) {
+                throw new Error('Course name is required');
+            }
+            
+            if (!teacherId) {
+                throw new Error('Teacher ID is required');
+            }
+            
             let code;
             let attempts = 0;
             const maxAttempts = 5;

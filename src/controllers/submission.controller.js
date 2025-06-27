@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
+const ApiError = require('../utils/ApiError');
 const { submissionService } = require('../services');
 
 const submitEssay = catchAsync(async (req, res) => {
@@ -63,6 +64,15 @@ const updateSubmission = catchAsync(async (req, res) => {
 });
 
 
+const gradeSubmission = catchAsync(async (req, res) => {
+    const { submissionId } = req.params;
+    const { grade, feedback } = req.body;
+    const graderId = req.user.id;
+
+    const submission = await submissionService.gradeSubmission(submissionId, grade, feedback, graderId);
+    res.send(submission);
+});
+
 module.exports = {
     submitEssay,
     submitFile,
@@ -70,4 +80,5 @@ module.exports = {
     getStudentSubmission,
     getSubmissionsByAssignment,
     updateSubmission,
+    gradeSubmission,
 };
