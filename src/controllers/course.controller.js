@@ -310,3 +310,53 @@ exports.listCourses = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.getCourseStatistics = async (req, res, next) => {
+    try {
+        const { courseId } = req.params;
+
+        // Check if the course exists
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return next(notFound('Course not found'));
+        }
+
+        // Count enrolled students
+        const studentCount = await Enrollment.countActiveStudentsInCourse(courseId);
+
+        // Calculate completed assignments and average grade
+        // This requires fetching all assignments for the course and then their submissions
+        const assignmentsInCourse = await Assignment.findByCourseId(courseId);
+        const assignmentIds = assignmentsInCourse.map(assignment => assignment.id);
+
+        let completedAssignmentsCount = 0;
+        let totalGrades = 0;
+        let gradedSubmissionsCount = 0;
+
+        if (assignmentIds.length > 0) {
+            const submissions = await Submission.findByAssignmentIds(assignmentIds);
+
+            submissions.forEach(submission => {
+                if (submission.status === 'graded') {
+                    completedAssignmentsCount++;
+                    if (submission.grade !== null) {
+                        totalGrades += submission.grade;
+                        gradedSubmissionsCount++;
+                    }
+                }
+            });
+        }
+
+        const averageGrade = gradedSubmissionsCount > 0 ? (totalGrades / gradedSubmissionsCount) : 0;
+
+        res.json({
+            courseId: courseId,
+            studentCount: studentCount,
+            completedAssignments: completedAssignmentsCount,
+            averageGrade: parseFloat(averageGrade.toFixed(2))
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};

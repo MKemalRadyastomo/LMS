@@ -63,6 +63,16 @@ const updateSubmission = {
     }),
 };
 
+const gradeSubmission = {
+    params: Joi.object().keys({
+        submissionId: Joi.number().integer().required(),
+    }),
+    body: Joi.object().keys({
+        grade: Joi.number().min(0).max(100).required(),
+        feedback: Joi.string().optional().allow(''),
+    }),
+};
+
 module.exports = {
     submitEssay,
     submitFile,
@@ -70,4 +80,5 @@ module.exports = {
     getStudentSubmission,
     getSubmissionsByAssignment,
     updateSubmission,
+    gradeSubmission,
 };

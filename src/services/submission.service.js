@@ -227,4 +227,38 @@ SubmissionService.calculateQuizScore = (quizQuestions, studentAnswers) => {
     return score;
 };
 
+
+/**
+ * Update a submission by its ID
+ * @param {number} submissionId
+ * @param {Object} updateBody
+ * @returns {Promise<Submission>}
+ */
+SubmissionService.updateSubmission = async (submissionId, updateBody) => {
+    const submission = await SubmissionService.getSubmissionById(submissionId);
+    if (!submission) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Submission not found');
+    }
+    return await Submission.update(submissionId, updateBody);
+};
+
+/**
+ * Grade a submission
+ * @param {number} submissionId
+ * @param {number} grade
+ * @param {string} feedback
+ * @param {number} graderId
+ * @returns {Promise<Submission>}
+ */
+SubmissionService.gradeSubmission = async (submissionId, grade, feedback, graderId) => {
+    const updateBody = {
+        grade,
+        feedback,
+        graded_by: graderId,
+        status: 'graded',
+    };
+    return SubmissionService.updateSubmission(submissionId, updateBody);
+};
+
 module.exports = SubmissionService;
+

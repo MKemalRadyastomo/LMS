@@ -97,4 +97,46 @@ AssignmentService.deleteAssignment = async (assignmentId) => {
     await Assignment.delete(assignmentId);
 };
 
+/**
+ * Get assignment analytics
+ * @param {number} assignmentId
+ * @returns {Promise<Object>} analytics data
+ */
+AssignmentService.getAssignmentAnalytics = async (assignmentId) => {
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found');
+    }
+
+    // This would need to be implemented based on your Submission model methods
+    // For now, returning a placeholder structure
+    const analytics = {
+        assignment_id: assignmentId,
+        assignment_title: assignment.title,
+        assignment_type: assignment.type,
+        due_date: assignment.due_date,
+        max_score: assignment.max_score,
+        total_submissions: 0, // Would query submissions
+        submitted_count: 0,   // Status = 'submitted' or 'graded'
+        draft_count: 0,       // Status = 'draft'
+        graded_count: 0,      // Status = 'graded'
+        average_grade: null,  // Average of all graded submissions
+        grade_distribution: { // Grade ranges
+            'A': 0, // 90-100
+            'B': 0, // 80-89
+            'C': 0, // 70-79
+            'D': 0, // 60-69
+            'F': 0  // below 60
+        },
+        submission_timeline: [], // Submissions over time
+        overdue_submissions: 0   // Submissions after due date
+    };
+
+    // TODO: Implement actual queries when Submission model methods are available
+    // const submissions = await Submission.findByAssignmentId(assignmentId);
+    // ... calculate statistics from submissions ...
+
+    return analytics;
+};
+
 module.exports = AssignmentService;

@@ -59,11 +59,38 @@ router.post('/submit/essay',
     submissionController.submitEssay
 );
 
-// File submission route
+// File submission route with enhanced error handling
 router.post('/submit/file',
     authenticate,
     authorize(['student', 'siswa']),
-    upload.single('submitted_file'),
+    (req, res, next) => {
+        upload.single('submitted_file')(req, res, (err) => {
+            if (err) {
+                // Handle multer-specific errors
+                if (err instanceof multer.MulterError) {
+                    if (err.code === 'LIMIT_FILE_SIZE') {
+                        return res.status(413).json({
+                            error: 'File size too large',
+                            message: 'File size exceeds the 10MB limit',
+                            code: 'FILE_TOO_LARGE'
+                        });
+                    }
+                    return res.status(400).json({
+                        error: 'File upload error',
+                        message: err.message,
+                        code: 'UPLOAD_ERROR'
+                    });
+                }
+                // Handle custom file filter errors
+                return res.status(415).json({
+                    error: 'Unsupported file type',
+                    message: err.message,
+                    code: 'INVALID_FILE_TYPE'
+                });
+            }
+            next();
+        });
+    },
     validate(submissionValidation.submitFile),
     submissionController.submitFile
 );
@@ -98,6 +125,14 @@ router.put('/submissions/:submissionId',
     authorize(['student', 'siswa']),
     validate(submissionValidation.updateSubmission),
     submissionController.updateSubmission
+);
+
+// Grade submission (teachers only)
+router.patch('/submissions/:submissionId/grade',
+    authenticate,
+    authorize(['admin', 'guru']),
+    validate(submissionValidation.gradeSubmission),
+    submissionController.gradeSubmission
 );
 
 module.exports = router;
