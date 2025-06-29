@@ -2,6 +2,7 @@ const Course = require('../models/course.model');
 const Enrollment = require('../models/enrollment.model');
 const Material = require('../models/material.model');
 const Assignment = require('../models/assignment.model');
+const Submission = require('../models/submission.model');
 const CourseContent = require('../models/courseContent.model');
 const path = require('path');
 const { forbidden, notFound } = require('../utils/ApiError');
