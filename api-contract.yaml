@@ -1345,6 +1345,108 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /reports/class/{course_id}:
+    parameters:
+      - name: course_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get class progress report
+      tags:
+        - Reports
+      parameters:
+        - name: filterBy
+          in: query
+          schema:
+            type: string
+            enum: [assignment, material]
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Class progress report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassProgressReport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /reports/student/{student_id}:
+    parameters:
+      - name: student_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get student progress report
+      tags:
+        - Reports
+      parameters:
+        - name: courseId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Student progress report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProgressReport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /reports/class/{course_id}/export:
+    parameters:
+      - name: course_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Export class progress report
+      tags:
+        - Reports
+      parameters:
+        - name: format
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [pdf, xlsx]
+      responses:
+        '200':
+          description: Class progress report file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1959,6 +2061,53 @@ components:
       required:
         - question_id
         - answer
+    ClassProgressReport:
+      type: object
+      properties:
+        course_id:
+          type: integer
+        course_title:
+          type: string
+        summary:
+          type: object
+          properties:
+            average_grade:
+              type: number
+              format: float
+            median_grade:
+              type: number
+              format: float
+            completion_rate:
+              type: number
+              format: float
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentProgressReport'
+    StudentProgressReport:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        student_name:
+          type: string
+        overall_grade:
+          type: number
+          format: float
+        assignments:
+          type: array
+          items:
+            type: object
+            properties:
+              assignment_id:
+                type: integer
+              assignment_title:
+                type: string
+              grade:
+                type: number
+                format: float
+              submission_status:
+                type: string
   parameters:
     PageParam:
       name: page
@@ -2046,3 +2195,5 @@ tags:
     description: Assignment management and retrieval
   - name: Submissions
     description: Student assignment submissions
+  - name: Reports
+    description: Operations related to progress reports

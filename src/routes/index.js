@@ -4,6 +4,7 @@ const userRoutes = require('./user.routes');
 const courseRoutes = require('./course.routes');
 const assignmentRoutes = require('./assignment.routes');
 const courseContentRoutes = require('./courseContent.routes');
+const reportRoutes = require('./report.routes');
 
 const router = express.Router();
 
@@ -39,5 +40,7 @@ router.use('/courses/:courseId/contents', courseContentRoutes);
 
 // The general /courses route is last
 router.use('/courses', courseRoutes);
+
+router.use('/reports', reportRoutes);
 
 module.exports = router;
