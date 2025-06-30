@@ -3,6 +3,7 @@ const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const courseRoutes = require('./course.routes');
 const assignmentRoutes = require('./assignment.routes');
+const submissionRoutes = require('./submission.routes');
 const courseContentRoutes = require('./courseContent.routes');
 const submissionRoutes = require('./submission.routes'); // 1. IMPORT the new router
 
@@ -38,6 +39,7 @@ router.use('/assignments', submissionRoutes); // 2. USE the new router for the /
 
 // Specific routes with /:courseId parameter go first
 router.use('/courses/:courseId/assignments', assignmentRoutes);
+router.use('/assignments/:assignmentId', submissionRoutes);
 router.use('/courses/:courseId/contents', courseContentRoutes);
 
 // The general /courses route is last

@@ -12,11 +12,24 @@ exports.createCourse = async (req, res, next) => {
             return next(forbidden('Only admin and teachers can create courses'));
         }
 
+        // Determine teacher_id: use provided teacherId, or current user if they're a teacher
+        let teacher_id = req.body.teacher_id || req.body.teacherId;
+
+        if (!teacher_id) {
+            if (req.user.role === 'guru') {
+                teacher_id = req.user.id;
+            } else {
+                return res.status(400).json({
+                    message: 'teacher_id is required. Admin users must specify a teacher for the course.'
+                });
+            }
+        }
+
         const courseData = {
             name: req.body.name,
             description: req.body.description,
             privacy: req.body.privacy || 'private',
-            teacherId: req.body.teacherId || (req.user.role === 'guru' ? req.user.id : null)
+            teacherId: teacher_id // This will be mapped to teacher_id in the model
         };
 
         const newCourse = await Course.create(courseData);
@@ -242,12 +255,27 @@ exports.updateCourse = async (req, res, next) => {
             return next(forbidden('You do not have permission to update this course'));
         }
 
-        const updateData = {
-            name: req.body.name,
-            description: req.body.description,
-            privacy: req.body.privacy,
-            teacherId: req.body.teacherId
-        };
+        // Build update data, excluding undefined values
+        const updateData = {};
+
+        if (req.body.name !== undefined) {
+            updateData.name = req.body.name;
+        }
+
+        if (req.body.description !== undefined) {
+            updateData.description = req.body.description;
+        }
+
+        if (req.body.privacy !== undefined) {
+            updateData.privacy = req.body.privacy;
+        }
+
+        // Only update teacher_id if explicitly provided
+        const newTeacherId = req.body.teacher_id || req.body.teacherId;
+        if (newTeacherId) {
+            updateData.teacher_id = newTeacherId;
+        }
+        // If no teacher_id provided, keep the existing one (don't update it)
 
         const updatedCourse = await Course.update(req.params.id, updateData);
         res.json(updatedCourse);
@@ -278,6 +306,56 @@ exports.listCourses = async (req, res, next) => {
 
         const courses = await Course.list(options);
         res.json(courses);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.getCourseStatistics = async (req, res, next) => {
+    try {
+        const { courseId } = req.params;
+
+        // Check if the course exists
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return next(notFound('Course not found'));
+        }
+
+        // Count enrolled students
+        const studentCount = await Enrollment.countActiveStudentsInCourse(courseId);
+
+        // Calculate completed assignments and average grade
+        // This requires fetching all assignments for the course and then their submissions
+        const assignmentsInCourse = await Assignment.findByCourseId(courseId);
+        const assignmentIds = assignmentsInCourse.map(assignment => assignment.id);
+
+        let completedAssignmentsCount = 0;
+        let totalGrades = 0;
+        let gradedSubmissionsCount = 0;
+
+        if (assignmentIds.length > 0) {
+            const submissions = await Submission.findByAssignmentIds(assignmentIds);
+
+            submissions.forEach(submission => {
+                if (submission.status === 'graded') {
+                    completedAssignmentsCount++;
+                    if (submission.grade !== null) {
+                        totalGrades += submission.grade;
+                        gradedSubmissionsCount++;
+                    }
+                }
+            });
+        }
+
+        const averageGrade = gradedSubmissionsCount > 0 ? (totalGrades / gradedSubmissionsCount) : 0;
+
+        res.json({
+            courseId: courseId,
+            studentCount: studentCount,
+            completedAssignments: completedAssignmentsCount,
+            averageGrade: parseFloat(averageGrade.toFixed(2))
+        });
+
     } catch (err) {
         next(err);
     }

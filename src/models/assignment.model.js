@@ -107,20 +107,64 @@ Assignment.findByCourseContentId = async (courseContentId, filters = {}) => {
         let paramIndex = 2;
 
         if (filters.status) {
-            query += ` AND status = $${paramIndex++}`;
+            query += ` AND status = ${paramIndex++}`;
             values.push(filters.status);
         }
         if (filters.due_date_before) {
-            query += ` AND due_date <= $${paramIndex++}`;
+            query += ` AND due_date <= ${paramIndex++}`;
             values.push(filters.due_date_before);
         }
         if (filters.due_date_after) {
-            query += ` AND due_date >= $${paramIndex++}`;
+            query += ` AND due_date >= ${paramIndex++}`;
             values.push(filters.due_date_after);
         }
 
         const { rows } = await db.query(query, values);
         return rows;
+    } catch (error) {
+        throw error;
+    }
+};
+
+Assignment.update = async (id, assignmentData) => {
+    try {
+        const {
+            title, description, type, due_date, max_score,
+            quiz_questions_json, allowed_file_types, max_file_size_mb
+        } = assignmentData;
+
+        const query = `
+            UPDATE assignments
+            SET
+                title = COALESCE($1, title),
+                description = COALESCE($2, description),
+                type = COALESCE($3, type),
+                due_date = COALESCE($4, due_date),
+                max_score = COALESCE($5, max_score),
+                quiz_questions_json = COALESCE($6, quiz_questions_json),
+                allowed_file_types = COALESCE($7, allowed_file_types),
+                max_file_size_mb = COALESCE($8, max_file_size_mb),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $9
+            RETURNING *
+        `;
+
+        const values = [
+            title, description, type, due_date, max_score,
+            quiz_questions_json, allowed_file_types, max_file_size_mb, id
+        ];
+
+        const { rows } = await db.query(query, values);
+        return rows[0];
+    } catch (error) {
+        throw error;
+    }
+};
+
+Assignment.delete = async (id) => {
+    try {
+        const query = 'DELETE FROM assignments WHERE id = $1';
+        await db.query(query, [id]);
     } catch (error) {
         throw error;
     }
