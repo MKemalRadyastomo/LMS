@@ -1,51 +1,4 @@
 const express = require('express');
-<<<<<<< HEAD
-const { authenticate, authorize } = require('../middleware/auth');
-const submissionController = require('../controllers/submission.controller');
-const materialUpload = require('../middleware/materialUpload');
-const validate = require('../middleware/validate');
-// You may need to create a submission.validation.js file for validation rules later.
-
-const router = express.Router();
-
-// --- Routes for Assignment Submissions ---
-
-// GET /assignments/:assignmentId/submissions
-// Get all submissions for an assignment (for teachers/admins)
-router.get(
-    '/:assignmentId/submissions',
-    authenticate,
-    authorize(['admin', 'guru']), // Protect this route
-    submissionController.getSubmissionsByAssignment
-);
-
-// POST /assignments/:assignmentId/submit/essay
-router.post(
-    '/:assignmentId/submit/essay',
-    authenticate,
-    authorize(['siswa']), // Only students can submit
-    submissionController.submitEssay
-);
-
-// POST /assignments/:assignmentId/submit/file
-router.post(
-    '/:assignmentId/submit/file',
-    authenticate,
-    authorize(['siswa']),
-    materialUpload.single('file'), // Use middleware for file uploads
-    submissionController.submitFile
-);
-
-// POST /assignments/:assignmentId/submit/quiz
-router.post(
-    '/:assignmentId/submit/quiz',
-    authenticate,
-    authorize(['siswa']),
-    submissionController.submitQuiz
-);
-
-module.exports = router;
-=======
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -78,11 +31,11 @@ const storage = multer.diskStorage({
 // File filter for security
 const fileFilter = (req, file, cb) => {
     // Get allowed file types from assignment or use defaults
-    const allowedTypes = req.assignment?.allowed_file_types || 
+    const allowedTypes = req.assignment?.allowed_file_types ||
         ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'zip', 'rar'];
-    
+
     const fileExtension = path.extname(file.originalname).toLowerCase().substring(1);
-    
+
     if (allowedTypes.includes(fileExtension)) {
         cb(null, true);
     } else {
@@ -183,4 +136,3 @@ router.patch('/submissions/:submissionId/grade',
 );
 
 module.exports = router;
->>>>>>> deaf4a3811d57d0ec9dd6d165c37297a28d9f953

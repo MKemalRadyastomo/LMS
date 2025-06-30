@@ -56,23 +56,6 @@ const deleteAssignment = {
     }),
 };
 
-// ADDED: Validation schema for updating an assignment
-const updateAssignment = {
-    params: Joi.object().keys({
-        courseId: Joi.number().integer().positive().required(),
-        assignmentId: Joi.number().integer().positive().required(),
-    }),
-    body: Joi.object().keys({
-        title: Joi.string().min(3).max(255).optional(),
-        description: Joi.string().optional(),
-        type: Joi.string().valid('essay', 'file_upload', 'quiz').optional(),
-        due_date: Joi.date().optional(),
-        max_score: Joi.number().integer().min(0).optional(),
-        status: Joi.string().valid('active', 'draft', 'archived').optional()
-    }).min(1) // At least one field must be provided for an update
-};
-
-
 module.exports = {
     createAssignment,
     getAssignments,

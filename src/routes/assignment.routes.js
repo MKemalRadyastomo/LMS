@@ -3,6 +3,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const assignmentValidation = require('../middleware/validation/assignment.validation');
 const assignmentController = require('../controllers/assignment.controller');
+const submissionRoutes = require('./submission.routes'); // Import submission routes
 
 // Add { mergeParams: true } to access parameters from the parent router
 const router = express.Router({ mergeParams: true });
@@ -20,10 +21,6 @@ router
         validate(assignmentValidation.getAssignments),
         assignmentController.getAssignments
     );
-
-// In src/routes/assignment.routes.js
-
-// ... (other code)
 
 router
     .route('/:assignmentId')
@@ -54,5 +51,8 @@ router
         validate(assignmentValidation.getAssignment), // Reuse validation since it just checks assignmentId
         assignmentController.getAssignmentAnalytics
     );
+
+// Nest the submission routes under the specific assignment
+router.use('/:assignmentId/submissions', submissionRoutes);
 
 module.exports = router;

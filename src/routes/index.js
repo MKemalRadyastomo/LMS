@@ -3,9 +3,7 @@ const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const courseRoutes = require('./course.routes');
 const assignmentRoutes = require('./assignment.routes');
-const submissionRoutes = require('./submission.routes');
 const courseContentRoutes = require('./courseContent.routes');
-const submissionRoutes = require('./submission.routes'); // 1. IMPORT the new router
 
 const router = express.Router();
 
@@ -30,16 +28,13 @@ router.get('/health', async (req, res) => {
 
 /**
  * Register route groups
- *
- * IMPORTANT: More specific routes must be registered BEFORE general routes.
  */
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
-router.use('/assignments', submissionRoutes); // 2. USE the new router for the /assignments path
 
-// Specific routes with /:courseId parameter go first
+// All assignment-related routes, including submissions, are now handled by assignmentRoutes
 router.use('/courses/:courseId/assignments', assignmentRoutes);
-router.use('/assignments/:assignmentId', submissionRoutes);
+
 router.use('/courses/:courseId/contents', courseContentRoutes);
 
 // The general /courses route is last

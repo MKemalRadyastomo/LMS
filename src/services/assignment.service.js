@@ -18,23 +18,6 @@ AssignmentService.getAssignmentById = async (assignmentId) => {
     return assignment;
 };
 
-// ADDED: Service to update an assignment
-/**
- * Update assignment by ID
- * @param {number} assignmentId
- * @param {Object} updateBody
- * @returns {Promise<Assignment>}
- */
-AssignmentService.updateAssignmentById = async (assignmentId, updateBody) => {
-    const assignment = await AssignmentService.getAssignmentById(assignmentId);
-    if (!assignment) {
-        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found');
-    }
-
-    const updatedAssignment = await Assignment.update(assignmentId, updateBody);
-    return updatedAssignment;
-};
-
 /**
  * Query for assignments
  * @param {Object} filter - Mongo filter
@@ -92,7 +75,7 @@ AssignmentService.createAssignment = async (assignmentBody) => {
  * @param {Object} updateBody
  * @returns {Promise<Assignment>}
  */
-AssignmentService.updateAssignment = async (assignmentId, updateBody) => {
+AssignmentService.updateAssignmentById = async (assignmentId, updateBody) => {
     const assignment = await Assignment.findById(assignmentId);
     if (!assignment) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found');
