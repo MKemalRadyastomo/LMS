@@ -13,5 +13,7 @@ router.delete('/:id', authenticate, userController.deleteUser); // DELETE /users
 router.get('/:id', authenticate, userController.getProfile);
 router.put('/:id', authenticate, userController.updateProfile);
 router.post('/:id/profile-picture', authenticate, upload.single('profile_picture'), compressAndSaveImage, userController.updateProfilePicture);
+router.put('/:id/password', authenticate, userController.changePassword);
+router.get('/:id/stats', authenticate, userController.getUserStats);
 
 module.exports = router;

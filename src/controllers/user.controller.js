@@ -154,3 +154,83 @@ exports.updateProfilePicture = async (req, res, next) => {
         next(err);
     }
 };
+
+// PUT /users/:id/password - Change password
+exports.changePassword = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        
+        // Only allow users to change their own password (not even admin can change others)
+        if (req.user.id !== parseInt(req.params.id)) {
+            return res.status(403).json({ message: 'Forbidden: Can only change your own password' });
+        }
+
+        const { current_password, new_password } = req.body;
+        
+        if (!current_password || !new_password) {
+            return res.status(400).json({ message: 'Current password and new password are required' });
+        }
+
+        // Verify current password
+        const bcrypt = require('bcrypt');
+        const isCurrentPasswordValid = await bcrypt.compare(current_password, user.password);
+        if (!isCurrentPasswordValid) {
+            return res.status(400).json({ message: 'Current password is incorrect' });
+        }
+
+        // Validate new password strength
+        if (new_password.length < 8) {
+            return res.status(422).json({ message: 'New password must be at least 8 characters long' });
+        }
+
+        // Update password (it will be hashed in the User.update method)
+        const updatedUser = await User.update(req.params.id, {
+            password: new_password
+        });
+        
+        if (!updatedUser) {
+            return res.status(400).json({ message: 'Password update failed' });
+        }
+
+        res.json({ message: 'Password successfully updated' });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// GET /users/:id/stats - Get user statistics
+exports.getUserStats = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        
+        // Only allow self or admin
+        if (req.user.id !== parseInt(req.params.id) && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        // For now, return mock stats - this can be enhanced with real database queries
+        const stats = {
+            coursesEnrolled: 0,
+            assignmentsCompleted: 0,
+            assignmentsPending: 0,
+            totalSubmissions: 0,
+            averageGrade: null,
+            lastLoginAt: user.last_login_at,
+            accountCreatedAt: user.created_at,
+            completionRate: 0
+        };
+
+        // TODO: Implement real statistics queries
+        // Example queries that could be added:
+        // - Count enrollments from enrollment table
+        // - Count completed assignments from submissions table
+        // - Calculate average grades from submissions table
+        // - Calculate completion rates
+
+        res.json(stats);
+    } catch (err) {
+        next(err);
+    }
+};
