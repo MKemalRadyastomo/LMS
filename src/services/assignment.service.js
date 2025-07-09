@@ -1,6 +1,6 @@
 const Assignment = require('../models/assignment.model');
 const CourseContent = require('../models/courseContent.model'); // Import CourseContent model
-const ApiError = require('../utils/ApiError');
+const { ApiError } = require('../utils/ApiError');
 const httpStatus = require('http-status');
 
 const AssignmentService = {};

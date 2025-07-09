@@ -361,3 +361,40 @@ exports.getCourseStatistics = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.getCourseEnrollments = async (req, res, next) => {
+    try {
+        const { courseId } = req.params;
+        const { page, limit, status } = req.query;
+
+        // Check if the course exists
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return next(notFound('Course not found'));
+        }
+
+        // Check access permissions
+        // If course is private, check if user is admin, teacher of the course, or enrolled student
+        if (course.privacy === 'private' &&
+            req.user.role !== 'admin' &&
+            req.user.id !== course.teacher_id) {
+            // Check if user is enrolled in the course
+            const enrollment = await Enrollment.findByCourseAndStudent(courseId, req.user.id);
+            if (!enrollment || enrollment.status !== 'active') {
+                return next(forbidden('You do not have access to view enrollments for this course'));
+            }
+        }
+
+        const options = {
+            page: parseInt(page) || 1,
+            limit: parseInt(limit) || 20,
+            status: status || null
+        };
+
+        const result = await Enrollment.findByCourseId(courseId, options);
+        res.json(result);
+
+    } catch (err) {
+        next(err);
+    }
+};

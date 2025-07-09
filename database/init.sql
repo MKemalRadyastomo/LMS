@@ -62,13 +62,13 @@ CREATE TABLE IF NOT EXISTS course_contents (
     order_index INTEGER NOT NULL
 );
 
--- Table: class_enrollments
-CREATE TABLE IF NOT EXISTS class_enrollments (
+-- Table: course_enrollments
+CREATE TABLE IF NOT EXISTS course_enrollments (
     id SERIAL PRIMARY KEY,
-    class_id INTEGER NOT NULL,
+    course_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
-    enrollment_date TIMESTAMP,
-    status VARCHAR(50)
+    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'active'
 );
 
 -- Table: materials

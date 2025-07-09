@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { courseContentService, courseService } = require('../services');
-const ApiError = require('../utils/ApiError');
+const { ApiError } = require('../utils/ApiError');
 
 const createCourseContent = catchAsync(async (req, res) => {
     const { course_id } = req.body;

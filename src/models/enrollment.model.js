@@ -78,6 +78,117 @@ class Enrollment {
             throw error;
         }
     }
+
+    /**
+     * Find all enrollments for a specific course with user details
+     * @param {number} courseId - The ID of the course
+     * @param {Object} options - Query options (page, limit, status)
+     * @returns {Promise<Object>} Enrollments with pagination
+     */
+    static async findByCourseId(courseId, options = {}) {
+        const {
+            page = 1,
+            limit = 20,
+            status = null
+        } = options;
+
+        const offset = (page - 1) * limit;
+        
+        try {
+            // Build queries based on whether status filter is provided
+            let countQuery, dataQuery, countParams, dataParams;
+            
+            if (status) {
+                // With status filter
+                countQuery = `
+                    SELECT COUNT(*) as total
+                    FROM course_enrollments ce
+                    WHERE ce.course_id = $1 AND ce.status = $2
+                `;
+                countParams = [courseId, status];
+                
+                dataQuery = `
+                    SELECT 
+                        ce.id,
+                        ce.course_id,
+                        ce.user_id,
+                        ce.enrollment_date,
+                        ce.status,
+                        u.name as user_name,
+                        u.email as user_email,
+                        u.role as user_role
+                    FROM course_enrollments ce
+                    INNER JOIN users u ON ce.user_id = u.id
+                    WHERE ce.course_id = $1 AND ce.status = $2
+                    ORDER BY ce.enrollment_date DESC
+                    LIMIT $3 OFFSET $4
+                `;
+                dataParams = [courseId, status, limit, offset];
+            } else {
+                // Without status filter
+                countQuery = `
+                    SELECT COUNT(*) as total
+                    FROM course_enrollments ce
+                    WHERE ce.course_id = $1
+                `;
+                countParams = [courseId];
+                
+                dataQuery = `
+                    SELECT 
+                        ce.id,
+                        ce.course_id,
+                        ce.user_id,
+                        ce.enrollment_date,
+                        ce.status,
+                        u.name as user_name,
+                        u.email as user_email,
+                        u.role as user_role
+                    FROM course_enrollments ce
+                    INNER JOIN users u ON ce.user_id = u.id
+                    WHERE ce.course_id = $1
+                    ORDER BY ce.enrollment_date DESC
+                    LIMIT $2 OFFSET $3
+                `;
+                dataParams = [courseId, limit, offset];
+            }
+
+            // Get total count
+            const countResult = await db.query(countQuery, countParams);
+            const total = parseInt(countResult.rows[0].total, 10);
+            const totalPages = Math.ceil(total / limit);
+
+            // Get data
+            const dataResult = await db.query(dataQuery, dataParams);
+            
+            // Format response
+            const enrollments = dataResult.rows.map(row => ({
+                id: row.id,
+                course_id: row.course_id,
+                user_id: row.user_id,
+                enrollment_date: row.enrollment_date,
+                status: row.status,
+                user: {
+                    id: row.user_id,
+                    name: row.user_name,
+                    email: row.user_email,
+                    role: row.user_role
+                }
+            }));
+
+            return {
+                enrollments,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    totalPages
+                }
+            };
+        } catch (error) {
+            logger.error(`Error finding enrollments by course ID: ${error.message}`);
+            throw error;
+        }
+    }
 }
 
 module.exports = Enrollment;

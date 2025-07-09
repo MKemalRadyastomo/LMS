@@ -1,11 +1,31 @@
 const { default: httpStatus } = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { assignmentService } = require('../services');
-const ApiError = require('../utils/ApiError');
+const { ApiError } = require('../utils/ApiError');
 const Course = require('../models/course.model');
 
 const getAssignments = catchAsync(async (req, res) => {
     const { courseId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Role-based access control
+    if (role === 'siswa') {
+        const Enrollment = require('../models/enrollment.model');
+        const enrollment = await Enrollment.findByCourseAndStudent(courseId, userId);
+        if (!enrollment || enrollment.status !== 'active') {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not enrolled in this course');
+        }
+    } else if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to view assignments for this course.');
+        }
+    }
+    // Admins can access all assignments (no additional check needed)
+
     const filter = { ...req.query, course_id: parseInt(courseId, 10) };
     const options = {
         limit: req.query.limit,
@@ -16,10 +36,34 @@ const getAssignments = catchAsync(async (req, res) => {
 });
 
 const getAssignment = catchAsync(async (req, res) => {
-    const assignment = await assignmentService.getAssignmentById(req.params.assignmentId);
-    if (assignment.course_id !== parseInt(req.params.courseId, 10)) {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
     }
+
+    // For students, check if they are enrolled in the course
+    if (role === 'siswa') {
+        const Enrollment = require('../models/enrollment.model');
+        const enrollment = await Enrollment.findByCourseAndStudent(courseId, userId);
+        if (!enrollment || enrollment.status !== 'active') {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not enrolled in this course');
+        }
+    }
+    // For teachers, check if they own the course
+    else if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to view assignments for this course.');
+        }
+    }
+    // Admins can access all assignments (no additional check needed)
+
     res.send(assignment);
 });
 

@@ -36,7 +36,7 @@ Submission.findById = async (id) => {
 
 Submission.findByAssignmentAndStudent = async (assignmentId, studentId) => {
     try {
-        const query = 'SELECT * FROM assignment_submissions WHERE assignment_id = $1 AND student_id = $2 ORDER BY submitted_at DESC LIMIT 1';
+        const query = 'SELECT * FROM assignment_submissions WHERE assignment_id = $1 AND student_id = $2 ORDER BY id DESC LIMIT 1';
         const { rows } = await db.query(query, [assignmentId, studentId]);
         return rows[0];
     } catch (error) {

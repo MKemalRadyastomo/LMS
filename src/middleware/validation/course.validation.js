@@ -94,6 +94,17 @@ const getCourseContents = {
     })
 };
 
+const getCourseEnrollments = {
+    params: Joi.object({
+        courseId: Joi.number().integer().positive().required()
+    }),
+    query: Joi.object({
+        page: Joi.number().integer().min(1).optional(),
+        limit: Joi.number().integer().min(1).max(100).optional(),
+        status: Joi.string().valid('active', 'inactive', 'pending').optional()
+    })
+};
+
 module.exports = {
     createCourse,
     updateCourse,
@@ -102,5 +113,6 @@ module.exports = {
     enrollStudent,
     addContentToCourse,
     getCourseContentById,
-    getCourseContents
+    getCourseContents,
+    getCourseEnrollments
 };

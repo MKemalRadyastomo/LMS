@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const ApiError = require('../utils/ApiError');
+const { ApiError } = require('../utils/ApiError');
 const { submissionService } = require('../services');
 
 const submitEssay = catchAsync(async (req, res) => {
@@ -36,10 +36,34 @@ const submitQuiz = catchAsync(async (req, res) => {
 
 const getStudentSubmission = catchAsync(async (req, res) => {
     const { assignmentId } = req.params;
-    const studentId = req.user.id; // Assuming user ID is available from authentication middleware
+    const { id: userId, role } = req.user;
 
-    const submission = await submissionService.getStudentSubmissionForAssignment(assignmentId, studentId);
-    res.send(submission);
+    // Role-based access control
+    if (role === 'siswa') {
+        // Students can only access their own submissions
+        const submission = await submissionService.getStudentSubmissionForAssignment(assignmentId, userId);
+        res.send(submission);
+    } else if (role === 'guru' || role === 'admin') {
+        // Teachers and admins need to specify which student's submission they want
+        // For now, if no studentId is provided in query, return error
+        const studentId = req.query.studentId || userId;
+        
+        // For teachers, verify they own the course containing this assignment
+        if (role === 'guru') {
+            const { assignmentService } = require('../services');
+            const assignment = await assignmentService.getAssignmentById(assignmentId);
+            const Course = require('../models/course.model');
+            const course = await Course.findById(assignment.course_id);
+            if (!course || course.teacher_id !== userId) {
+                throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to view submissions for this assignment.');
+            }
+        }
+        
+        const submission = await submissionService.getStudentSubmissionForAssignment(assignmentId, studentId);
+        res.send(submission);
+    } else {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Invalid role for accessing submissions');
+    }
 });
 
 const getSubmissionsByAssignment = catchAsync(async (req, res) => {

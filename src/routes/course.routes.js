@@ -14,6 +14,9 @@ router.put('/:id', authenticate, validate(courseValidation.updateCourse), course
 // Route for enrolling a single student
 router.post('/:courseId/enrollments', authenticate, validate(courseValidation.enrollStudent), courseController.enrollStudent);
 
+// Route for getting all enrollments for a course
+router.get('/:courseId/enrollments', authenticate, validate(courseValidation.getCourseEnrollments), courseController.getCourseEnrollments);
+
 // Route for adding content (materials/assignments) to a course
 router.post('/:courseId/content', authenticate, materialUpload.single('file'), validate(courseValidation.addContentToCourse), courseController.addContentToCourse);
 
