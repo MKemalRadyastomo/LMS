@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "db:setup": "./database/setup.sh development",
+    "db:setup:prod": "./database/setup.sh production",
     "db:init": "node src/utils/db-init.js",
     "test": "jest",
     "test:watch": "jest --watch",
