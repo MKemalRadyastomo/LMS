@@ -18,7 +18,7 @@ router.post('/:courseId/enrollments', authenticate, validate(courseValidation.en
 router.get('/:courseId/enrollments', authenticate, validate(courseValidation.getCourseEnrollments), courseController.getCourseEnrollments);
 
 // Route for adding content (materials/assignments) to a course
-router.post('/:courseId/content', authenticate, materialUpload.single('file'), validate(courseValidation.addContentToCourse), courseController.addContentToCourse);
+router.post('/:courseId/content', authenticate, materialUpload.uploadSingle, validate(courseValidation.addContentToCourse), courseController.addContentToCourse);
 
 // Route for getting specific content by ID within a course
 router.get('/:courseId/content/:contentId', authenticate, validate(courseValidation.getCourseContentById), courseController.getCourseContentById);

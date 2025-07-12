@@ -5,6 +5,11 @@ const courseRoutes = require('./course.routes');
 const assignmentRoutes = require('./assignment.routes');
 const submissionRoutes = require('./submission.routes');
 const courseContentRoutes = require('./courseContent.routes');
+const gradingRoutes = require('./grading.routes');
+const materialRoutes = require('./material.routes');
+const searchRoutes = require('./search.routes');
+const analyticsRoutes = require('./analytics.routes');
+const userStatsRoutes = require('./userStats.routes');
 
 const router = express.Router();
 
@@ -39,6 +44,19 @@ router.use('/users', userRoutes);
 router.use('/courses/:courseId/assignments', assignmentRoutes);
 router.use('/assignments/:assignmentId', submissionRoutes);
 router.use('/courses/:courseId/contents', courseContentRoutes);
+
+// Material and grading routes
+router.use('/', materialRoutes);
+router.use('/grading', gradingRoutes);
+
+// Search routes
+router.use('/search', searchRoutes);
+
+// Analytics routes
+router.use('/analytics', analyticsRoutes);
+
+// User statistics routes
+router.use('/', userStatsRoutes);
 
 // The general /courses route is last
 router.use('/courses', courseRoutes);
