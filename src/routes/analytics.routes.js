@@ -1,7 +1,7 @@
 const express = require('express');
 const analyticsController = require('../controllers/analytics.controller');
 const { authenticate, requireRole, requirePermission } = require('../middleware/rbac');
-const { validate } = require('../middleware/validate');
+const validate = require('../middleware/validate');
 const Joi = require('joi');
 
 const router = express.Router();

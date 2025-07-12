@@ -1,7 +1,7 @@
 const express = require('express');
 const searchController = require('../controllers/search.controller');
 const { authenticate, requireRole, requirePermission } = require('../middleware/rbac');
-const { validate } = require('../middleware/validate');
+const validate = require('../middleware/validate');
 const Joi = require('joi');
 
 const router = express.Router();

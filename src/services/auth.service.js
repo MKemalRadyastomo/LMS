@@ -3,48 +3,82 @@ const { comparePassword } = require('../utils/password');
 const { generateToken } = require('../utils/jwt');
 const { unauthorized, badRequest, conflict } = require('../utils/ApiError');
 const logger = require('../utils/logger');
+const { 
+  checkAccountLockout, 
+  recordFailedLoginAttempt, 
+  clearFailedLoginAttempts 
+} = require('../middleware/rbac');
 
 /**
  * Authentication Service
  */
 class AuthService {
   /**
-   * Login a user
-   * @param {string} username - User email (used as username)
+   * Login a user with enhanced security (account lockout)
+   * @param {string} email - User email
    * @param {string} password - User password
+   * @param {string} ipAddress - Client IP address for lockout tracking
    * @returns {Promise<Object>} Authentication data with token
-   * @throws {ApiError} If credentials are invalid
+   * @throws {ApiError} If credentials are invalid or account is locked
    */
-  static async login(username, password) {
+  static async login(email, password, ipAddress = null) {
     try {
+      // Check account lockout before attempting login
+      await checkAccountLockout(email, ipAddress);
+
       // Find the user by email
-      const user = await User.findByEmail(username);
+      const user = await User.findByEmail(email);
 
-      // Check if user exists
-      if (!user) {
-        throw unauthorized('Invalid credentials');
+      // Check if user exists and verify password
+      let isPasswordValid = false;
+      if (user) {
+        isPasswordValid = await comparePassword(password, user.password_hash);
       }
 
-      // Verify password
-      const isPasswordValid = await comparePassword(password, user.password_hash);
+      // If credentials are invalid, record failed attempt
+      if (!user || !isPasswordValid) {
+        logger.warn('Failed login attempt', {
+          email: email,
+          ip: ipAddress,
+          reason: !user ? 'user_not_found' : 'invalid_password'
+        });
 
-      if (!isPasswordValid) {
-        throw unauthorized('Invalid credentials');
+        // Record failed login attempt
+        await recordFailedLoginAttempt(email, ipAddress);
+        
+        // Always return the same generic error message
+        throw unauthorized('Invalid email or password');
       }
 
-      // Generate token
+      // Clear failed login attempts on successful login
+      await clearFailedLoginAttempts(email);
+
+      // Generate token with extended payload
       const token = generateToken({
         id: user.id,
-        email: user.email, // Keep user.email here as it's the actual email from the user object
+        email: user.email,
         role: user.role
+      });
+
+      logger.info('Successful login', {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        ip: ipAddress
       });
 
       return {
         token,
-        user_id: user.id
+        user_id: user.id,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
       };
     } catch (error) {
-      logger.error(`Login error for username ${username}: ${error.message}`);
+      logger.error(`Login error for email ${email}: ${error.message}`);
       throw error;
     }
   }

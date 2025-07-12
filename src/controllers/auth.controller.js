@@ -18,37 +18,38 @@ class AuthController {
 
     logger.info('Login attempt started', {
       requestId,
-      username: req.body.username,
+      email: req.body.email,
       ip: req.ip,
       userAgent: req.get('User-Agent')
     });
 
     try {
-      const { username, password } = req.body;
+      const { email, password } = req.body;
 
-      if (!username || !password) {
+      if (!email || !password) {
         const duration = Date.now() - startTime;
         logger.warn('Login failed: Missing credentials', {
           requestId,
           duration: `${duration}ms`,
-          hasUsername: !!username,
+          hasEmail: !!email,
           hasPassword: !!password
         });
-        return next(badRequest('Username and password are required'));
+        return next(badRequest('Email and password are required'));
       }
 
       logger.debug('Starting AuthService.login', {
         requestId,
-        username,
+        email,
         elapsed: `${Date.now() - startTime}ms`
       });
 
-      const result = await AuthService.login(username, password);
+      const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.ip;
+      const result = await AuthService.login(email, password, ipAddress);
 
       const duration = Date.now() - startTime;
       logger.info('Login successful', {
         requestId,
-        username,
+        email,
         userId: result.user_id,
         duration: `${duration}ms`
       });
@@ -58,7 +59,7 @@ class AuthController {
       const duration = Date.now() - startTime;
       logger.error('Login controller error', {
         requestId,
-        username: req.body.username,
+        email: req.body.email,
         duration: `${duration}ms`,
         error: error.message,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined

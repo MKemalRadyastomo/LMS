@@ -29,7 +29,12 @@ router.get('/api-version', (req, res) => {
  * Health check endpoint
  */
 router.get('/health', async (req, res) => {
-  // Your health check logic...
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 /**
