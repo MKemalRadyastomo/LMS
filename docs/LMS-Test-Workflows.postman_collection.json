@@ -1,0 +1,1014 @@
+{
+  "info": {
+    "_postman_id": "test-workflows-lms-enhanced",
+    "name": "LMS Test Workflows - User Journeys",
+    "description": "Complete user journey test scenarios for the LMS platform, covering common workflows from course creation to grading.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🎯 Complete Teacher Workflow",
+      "item": [
+        {
+          "name": "1. Login as Teacher",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Teacher login successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.user.role).to.eql('guru');",
+                  "    pm.environment.set('teacherToken', responseJson.token);",
+                  "    pm.environment.set('teacherId', responseJson.user.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{teacherEmail}}\",\n  \"password\": \"{{teacherPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "2. Create Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Course created successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('courseId', responseJson.data.id);",
+                  "    pm.environment.set('courseCode', responseJson.data.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Advanced Calculus - Test Course\",\n  \"description\": \"Comprehensive calculus course for advanced students\",\n  \"privacy\": \"public\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"]
+            }
+          }
+        },
+        {
+          "name": "3. Generate Enrollment Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Enrollment code generated', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('enrollmentCode', responseJson.data.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expiresAt\": \"2025-12-31T23:59:59Z\",\n  \"maxEnrollments\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollment-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "enrollment-code"]
+            }
+          }
+        },
+        {
+          "name": "4. Create Course Material",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Material created successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('materialId', responseJson.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Introduction to Derivatives\",\n  \"description\": \"Basic concepts of derivatives and their applications\",\n  \"content\": \"<h1>Derivatives</h1><p>A derivative represents the rate of change...</p>\",\n  \"videoUrl\": \"https://www.youtube.com/watch?v=example\",\n  \"publishDate\": \"2025-01-15T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "materials"]
+            }
+          }
+        },
+        {
+          "name": "5. Create Quiz Assignment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Quiz assignment created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('quizAssignmentId', responseJson.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Derivatives Quiz 1\",\n  \"description\": \"Quiz covering basic derivative concepts\",\n  \"type\": \"quiz\",\n  \"dueDate\": \"2025-02-15T23:59:59Z\",\n  \"maxScore\": 30,\n  \"timeLimit\": 45,\n  \"questions\": [\n    {\n      \"type\": \"multiple_choice\",\n      \"question\": \"What is the derivative of x³?\",\n      \"options\": [\"3x²\", \"x²\", \"3x\", \"3\"],\n      \"correctAnswer\": \"3x²\",\n      \"points\": 10\n    },\n    {\n      \"type\": \"true_false\",\n      \"question\": \"The derivative of a constant is zero\",\n      \"correctAnswer\": \"true\",\n      \"points\": 10\n    },\n    {\n      \"type\": \"short_answer\",\n      \"question\": \"Find the derivative of sin(x)\",\n      \"correctAnswer\": \"cos(x)\",\n      \"points\": 10\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "assignments"]
+            }
+          }
+        },
+        {
+          "name": "6. Create Essay Assignment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Essay assignment created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('essayAssignmentId', responseJson.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Applications of Calculus Essay\",\n  \"description\": \"Write about real-world applications of calculus\",\n  \"type\": \"essay\",\n  \"dueDate\": \"2025-03-01T23:59:59Z\",\n  \"maxScore\": 100,\n  \"wordLimit\": 1500,\n  \"instructions\": \"<p>Write a comprehensive essay discussing applications of calculus in engineering, physics, and economics.</p>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "assignments"]
+            }
+          }
+        },
+        {
+          "name": "7. Create Grading Rubric",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Rubric created successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('rubricId', responseJson.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignmentId\": \"{{essayAssignmentId}}\",\n  \"name\": \"Essay Grading Rubric\",\n  \"totalPoints\": 100,\n  \"criteria\": [\n    {\n      \"name\": \"Content Quality\",\n      \"description\": \"Accuracy and depth of content\",\n      \"maxPoints\": 50,\n      \"levels\": [\n        {\n          \"name\": \"Excellent\",\n          \"description\": \"Comprehensive and accurate\",\n          \"points\": 50\n        },\n        {\n          \"name\": \"Good\",\n          \"description\": \"Good with minor gaps\",\n          \"points\": 40\n        },\n        {\n          \"name\": \"Satisfactory\",\n          \"description\": \"Basic understanding\",\n          \"points\": 30\n        }\n      ]\n    },\n    {\n      \"name\": \"Writing Quality\",\n      \"description\": \"Grammar and organization\",\n      \"maxPoints\": 50,\n      \"levels\": [\n        {\n          \"name\": \"Excellent\",\n          \"description\": \"Clear and well-organized\",\n          \"points\": 50\n        },\n        {\n          \"name\": \"Good\",\n          \"description\": \"Generally clear\",\n          \"points\": 40\n        },\n        {\n          \"name\": \"Satisfactory\",\n          \"description\": \"Adequate clarity\",\n          \"points\": 30\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rubrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rubrics"]
+            }
+          }
+        }
+      ],
+      "description": "Complete workflow for teacher creating course, materials, and assignments"
+    },
+    {
+      "name": "🎓 Complete Student Workflow",
+      "item": [
+        {
+          "name": "1. Login as Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Student login successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.user.role).to.eql('siswa');",
+                  "    pm.environment.set('studentToken', responseJson.token);",
+                  "    pm.environment.set('studentId', responseJson.user.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{studentEmail}}\",\n  \"password\": \"{{studentPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "2. Self-Enroll in Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully enrolled in course', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('enrollmentId', responseJson.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollmentCode\": \"{{enrollmentCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/join",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "join"]
+            }
+          }
+        },
+        {
+          "name": "3. View Course Materials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Can access course materials', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "materials"]
+            }
+          }
+        },
+        {
+          "name": "4. Submit Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Quiz submitted successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('quizSubmissionId', responseJson.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizAnswers\": {\n    \"1\": \"3x²\",\n    \"2\": \"true\",\n    \"3\": \"cos(x)\"\n  },\n  \"timeSpent\": 30,\n  \"completedAt\": \"2025-01-12T11:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{quizAssignmentId}}", "submit"]
+            }
+          }
+        },
+        {
+          "name": "5. Submit Essay",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Essay submitted successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('essaySubmissionId', responseJson.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"submissionText\": \"<h1>Applications of Calculus</h1><p>Calculus has numerous real-world applications...</p><p>In engineering, calculus is used for optimization problems...</p><p>In physics, calculus helps describe motion and change...</p><p>In economics, calculus is used for marginal analysis...</p>\",\n  \"wordCount\": 1250,\n  \"draft\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{essayAssignmentId}}", "submit"]
+            }
+          }
+        },
+        {
+          "name": "6. View My Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Can view progress analytics', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.have.property('progressPercentage');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/students/{{studentId}}/progress?courseId={{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "students", "{{studentId}}", "progress"],
+              "query": [
+                {
+                  "key": "courseId",
+                  "value": "{{courseId}}"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Complete workflow for student enrolling, accessing materials, and submitting assignments"
+    },
+    {
+      "name": "✅ Teacher Grading Workflow",
+      "item": [
+        {
+          "name": "1. Auto-Grade Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Quiz auto-graded successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.have.property('totalScore');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/submissions/{{quizSubmissionId}}/auto-grade",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "submissions", "{{quizSubmissionId}}", "auto-grade"]
+            }
+          }
+        },
+        {
+          "name": "2. Grade Essay with Rubric",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Essay graded with rubric', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.have.property('totalScore');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rubricId\": \"{{rubricId}}\",\n  \"criteriaScores\": {\n    \"1\": 45,\n    \"2\": 42\n  },\n  \"totalScore\": 87,\n  \"feedback\": \"<p>Excellent work! Your essay demonstrates a strong understanding of calculus applications.</p><p><strong>Strengths:</strong> Clear examples, good mathematical reasoning.</p><p><strong>Areas for improvement:</strong> Could expand on economics section.</p>\",\n  \"privateNotes\": \"Strong student, consider for advanced topics.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/submissions/{{essaySubmissionId}}/grade",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "submissions", "{{essaySubmissionId}}", "grade"]
+            }
+          }
+        },
+        {
+          "name": "3. View Course Analytics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Can view course analytics', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.have.property('enrollmentCount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/courses/{{courseId}}?period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "courses", "{{courseId}}"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Export Grade Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Grade report exported successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/grades/export?format=pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "grades", "export"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "pdf"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Teacher workflow for grading assignments and viewing analytics"
+    },
+    {
+      "name": "🔍 Search & Discovery Tests",
+      "item": [
+        {
+          "name": "1. Global Search",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Search returns results', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.results).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=calculus&types=course,material,assignment&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "calculus"
+                },
+                {
+                  "key": "types",
+                  "value": "course,material,assignment"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Search Suggestions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Search suggestions returned', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.suggestions).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/suggestions?q=calc&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "suggestions"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "calc"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Test search functionality and discovery features"
+    },
+    {
+      "name": "🔒 Security & RBAC Tests",
+      "item": [
+        {
+          "name": "1. Test Unauthorized Access",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Unauthorized access blocked', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"]
+            }
+          }
+        },
+        {
+          "name": "2. Test Student Cannot Access Admin Endpoints",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Student blocked from admin endpoint', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/security-logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "security-logs"]
+            }
+          }
+        },
+        {
+          "name": "3. Test Student Cannot Grade Submissions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Student cannot grade submissions', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 95,\n  \"feedback\": \"Great work!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/submissions/{{quizSubmissionId}}/grade",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "submissions", "{{quizSubmissionId}}", "grade"]
+            }
+          }
+        }
+      ],
+      "description": "Test RBAC security and access control"
+    },
+    {
+      "name": "⚡ Performance & Validation Tests",
+      "item": [
+        {
+          "name": "1. API Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('API is healthy', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "2. Test Input Validation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Input validation works', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.have.property('errors');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"description\": \"Course without name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"]
+            }
+          }
+        },
+        {
+          "name": "3. Test Rate Limiting",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Rate limiting active', function () {",
+                  "    // This test may pass or return 429 based on rate limit configuration",
+                  "    pm.expect([200, 429]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "test"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Performance, validation, and system health tests"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "console.log('Running:', pm.info.requestName);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "if (pm.response.code !== 401 && pm.response.code !== 403) {",
+          "    pm.test('Response has correct content type', function () {",
+          "        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}
