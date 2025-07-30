@@ -75,16 +75,77 @@ class Course {
     /**
      * Get a course by ID
      * @param {number} id - Course ID
+     * @param {boolean} includeStats - Include enrollment and content statistics
      * @returns {Promise<Object|null>} Found course or null
      */
-    static async findById(id) {
+    static async findById(id, includeStats = false) {
         try {
-            const query = `
-                SELECT c.*, u.name as teacher_name
+            let query = `
+                SELECT c.*, u.name as teacher_name, u.email as teacher_email
+            `;
+
+            if (includeStats) {
+                query += `,
+                    COALESCE(enrollment_stats.student_count, 0) as student_count,
+                    COALESCE(enrollment_stats.active_count, 0) as active_student_count,
+                    COALESCE(enrollment_stats.pending_count, 0) as pending_student_count,
+                    COALESCE(material_stats.material_count, 0) as material_count,
+                    COALESCE(assignment_stats.assignment_count, 0) as assignment_count,
+                    COALESCE(recent_activity.last_activity, c.created_at) as last_activity,
+                    COALESCE(completion_stats.avg_completion, 0) as avg_completion_rate
+                `;
+            }
+
+            query += `
                 FROM courses c
                 LEFT JOIN users u ON c.teacher_id = u.id
-                WHERE c.id = $1
             `;
+
+            if (includeStats) {
+                query += `
+                    LEFT JOIN LATERAL (
+                        SELECT 
+                            COUNT(*) as student_count,
+                            COUNT(*) FILTER (WHERE e.status = 'active') as active_count,
+                            COUNT(*) FILTER (WHERE e.status = 'pending') as pending_count
+                        FROM enrollments e
+                        WHERE e.course_id = c.id
+                    ) enrollment_stats ON true
+                    LEFT JOIN LATERAL (
+                        SELECT COUNT(*) as material_count
+                        FROM course_contents cc
+                        WHERE cc.course_id = c.id AND cc.content_type = 'material'
+                    ) material_stats ON true
+                    LEFT JOIN LATERAL (
+                        SELECT COUNT(*) as assignment_count
+                        FROM course_contents cc
+                        WHERE cc.course_id = c.id AND cc.content_type = 'assignment'
+                    ) assignment_stats ON true
+                    LEFT JOIN LATERAL (
+                        SELECT MAX(cc.created_at) as last_activity
+                        FROM course_contents cc
+                        WHERE cc.course_id = c.id
+                    ) recent_activity ON true
+                    LEFT JOIN LATERAL (
+                        SELECT 
+                            CASE 
+                                WHEN COUNT(s.id) > 0 
+                                THEN ROUND(
+                                    (COUNT(*) FILTER (WHERE s.status = 'graded') * 100.0) / 
+                                    COUNT(s.id), 2
+                                )
+                                ELSE 0 
+                            END as avg_completion
+                        FROM course_contents cc
+                        LEFT JOIN assignments a ON cc.content_id = a.id AND cc.content_type = 'assignment'
+                        LEFT JOIN submissions s ON a.id = s.assignment_id
+                        WHERE cc.course_id = c.id
+                    ) completion_stats ON true
+                `;
+            }
+
+            query += ` WHERE c.id = $1`;
+
             const result = await db.query(query, [id]);
             return result.rows[0] || null;
         } catch (error) {
@@ -98,15 +159,53 @@ class Course {
      * @param {Object} options - List options
      * @returns {Promise<Object>} List of courses and pagination info
      */
-    static async list({ page = 1, limit = 20, teacherId, search, privacy }) {
+    static async list({ page = 1, limit = 20, teacherId, search, privacy, includeStats = false }) {
         try {
             const offset = (page - 1) * limit;
             let query = `
                 SELECT c.*, u.name as teacher_name,
                        COUNT(*) OVER() as total_count
+            `;
+
+            // Include additional stats for UI components if requested
+            if (includeStats) {
+                query += `,
+                       COALESCE(enrollment_stats.student_count, 0) as student_count,
+                       COALESCE(material_stats.material_count, 0) as material_count,
+                       COALESCE(assignment_stats.assignment_count, 0) as assignment_count,
+                       COALESCE(recent_activity.last_activity, c.created_at) as last_activity
+                `;
+            }
+
+            query += `
                 FROM courses c
                 LEFT JOIN users u ON c.teacher_id = u.id
             `;
+
+            if (includeStats) {
+                query += `
+                    LEFT JOIN LATERAL (
+                        SELECT COUNT(*) as student_count
+                        FROM enrollments e
+                        WHERE e.course_id = c.id AND e.status = 'active'
+                    ) enrollment_stats ON true
+                    LEFT JOIN LATERAL (
+                        SELECT COUNT(*) as material_count
+                        FROM course_contents cc
+                        WHERE cc.course_id = c.id AND cc.content_type = 'material'
+                    ) material_stats ON true
+                    LEFT JOIN LATERAL (
+                        SELECT COUNT(*) as assignment_count
+                        FROM course_contents cc
+                        WHERE cc.course_id = c.id AND cc.content_type = 'assignment'
+                    ) assignment_stats ON true
+                    LEFT JOIN LATERAL (
+                        SELECT MAX(created_at) as last_activity
+                        FROM course_contents cc
+                        WHERE cc.course_id = c.id
+                    ) recent_activity ON true
+                `;
+            }
 
             const values = [];
             const conditions = [];
@@ -117,7 +216,12 @@ class Course {
             }
 
             if (search) {
-                conditions.push(`c.name ILIKE $${values.length + 1}`);
+                conditions.push(`(
+                    c.name ILIKE $${values.length + 1} OR 
+                    c.description ILIKE $${values.length + 1} OR
+                    u.name ILIKE $${values.length + 1} OR
+                    c.code ILIKE $${values.length + 1}
+                )`);
                 values.push(`%${search}%`);
             }
 
@@ -195,6 +299,246 @@ class Course {
             return result.rows[0] || null;
         } catch (error) {
             logger.error(`Error updating course: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Advanced search with autocomplete support
+     * @param {Object} options - Search options
+     * @returns {Promise<Array>} Search suggestions
+     */
+    static async searchSuggestions({ query, limit = 10, userId, userRole }) {
+        try {
+            let searchQuery = `
+                SELECT DISTINCT
+                    c.name as suggestion,
+                    'course' as type,
+                    c.id,
+                    c.privacy
+                FROM courses c
+                LEFT JOIN users u ON c.teacher_id = u.id
+                WHERE (
+                    c.name ILIKE $1 OR 
+                    c.description ILIKE $1 OR
+                    u.name ILIKE $1 OR
+                    c.code ILIKE $1
+                )
+            `;
+
+            const values = [`%${query}%`];
+
+            // Add privacy constraints for non-admin users
+            if (userRole !== 'admin') {
+                if (userRole === 'guru') {
+                    // Teachers can see all courses (for now)
+                } else {
+                    searchQuery += ` AND c.privacy = 'public'`;
+                }
+            }
+
+            searchQuery += ` 
+                ORDER BY c.name
+                LIMIT $${values.length + 1}
+            `;
+            values.push(limit);
+
+            const result = await db.query(searchQuery, values);
+            return result.rows;
+        } catch (error) {
+            logger.error(`Error in search suggestions: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Advanced filtering with multiple criteria
+     * @param {Object} filters - Filter criteria
+     * @returns {Promise<Object>} Filtered courses with pagination
+     */
+    static async advancedFilter(filters) {
+        try {
+            const {
+                page = 1,
+                limit = 20,
+                search,
+                privacy,
+                teacherId,
+                hasAssignments,
+                hasMaterials,
+                minStudents,
+                maxStudents,
+                dateFrom,
+                dateTo,
+                sortBy = 'created_at',
+                sortOrder = 'DESC',
+                includeStats = false
+            } = filters;
+
+            const offset = (page - 1) * limit;
+            
+            let query = `
+                SELECT c.*, u.name as teacher_name,
+                       COUNT(*) OVER() as total_count
+            `;
+
+            if (includeStats) {
+                query += `,
+                    COALESCE(enrollment_stats.student_count, 0) as student_count,
+                    COALESCE(material_stats.material_count, 0) as material_count,
+                    COALESCE(assignment_stats.assignment_count, 0) as assignment_count
+                `;
+            }
+
+            query += `
+                FROM courses c
+                LEFT JOIN users u ON c.teacher_id = u.id
+            `;
+
+            if (includeStats || hasAssignments || hasMaterials || minStudents || maxStudents) {
+                if (includeStats || minStudents || maxStudents) {
+                    query += `
+                        LEFT JOIN LATERAL (
+                            SELECT COUNT(*) as student_count
+                            FROM enrollments e
+                            WHERE e.course_id = c.id AND e.status = 'active'
+                        ) enrollment_stats ON true
+                    `;
+                }
+
+                if (includeStats || hasMaterials) {
+                    query += `
+                        LEFT JOIN LATERAL (
+                            SELECT COUNT(*) as material_count
+                            FROM course_contents cc
+                            WHERE cc.course_id = c.id AND cc.content_type = 'material'
+                        ) material_stats ON true
+                    `;
+                }
+
+                if (includeStats || hasAssignments) {
+                    query += `
+                        LEFT JOIN LATERAL (
+                            SELECT COUNT(*) as assignment_count
+                            FROM course_contents cc
+                            WHERE cc.course_id = c.id AND cc.content_type = 'assignment'
+                        ) assignment_stats ON true
+                    `;
+                }
+            }
+
+            const values = [];
+            const conditions = [];
+
+            // Basic filters
+            if (search) {
+                conditions.push(`(
+                    c.name ILIKE $${values.length + 1} OR 
+                    c.description ILIKE $${values.length + 1} OR
+                    u.name ILIKE $${values.length + 1} OR
+                    c.code ILIKE $${values.length + 1}
+                )`);
+                values.push(`%${search}%`);
+            }
+
+            if (privacy) {
+                conditions.push(`c.privacy = $${values.length + 1}`);
+                values.push(privacy);
+            }
+
+            if (teacherId) {
+                conditions.push(`c.teacher_id = $${values.length + 1}`);
+                values.push(teacherId);
+            }
+
+            // Date range filters
+            if (dateFrom) {
+                conditions.push(`c.created_at >= $${values.length + 1}`);
+                values.push(dateFrom);
+            }
+
+            if (dateTo) {
+                conditions.push(`c.created_at <= $${values.length + 1}`);
+                values.push(dateTo);
+            }
+
+            // Content filters
+            if (hasAssignments) {
+                conditions.push(`assignment_stats.assignment_count > 0`);
+            }
+
+            if (hasMaterials) {
+                conditions.push(`material_stats.material_count > 0`);
+            }
+
+            // Student count filters
+            if (minStudents) {
+                conditions.push(`enrollment_stats.student_count >= $${values.length + 1}`);
+                values.push(minStudents);
+            }
+
+            if (maxStudents) {
+                conditions.push(`enrollment_stats.student_count <= $${values.length + 1}`);
+                values.push(maxStudents);
+            }
+
+            if (conditions.length > 0) {
+                query += ` WHERE ${conditions.join(' AND ')}`;
+            }
+
+            // Dynamic sorting
+            const allowedSortFields = ['created_at', 'name', 'student_count', 'material_count', 'assignment_count'];
+            const allowedSortOrders = ['ASC', 'DESC'];
+            
+            const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
+            const safeSortOrder = allowedSortOrders.includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'DESC';
+
+            query += ` ORDER BY ${safeSortBy} ${safeSortOrder}`;
+            query += ` LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
+
+            values.push(limit, offset);
+
+            const result = await db.query(query, values);
+            const totalCount = result.rows.length > 0 ? parseInt(result.rows[0].total_count) : 0;
+
+            return {
+                data: result.rows.map(row => {
+                    const { total_count, ...courseData } = row;
+                    return courseData;
+                }),
+                pagination: {
+                    total: totalCount,
+                    per_page: limit,
+                    current_page: page,
+                    last_page: Math.ceil(totalCount / limit),
+                    from: offset + 1,
+                    to: offset + result.rows.length
+                },
+                filters: filters
+            };
+        } catch (error) {
+            logger.error(`Error in advanced filter: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Get course by class code for enrollment
+     * @param {string} code - Course class code
+     * @returns {Promise<Object|null>} Found course or null
+     */
+    static async findByCode(code) {
+        try {
+            const query = `
+                SELECT c.*, u.name as teacher_name, u.email as teacher_email
+                FROM courses c
+                LEFT JOIN users u ON c.teacher_id = u.id
+                WHERE UPPER(c.code) = UPPER($1)
+            `;
+            const result = await db.query(query, [code]);
+            return result.rows[0] || null;
+        } catch (error) {
+            logger.error(`Error finding course by code: ${error.message}`);
             throw error;
         }
     }

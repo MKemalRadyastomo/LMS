@@ -10,10 +10,10 @@ module.exports = {
   jwtExpiration: process.env.JWT_EXPIRATION || '1d',
   rateLimitConfig: {
     windowMs: process.env.RATE_LIMIT_WINDOW * 60 * 1000 || 15 * 60 * 1000, // 15 minutes by default
-    max: process.env.RATE_LIMIT_MAX || (process.env.NODE_ENV === 'development' ? 1000 : 100), // Higher limit for development
+    max: process.env.RATE_LIMIT_MAX || (process.env.NODE_ENV === 'development' ? 10000 : 100), // Much higher limit for development debugging
   },
   authRateLimitConfig: {
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: process.env.AUTH_RATE_LIMIT_MAX || (process.env.NODE_ENV === 'development' ? 500 : 50), // Higher limit for development
+    max: process.env.AUTH_RATE_LIMIT_MAX || (process.env.NODE_ENV === 'development' ? 5000 : 50), // Much higher limit for development debugging
   },
 };
