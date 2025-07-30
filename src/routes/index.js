@@ -3,9 +3,11 @@ const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const courseRoutes = require('./course.routes');
 const assignmentRoutes = require('./assignment.routes');
+const assignmentTemplateRoutes = require('./assignmentTemplate.routes');
+const assignmentBulkRoutes = require('./assignmentBulk.routes');
 const submissionRoutes = require('./submission.routes');
 const courseContentRoutes = require('./courseContent.routes');
-const gradingRoutes = require('./grading.routes');
+// const gradingRoutes = require('./grading.routes'); // Temporarily disabled - missing controller functions
 const materialRoutes = require('./material.routes');
 const searchRoutes = require('./search.routes');
 const analyticsRoutes = require('./analytics.routes');
@@ -50,9 +52,13 @@ router.use('/courses/:courseId/assignments', assignmentRoutes);
 router.use('/assignments/:assignmentId', submissionRoutes);
 router.use('/courses/:courseId/contents', courseContentRoutes);
 
+// Assignment template and bulk operation routes
+router.use('/assignment-templates', assignmentTemplateRoutes);
+router.use('/assignments/bulk', assignmentBulkRoutes);
+
 // Material and grading routes
 router.use('/', materialRoutes);
-router.use('/grading', gradingRoutes);
+// router.use('/grading', gradingRoutes); // Temporarily disabled - missing controller functions
 
 // Search routes
 router.use('/search', searchRoutes);

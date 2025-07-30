@@ -107,4 +107,95 @@ router.get(
   gradingController.getStudentCourseGrades
 );
 
+/**
+ * Enhanced Grading Features
+ */
+
+// Create detailed rubric with individual criteria
+// TODO: Implement createDetailedRubric controller function
+/*
+router.post(
+  '/assignments/:assignmentId/rubrics/detailed',
+  requireRole(['admin', 'guru']),
+  gradingController.createDetailedRubric
+);
+*/
+
+// Get detailed rubric information
+router.get(
+  '/rubrics/:rubricId/detailed',
+  requireRole(['admin', 'guru', 'siswa']),
+  gradingController.getDetailedRubric
+);
+
+// Submit detailed grade with criterion scores
+router.post(
+  '/submissions/:submissionId/grade/detailed',
+  requireRole(['admin', 'guru']),
+  gradingController.submitDetailedGrade
+);
+
+// Get detailed grading information
+router.get(
+  '/submissions/:submissionId/grading/detailed',
+  requireRole(['admin', 'guru', 'siswa']),
+  gradingController.getDetailedGrading
+);
+
+// Grade objective questions automatically
+router.post(
+  '/submissions/:submissionId/grade/objective',
+  requireRole(['admin', 'guru']),
+  gradingController.gradeObjectiveQuestions
+);
+
+// Setup automated grading for assignment
+router.post(
+  '/assignments/:assignmentId/automated-grading/setup',
+  requireRole(['admin', 'guru']),
+  gradingController.setupAutomatedGrading
+);
+
+// Get comprehensive grading analytics with detailed breakdown
+router.get(
+  '/assignments/:assignmentId/analytics/comprehensive',
+  requireRole(['admin', 'guru']),
+  gradingController.getComprehensiveGradingAnalytics
+);
+
+// Export grades in various formats
+router.get(
+  '/assignments/:assignmentId/export/:format',
+  requireRole(['admin', 'guru']),
+  gradingController.exportGradesWithFormat
+);
+
+// Grade distribution analysis
+router.get(
+  '/assignments/:assignmentId/distribution',
+  requireRole(['admin', 'guru']),
+  gradingController.getGradeDistribution
+);
+
+// Performance comparison across assignments
+router.get(
+  '/courses/:courseId/performance/compare',
+  requireRole(['admin', 'guru']),
+  gradingController.compareAssignmentPerformance
+);
+
+// Apply late submission penalties
+router.post(
+  '/submissions/:submissionId/penalty/apply',
+  requireRole(['admin', 'guru']),
+  gradingController.applyLatePenalty
+);
+
+// Waive late submission penalty
+router.post(
+  '/submissions/:submissionId/penalty/waive',
+  requireRole(['admin', 'guru']),
+  gradingController.waiveLatePenalty
+);
+
 module.exports = router;

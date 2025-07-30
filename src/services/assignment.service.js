@@ -108,35 +108,110 @@ AssignmentService.getAssignmentAnalytics = async (assignmentId) => {
         throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found');
     }
 
-    // This would need to be implemented based on your Submission model methods
-    // For now, returning a placeholder structure
-    const analytics = {
-        assignment_id: assignmentId,
-        assignment_title: assignment.title,
-        assignment_type: assignment.type,
-        due_date: assignment.due_date,
-        max_score: assignment.max_score,
-        total_submissions: 0, // Would query submissions
-        submitted_count: 0,   // Status = 'submitted' or 'graded'
-        draft_count: 0,       // Status = 'draft'
-        graded_count: 0,      // Status = 'graded'
-        average_grade: null,  // Average of all graded submissions
-        grade_distribution: { // Grade ranges
-            'A': 0, // 90-100
-            'B': 0, // 80-89
-            'C': 0, // 70-79
-            'D': 0, // 60-69
-            'F': 0  // below 60
-        },
-        submission_timeline: [], // Submissions over time
-        overdue_submissions: 0   // Submissions after due date
-    };
+    return await Assignment.getAnalytics(assignmentId);
+};
 
-    // TODO: Implement actual queries when Submission model methods are available
-    // const submissions = await Submission.findByAssignmentId(assignmentId);
-    // ... calculate statistics from submissions ...
+/**
+ * Get comprehensive assignment analytics
+ * @param {number} assignmentId
+ * @returns {Promise<Object>} comprehensive analytics data
+ */
+AssignmentService.getComprehensiveAnalytics = async (assignmentId) => {
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found');
+    }
 
-    return analytics;
+    return await Assignment.getComprehensiveAnalytics(assignmentId);
+};
+
+/**
+ * Duplicate assignment
+ * @param {number} assignmentId
+ * @param {Object} newAssignmentData
+ * @returns {Promise<Assignment>}
+ */
+AssignmentService.duplicateAssignment = async (assignmentId, newAssignmentData = {}) => {
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found');
+    }
+
+    return await Assignment.duplicate(assignmentId, newAssignmentData);
+};
+
+/**
+ * Update assignment analytics
+ * @param {number} assignmentId
+ * @returns {Promise<boolean>}
+ */
+AssignmentService.updateAnalytics = async (assignmentId) => {
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found');
+    }
+
+    return await Assignment.updateAnalytics(assignmentId);
+};
+
+/**
+ * Create assignment using enhanced method
+ * @param {Object} assignmentBody
+ * @returns {Promise<Assignment>}
+ */
+AssignmentService.createEnhancedAssignment = async (assignmentBody) => {
+    if (assignmentBody.course_content_id && !assignmentBody.course_id) {
+        const courseContent = await CourseContent.findById(assignmentBody.course_content_id);
+        if (!courseContent) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course content not found');
+        }
+        assignmentBody.course_id = courseContent.course_id;
+    }
+    
+    return await Assignment.createEnhanced(assignmentBody);
+};
+
+/**
+ * Get upcoming assignments for a course
+ * @param {number} courseId
+ * @param {number} daysAhead
+ * @returns {Promise<Array>}
+ */
+AssignmentService.getUpcomingAssignments = async (courseId, daysAhead = 7) => {
+    return await Assignment.getUpcoming(courseId, daysAhead);
+};
+
+/**
+ * Get overdue assignments for a course
+ * @param {number} courseId
+ * @returns {Promise<Array>}
+ */
+AssignmentService.getOverdueAssignments = async (courseId) => {
+    return await Assignment.getOverdue(courseId);
+};
+
+/**
+ * Get assignments by type
+ * @param {string} type
+ * @param {Object} filters
+ * @returns {Promise<Array>}
+ */
+AssignmentService.getAssignmentsByType = async (type, filters = {}) => {
+    return await Assignment.findByType(type, filters);
+};
+
+/**
+ * Get assignments with submissions for teacher view
+ * @param {number} assignmentId
+ * @returns {Promise<Array>}
+ */
+AssignmentService.getAssignmentWithSubmissions = async (assignmentId) => {
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found');
+    }
+
+    return await Assignment.getSubmissionsWithStudents(assignmentId);
 };
 
 module.exports = AssignmentService;

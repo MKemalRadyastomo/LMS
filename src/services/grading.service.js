@@ -4,7 +4,7 @@ const Assignment = require('../models/assignment.model');
 const db = require('../config/db');
 const logger = require('../utils/logger');
 const PDFLib = require('pdf-lib');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 
 /**
  * Grading Service - Business logic for grading operations
@@ -363,9 +363,10 @@ class GradingService {
       const grades = await GradingModel.getGradesByAssignment(assignmentId);
 
       // Create workbook
-      const workbook = XLSX.utils.book_new();
+      const workbook = new ExcelJS.Workbook();
 
       // Grades sheet
+      const gradesSheet = workbook.addWorksheet('Grades');
       const gradesData = grades.map(grade => ({
         'Student Name': grade.student_name,
         'Student Email': grade.student_email,
@@ -377,10 +378,18 @@ class GradingService {
         'Submitted At': grade.created_at ? new Date(grade.created_at).toLocaleString() : 'Not Submitted'
       }));
 
-      const gradesSheet = XLSX.utils.json_to_sheet(gradesData);
-      XLSX.utils.book_append_sheet(workbook, gradesSheet, 'Grades');
+      // Add headers
+      if (gradesData.length > 0) {
+        gradesSheet.columns = Object.keys(gradesData[0]).map(key => ({
+          header: key,
+          key: key,
+          width: 15
+        }));
+        gradesSheet.addRows(gradesData);
+      }
 
       // Statistics sheet
+      const statsSheet = workbook.addWorksheet('Statistics');
       const stats = analytics.statistics;
       const statsData = [
         { Metric: 'Total Submissions', Value: stats.total_submissions },
@@ -391,21 +400,29 @@ class GradingService {
         { Metric: 'Median Grade', Value: stats.median_grade || 'N/A' }
       ];
 
-      const statsSheet = XLSX.utils.json_to_sheet(statsData);
-      XLSX.utils.book_append_sheet(workbook, statsSheet, 'Statistics');
+      statsSheet.columns = [
+        { header: 'Metric', key: 'Metric', width: 20 },
+        { header: 'Value', key: 'Value', width: 15 }
+      ];
+      statsSheet.addRows(statsData);
 
       // Grade distribution sheet
+      const distributionSheet = workbook.addWorksheet('Grade Distribution');
       const distributionData = Object.entries(analytics.gradeDistribution).map(([grade, count]) => ({
         'Letter Grade': grade,
         'Count': count,
         'Percentage': stats.graded_count > 0 ? `${((count / stats.graded_count) * 100).toFixed(2)}%` : '0%'
       }));
 
-      const distributionSheet = XLSX.utils.json_to_sheet(distributionData);
-      XLSX.utils.book_append_sheet(workbook, distributionSheet, 'Grade Distribution');
+      distributionSheet.columns = [
+        { header: 'Letter Grade', key: 'Letter Grade', width: 15 },
+        { header: 'Count', key: 'Count', width: 10 },
+        { header: 'Percentage', key: 'Percentage', width: 15 }
+      ];
+      distributionSheet.addRows(distributionData);
 
       // Generate buffer
-      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      const buffer = await workbook.xlsx.writeBuffer();
 
       return {
         buffer,

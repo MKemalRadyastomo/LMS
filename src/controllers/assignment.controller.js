@@ -167,11 +167,105 @@ const createAssignment = catchAsync(async (req, res) => {
     const assignmentBody = { ...req.body, course_id: parseInt(courseId, 10) };
     const assignment = await assignmentService.createAssignment(assignmentBody);
 
-    console.log('--- DEBUG START ---');
-    console.log('Value of httpStatus.CREATED:', httpStatus.CREATED);
-    console.log('--- DEBUG END ---');
+    res.status(httpStatus.CREATED).send({
+        success: true,
+        message: 'Assignment created successfully',
+        data: assignment
+    });
+});
 
-    res.status(httpStatus.CREATED).send(assignment);
+const getComprehensiveAnalytics = catchAsync(async (req, res) => {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Check if assignment exists and belongs to the course
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
+    }
+
+    // Permission check - only teachers and admins can view analytics
+    if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to view analytics for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Only admins and teachers (guru) can view assignment analytics.');
+    }
+
+    const analytics = await assignmentService.getComprehensiveAnalytics(assignmentId);
+    res.send({
+        success: true,
+        data: analytics
+    });
+});
+
+const duplicateAssignment = catchAsync(async (req, res) => {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Check if assignment exists and belongs to the course
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
+    }
+
+    // Permission check for teachers
+    if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to duplicate assignments for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Only admins and teachers (guru) can duplicate assignments.');
+    }
+
+    const duplicateData = req.body || {};
+    const duplicate = await assignmentService.duplicateAssignment(assignmentId, duplicateData);
+    
+    res.status(httpStatus.CREATED).send({
+        success: true,
+        message: 'Assignment duplicated successfully',
+        data: duplicate
+    });
+});
+
+const updateAnalytics = catchAsync(async (req, res) => {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Check if assignment exists and belongs to the course
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
+    }
+
+    // Permission check - only teachers and admins can update analytics
+    if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to update analytics for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Only admins and teachers (guru) can update assignment analytics.');
+    }
+
+    const result = await assignmentService.updateAnalytics(assignmentId);
+    res.send({
+        success: true,
+        message: 'Analytics updated successfully',
+        data: { updated: result }
+    });
 });
 
 module.exports = {
@@ -181,4 +275,7 @@ module.exports = {
     updateAssignment,
     deleteAssignment,
     getAssignmentAnalytics,
+    getComprehensiveAnalytics,
+    duplicateAssignment,
+    updateAnalytics,
 };
