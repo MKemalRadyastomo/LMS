@@ -19,7 +19,7 @@ Assignment.create = async (assignmentData) => {
         `;
         const values = [
             course_id, course_content_id, title, description, type, due_date, max_score,
-            quiz_questions_json, allowed_file_types, max_file_size_mb
+            quiz_questions_json ? JSON.stringify(quiz_questions_json) : null, allowed_file_types, max_file_size_mb
         ];
         const { rows } = await db.query(query, values);
         return rows[0];
@@ -115,7 +115,7 @@ Assignment.update = async (id, assignmentData) => {
         
         const values = [
             title, description, type, due_date, max_score,
-            quiz_questions_json, allowed_file_types, max_file_size_mb, id
+            quiz_questions_json ? JSON.stringify(quiz_questions_json) : null, allowed_file_types, max_file_size_mb, id
         ];
         
         const { rows } = await db.query(query, values);
