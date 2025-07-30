@@ -27,7 +27,26 @@ const verifyToken = (token) => {
   }
 };
 
+/**
+ * Verify a JWT token for refresh (allows expired tokens)
+ * @param {string} token - JWT token to verify
+ * @returns {Object} Decoded token payload
+ * @throws {ApiError} If token is invalid (but not if expired)
+ */
+const verifyTokenForRefresh = (token) => {
+  try {
+    return jwt.verify(token, config.jwtSecret, { ignoreExpiration: true });
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      // For refresh, we want to allow expired tokens
+      return jwt.decode(token);
+    }
+    throw new ApiError(401, 'Invalid token');
+  }
+};
+
 module.exports = {
   generateToken,
   verifyToken,
+  verifyTokenForRefresh,
 };

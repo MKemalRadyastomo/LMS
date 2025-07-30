@@ -1,6 +1,6 @@
 const User = require('../models/user.model');
 const { comparePassword } = require('../utils/password');
-const { generateToken } = require('../utils/jwt');
+const { generateToken, verifyTokenForRefresh } = require('../utils/jwt');
 const { unauthorized, badRequest, conflict } = require('../utils/ApiError');
 const logger = require('../utils/logger');
 const { 
@@ -142,6 +142,61 @@ class AuthService {
       return userData;
     } catch (error) {
       logger.error(`Auth check error: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Refresh JWT token
+   * @param {string} token - Current JWT token (can be expired)
+   * @returns {Promise<Object>} New authentication data with fresh token
+   * @throws {ApiError} If token is invalid or user not found
+   */
+  static async refreshToken(token) {
+    try {
+      if (!token) {
+        throw unauthorized('Refresh token is required');
+      }
+
+      // Verify the token (allows expired tokens)
+      const decoded = verifyTokenForRefresh(token);
+
+      if (!decoded || !decoded.id) {
+        throw unauthorized('Invalid token payload');
+      }
+
+      // Verify user still exists and is active
+      const user = await User.findById(decoded.id);
+
+      if (!user) {
+        throw unauthorized('User not found');
+      }
+
+      // Generate new token
+      const newToken = generateToken({
+        id: user.id,
+        email: user.email,
+        role: user.role
+      });
+
+      logger.info('Token refreshed successfully', {
+        userId: user.id,
+        email: user.email,
+        role: user.role
+      });
+
+      return {
+        token: newToken,
+        user_id: user.id,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
+      };
+    } catch (error) {
+      logger.error(`Token refresh error: ${error.message}`);
       throw error;
     }
   }

@@ -177,6 +177,73 @@ class AuthController {
       return next(error);
     }
   }
+
+  /**
+   * Refresh token endpoint handler
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   * @param {Function} next - Express next middleware function
+   */
+  static async refresh(req, res, next) {
+    const startTime = Date.now();
+    const requestId = req.id || Math.random().toString(36).substr(2, 9);
+
+    logger.info('Token refresh attempt started', {
+      requestId,
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+
+    try {
+      // Get token from authorization header
+      const authHeader = req.headers.authorization;
+      
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        const duration = Date.now() - startTime;
+        logger.warn('Token refresh failed: Missing authorization header', {
+          requestId,
+          duration: `${duration}ms`
+        });
+        return next(badRequest('Authorization header with Bearer token is required'));
+      }
+
+      const token = authHeader.split(' ')[1];
+
+      if (!token) {
+        const duration = Date.now() - startTime;
+        logger.warn('Token refresh failed: Missing token', {
+          requestId,
+          duration: `${duration}ms`
+        });
+        return next(badRequest('Token is required'));
+      }
+
+      logger.debug('Starting AuthService.refreshToken', {
+        requestId,
+        elapsed: `${Date.now() - startTime}ms`
+      });
+
+      const result = await AuthService.refreshToken(token);
+
+      const duration = Date.now() - startTime;
+      logger.info('Token refresh successful', {
+        requestId,
+        userId: result.user_id,
+        duration: `${duration}ms`
+      });
+
+      return res.status(200).json(result);
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      logger.error('Token refresh controller error', {
+        requestId,
+        duration: `${duration}ms`,
+        error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+      return next(error);
+    }
+  }
 }
 
 module.exports = AuthController;
