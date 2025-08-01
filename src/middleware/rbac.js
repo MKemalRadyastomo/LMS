@@ -3,6 +3,7 @@ const User = require('../models/user.model');
 const { ApiError } = require('../utils/ApiError');
 const db = require('../config/db');
 const logger = require('../utils/logger');
+const config = require('../config/config');
 
 /**
  * Role-based permissions mapping
@@ -45,7 +46,7 @@ const authenticate = async (req, res, next) => {
     }
     
     // Verify the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, config.jwtSecret);
     
     // Check session timeout (30 minutes)
     const sessionAge = Date.now() - decoded.iat * 1000;

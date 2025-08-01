@@ -61,7 +61,7 @@ class NotificationService {
       }
 
       try {
-        const decoded = jwt.verify(token, config.jwt.secret);
+        const decoded = jwt.verify(token, config.jwtSecret);
         info.req.user = decoded;
         return true;
       } catch (jwtError) {

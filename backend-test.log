@@ -1,0 +1,21 @@
+
+> lms-backend@1.0.0 start
+> node src/index.js
+
+2025-08-01 13:51:21 [32minfo[39m: Validating application configuration...
+2025-08-01 13:51:21 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:51:21 [32minfo[39m: Configuration summary:
+2025-08-01 13:51:21 [32minfo[39m: Server running on port 3000 in development mode
+2025-08-01 13:51:21 [32minfo[39m: WebSocket notification service initialized
+2025-08-01 13:51:21 [32minfo[39m: WebSocket notification service initialized successfully
+2025-08-01 13:51:21 [32minfo[39m: Startup memory usage:
+2025-08-01 13:51:21 [32minfo[39m: New database client connected (PID: 82702)
+2025-08-01 13:51:21 [34mdebug[39m: Database client acquired (PID: 82702)
+2025-08-01 13:51:21 [32minfo[39m: Successfully connected to the database
+2025-08-01 13:52:00 [32minfo[39m: WebSocket connection established for user 1
+2025-08-01 13:52:00 [34mdebug[39m: Database client acquired (PID: 82702)
+2025-08-01 13:52:00 [31merror[39m: Failed to get notification count: relation "notifications" does not exist
+2025-08-01 13:52:00 [31merror[39m: Error sending unread count to user 1: relation "notifications" does not exist
+2025-08-01 13:52:00 [32minfo[39m: Database client removed (PID: 82702)
+2025-08-01 13:52:01 [32minfo[39m: WebSocket connection closed for user 1
