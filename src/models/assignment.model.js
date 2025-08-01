@@ -5,25 +5,75 @@ const Assignment = {};
 
 Assignment.create = async (assignmentData) => {
     try {
-        const { course_id, course_content_id, title, description, type, due_date, max_score } = assignmentData;
-        const quiz_questions_json = assignmentData.quiz_questions_json || null;
-        const allowed_file_types = assignmentData.allowed_file_types || null;
-        const max_file_size_mb = assignmentData.max_file_size_mb || null;
+        const {
+            course_id,
+            course_content_id = null,
+            title,
+            description,
+            type,
+            due_date,
+            max_score,
+            instructions = null,
+            quiz_questions_json = null,
+            allowed_file_types = null,
+            max_file_size_mb = null,
+            late_submission_penalty = 0,
+            allow_late_submissions = true,
+            max_late_days = 7,
+            auto_release_grades = false,
+            grade_release_date = null,
+            multiple_attempts = false,
+            max_attempts = 1,
+            show_correct_answers = false,
+            shuffle_questions = false,
+            time_limit_minutes = null,
+            require_webcam = false,
+            plagiarism_check = false
+        } = assignmentData;
+        
         const query = `
             INSERT INTO assignments (
                 course_id, course_content_id, title, description, type, due_date, max_score,
-                quiz_questions_json, allowed_file_types, max_file_size_mb
+                instructions, quiz_questions_json, allowed_file_types, max_file_size_mb,
+                late_submission_penalty, allow_late_submissions, max_late_days,
+                auto_release_grades, grade_release_date, multiple_attempts, max_attempts,
+                show_correct_answers, shuffle_questions, time_limit_minutes,
+                require_webcam, plagiarism_check
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
             RETURNING *
         `;
+        
         const values = [
-            course_id, course_content_id, title, description, type, due_date, max_score,
-            quiz_questions_json ? JSON.stringify(quiz_questions_json) : null, allowed_file_types, max_file_size_mb
+            course_id,
+            course_content_id,
+            title,
+            description,
+            type,
+            due_date,
+            max_score,
+            instructions,
+            quiz_questions_json ? JSON.stringify(quiz_questions_json) : null,
+            allowed_file_types,
+            max_file_size_mb,
+            late_submission_penalty,
+            allow_late_submissions,
+            max_late_days,
+            auto_release_grades,
+            grade_release_date,
+            multiple_attempts,
+            max_attempts,
+            show_correct_answers,
+            shuffle_questions,
+            time_limit_minutes,
+            require_webcam,
+            plagiarism_check
         ];
+        
         const { rows } = await db.query(query, values);
         return rows[0];
     } catch (error) {
+        logger.error(`Failed to create assignment: ${error.message}`);
         throw error;
     }
 };
