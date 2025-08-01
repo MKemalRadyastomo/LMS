@@ -323,10 +323,19 @@ class Search {
         SELECT 
           details->>'query' as query,
           COUNT(*) as search_count,
-          AVG((details->>'resultCount')::integer) as avg_results
+          COALESCE(
+            AVG(
+              CASE 
+                WHEN details->>'resultCount' ~ '^[0-9]+$' 
+                THEN (details->>'resultCount')::integer 
+                ELSE 0 
+              END
+            ), 0
+          )::numeric(10,2) as avg_results
         FROM activity_logs
         WHERE activity_type = 'search'
           AND ${timeCondition}
+          AND details IS NOT NULL
           AND details->>'query' IS NOT NULL
           AND LENGTH(details->>'query') > 0
         GROUP BY details->>'query'
@@ -367,15 +376,49 @@ class Search {
         SELECT 
           COUNT(*) as total_searches,
           COUNT(DISTINCT user_id) as unique_searchers,
-          AVG((details->>'resultCount')::integer) as avg_results_per_search,
-          COUNT(CASE WHEN (details->>'resultCount')::integer = 0 THEN 1 END) as zero_result_searches
+          COALESCE(
+            AVG(
+              CASE 
+                WHEN details->>'resultCount' ~ '^[0-9]+$' 
+                THEN (details->>'resultCount')::integer 
+                ELSE 0 
+              END
+            ), 0
+          )::numeric(10,2) as avg_results_per_search,
+          COUNT(
+            CASE 
+              WHEN details->>'resultCount' ~ '^[0-9]+$' 
+                AND (details->>'resultCount')::integer = 0 
+              THEN 1 
+            END
+          ) as zero_result_searches,
+          COALESCE(
+            AVG(
+              CASE 
+                WHEN details->>'responseTime' ~ '^[0-9.]+$' 
+                THEN (details->>'responseTime')::numeric 
+                ELSE 0 
+              END
+            ), 0
+          )::numeric(10,2) as avg_response_time
         FROM activity_logs
         WHERE activity_type = 'search'
           AND ${timeCondition}
+          AND details IS NOT NULL
       `;
 
       const result = await db.query(query);
-      return result.rows[0];
+      const analytics = result.rows[0];
+
+      // Ensure all values are properly formatted
+      return {
+        total_searches: parseInt(analytics.total_searches) || 0,
+        unique_searchers: parseInt(analytics.unique_searchers) || 0,
+        avg_results_per_search: parseFloat(analytics.avg_results_per_search) || 0,
+        zero_result_searches: parseInt(analytics.zero_result_searches) || 0,
+        avg_response_time: parseFloat(analytics.avg_response_time) || 0,
+        timeframe
+      };
     } catch (error) {
       logger.error(`Failed to get search analytics: ${error.message}`);
       throw error;

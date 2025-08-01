@@ -205,28 +205,204 @@
 2025-08-01 11:15:56 [32minfo[39m: New database client connected (PID: 40373)
 2025-08-01 11:15:56 [34mdebug[39m: Database client acquired (PID: 40373)
 2025-08-01 11:15:56 [32minfo[39m: Successfully connected to the database
-ration validation passed
-2025-08-01 11:15:13 [32minfo[39m: Configuration summary:
-2025-08-01 11:15:13 [32minfo[39m: Server running on port 9879 in development mode
-2025-08-01 11:15:13 [32minfo[39m: Startup memory usage:
-2025-08-01 11:15:13 [32minfo[39m: New database client connected (PID: 39563)
-2025-08-01 11:15:13 [34mdebug[39m: Database client acquired (PID: 39563)
-2025-08-01 11:15:13 [32minfo[39m: Successfully connected to the database
 [32m[nodemon] restarting due to changes...[39m
 [32m[nodemon] starting `node src/index.js`[39m
-2025-08-01 11:15:21 [32minfo[39m: Validating application configuration...
-2025-08-01 11:15:21 [32minfo[39m: Configuration validation passed
+2025-08-01 12:54:55 [32minfo[39m: Validating application configuration...
+2025-08-01 12:54:55 [32minfo[39m: Configuration validation passed
 ✅ Configuration validation passed
-2025-08-01 11:15:21 [32minfo[39m: Configuration summary:
-2025-08-01 11:15:21 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
-2025-08-01 11:15:21 [31merror[39m: listen EADDRINUSE: address already in use :::9879
+2025-08-01 12:54:55 [32minfo[39m: Configuration summary:
+2025-08-01 12:54:55 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 12:54:55 [32minfo[39m: Startup memory usage:
+2025-08-01 12:54:55 [32minfo[39m: New database client connected (PID: 30730)
+2025-08-01 12:54:55 [34mdebug[39m: Database client acquired (PID: 30730)
+2025-08-01 12:54:55 [32minfo[39m: Successfully connected to the database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 12:55:07 [32minfo[39m: Validating application configuration...
+2025-08-01 12:55:07 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 12:55:07 [32minfo[39m: Configuration summary:
+2025-08-01 12:55:07 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
+2025-08-01 12:55:07 [31merror[39m: listen EADDRINUSE: address already in use :::9879
 [31m[nodemon] app crashed - waiting for file changes before starting...[39m
 [32m[nodemon] restarting due to changes...[39m
 [32m[nodemon] starting `node src/index.js`[39m
-2025-08-01 11:15:56 [32minfo[39m: Validating application configuration...
-2025-08-01 11:15:56 [32minfo[39m: Configuration validation passed
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 12:55:33 [32minfo[39m: Validating application configuration...
+2025-08-01 12:55:33 [32minfo[39m: Configuration validation passed
 ✅ Configuration validation passed
-2025-08-01 11:15:56 [32minfo[39m: Configuration summary:
-2025-08-01 11:15:56 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
-2025-08-01 11:15:56 [31merror[39m: listen EADDRINUSE: address already in use :::9879
+2025-08-01 12:55:33 [32minfo[39m: Configuration summary:
+2025-08-01 12:55:33 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 12:55:33 [32minfo[39m: Startup memory usage:
+2025-08-01 12:55:33 [32minfo[39m: New database client connected (PID: 31619)
+2025-08-01 12:55:33 [34mdebug[39m: Database client acquired (PID: 31619)
+2025-08-01 12:55:33 [32minfo[39m: Successfully connected to the database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 12:57:20 [32minfo[39m: Validating application configuration...
+2025-08-01 12:57:20 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 12:57:20 [32minfo[39m: Configuration summary:
+2025-08-01 12:57:20 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 12:57:20 [32minfo[39m: Startup memory usage:
+2025-08-01 12:57:20 [32minfo[39m: New database client connected (PID: 33234)
+2025-08-01 12:57:20 [34mdebug[39m: Database client acquired (PID: 33234)
+2025-08-01 12:57:20 [32minfo[39m: Successfully connected to the database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 12:58:00 [32minfo[39m: Validating application configuration...
+2025-08-01 12:58:00 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 12:58:00 [32minfo[39m: Configuration summary:
+2025-08-01 12:58:00 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
+2025-08-01 12:58:00 [31merror[39m: listen EADDRINUSE: address already in use :::9879
 [31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 12:59:17 [32minfo[39m: Validating application configuration...
+2025-08-01 12:59:17 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 12:59:17 [32minfo[39m: Configuration summary:
+2025-08-01 12:59:17 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 12:59:17 [32minfo[39m: Startup memory usage:
+2025-08-01 12:59:17 [32minfo[39m: New database client connected (PID: 35105)
+2025-08-01 12:59:17 [34mdebug[39m: Database client acquired (PID: 35105)
+2025-08-01 12:59:17 [32minfo[39m: Successfully connected to the database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:00:32 [32minfo[39m: Validating application configuration...
+2025-08-01 13:00:32 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:00:32 [32minfo[39m: Configuration summary:
+2025-08-01 13:00:32 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 13:00:32 [32minfo[39m: Startup memory usage:
+2025-08-01 13:00:32 [32minfo[39m: New database client connected (PID: 36259)
+2025-08-01 13:00:32 [34mdebug[39m: Database client acquired (PID: 36259)
+2025-08-01 13:00:32 [32minfo[39m: Successfully connected to the database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:01:25 [32minfo[39m: Validating application configuration...
+2025-08-01 13:01:25 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:01:25 [32minfo[39m: Configuration summary:
+2025-08-01 13:01:25 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
+2025-08-01 13:01:25 [31merror[39m: listen EADDRINUSE: address already in use :::9879
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:01:47 [32minfo[39m: Validating application configuration...
+2025-08-01 13:01:47 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:01:47 [32minfo[39m: Configuration summary:
+2025-08-01 13:01:47 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
+2025-08-01 13:01:47 [31merror[39m: listen EADDRINUSE: address already in use :::9879
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:01:58 [32minfo[39m: Validating application configuration...
+2025-08-01 13:01:58 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:01:58 [32minfo[39m: Configuration summary:
+2025-08-01 13:01:58 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 13:01:58 [32minfo[39m: Startup memory usage:
+2025-08-01 13:01:58 [32minfo[39m: New database client connected (PID: 37799)
+2025-08-01 13:01:58 [34mdebug[39m: Database client acquired (PID: 37799)
+2025-08-01 13:01:58 [32minfo[39m: Successfully connected to the database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:02:09 [32minfo[39m: Validating application configuration...
+2025-08-01 13:02:09 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:02:09 [32minfo[39m: Configuration summary:
+2025-08-01 13:02:09 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
+2025-08-01 13:02:09 [31merror[39m: listen EADDRINUSE: address already in use :::9879
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:02:25 [32minfo[39m: Validating application configuration...
+2025-08-01 13:02:25 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:02:25 [32minfo[39m: Configuration summary:
+2025-08-01 13:02:25 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 13:02:25 [32minfo[39m: WebSocket notification service initialized
+2025-08-01 13:02:25 [32minfo[39m: WebSocket notification service initialized successfully
+2025-08-01 13:02:25 [32minfo[39m: Startup memory usage:
+2025-08-01 13:02:25 [32minfo[39m: New database client connected (PID: 38317)
+2025-08-01 13:02:25 [34mdebug[39m: Database client acquired (PID: 38317)
+2025-08-01 13:02:25 [32minfo[39m: Successfully connected to the database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:02:36 [32minfo[39m: Validating application configuration...
+2025-08-01 13:02:36 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:02:36 [32minfo[39m: Configuration summary:
+2025-08-01 13:02:36 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
+2025-08-01 13:02:36 [31merror[39m: listen EADDRINUSE: address already in use :::9879
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:02:45 [32minfo[39m: Validating application configuration...
+2025-08-01 13:02:45 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:02:45 [32minfo[39m: Configuration summary:
+2025-08-01 13:02:45 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
+2025-08-01 13:02:45 [31merror[39m: listen EADDRINUSE: address already in use :::9879
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:03:45 [32minfo[39m: Validating application configuration...
+2025-08-01 13:03:45 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:03:45 [32minfo[39m: Configuration summary:
+2025-08-01 13:03:45 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 13:03:45 [32minfo[39m: WebSocket notification service initialized
+2025-08-01 13:03:45 [32minfo[39m: WebSocket notification service initialized successfully
+2025-08-01 13:03:45 [32minfo[39m: Startup memory usage:
+2025-08-01 13:03:45 [32minfo[39m: New database client connected (PID: 39727)
+2025-08-01 13:03:45 [34mdebug[39m: Database client acquired (PID: 39727)
+2025-08-01 13:03:45 [32minfo[39m: Successfully connected to the database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:03:58 [32minfo[39m: Validating application configuration...
+2025-08-01 13:03:58 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:03:58 [32minfo[39m: Configuration summary:
+2025-08-01 13:03:58 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 13:03:58 [32minfo[39m: WebSocket notification service initialized
+2025-08-01 13:03:58 [32minfo[39m: WebSocket notification service initialized successfully
+2025-08-01 13:03:58 [32minfo[39m: Startup memory usage:
+2025-08-01 13:03:58 [32minfo[39m: New database client connected (PID: 39989)
+2025-08-01 13:03:58 [34mdebug[39m: Database client acquired (PID: 39989)
+2025-08-01 13:03:58 [32minfo[39m: Successfully connected to the database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:04:14 [32minfo[39m: Validating application configuration...
+2025-08-01 13:04:14 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:04:14 [32minfo[39m: Configuration summary:
+2025-08-01 13:04:14 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
+2025-08-01 13:04:14 [31merror[39m: listen EADDRINUSE: address already in use :::9879
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+arting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:03:58 [32minfo[39m: Validating application configuration...
+2025-08-01 13:03:58 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:03:58 [32minfo[39m: Configuration summary:
+2025-08-01 13:03:58 [31merror[39m: UNCAUGHT EXCEPTION! 💥 Shutting down...
+2025-08-01 13:03:58 [31merror[39m: listen EADDRINUSE: address already in use :::9879
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+2025-08-01 13:04:14 [32minfo[39m: Validating application configuration...
+2025-08-01 13:04:14 [32minfo[39m: Configuration validation passed
+✅ Configuration validation passed
+2025-08-01 13:04:14 [32minfo[39m: Configuration summary:
+2025-08-01 13:04:14 [32minfo[39m: Server running on port 9879 in development mode
+2025-08-01 13:04:14 [32minfo[39m: WebSocket notification service initialized
+2025-08-01 13:04:14 [32minfo[39m: WebSocket notification service initialized successfully
+2025-08-01 13:04:14 [32minfo[39m: Startup memory usage:
+2025-08-01 13:04:14 [32minfo[39m: New database client connected (PID: 40277)
+2025-08-01 13:04:14 [34mdebug[39m: Database client acquired (PID: 40277)
+2025-08-01 13:04:14 [32minfo[39m: Successfully connected to the database

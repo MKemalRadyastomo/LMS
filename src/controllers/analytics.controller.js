@@ -365,6 +365,308 @@ const getActivityTimelineAnalytics = catchAsync(async (req, res) => {
 });
 
 /**
+ * Get performance metrics
+ * GET /api/analytics/performance?timeframe={timeframe}&metric={metric}
+ */
+const getPerformanceMetrics = catchAsync(async (req, res) => {
+  const { timeframe = 'week', metric = 'all' } = req.query;
+
+  // Check permissions
+  if (!['admin', 'guru'].includes(req.user.role)) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Access denied. Admin or Guru role required.');
+  }
+
+  const validTimeframes = ['day', 'week', 'month', 'year'];
+  if (!validTimeframes.includes(timeframe)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Invalid timeframe. Must be one of: ${validTimeframes.join(', ')}`);
+  }
+
+  const db = require('../config/db');
+  const timeCondition = getTimeCondition(timeframe);
+
+  const metrics = {};
+
+  if (metric === 'all' || metric === 'response_time') {
+    // Get average response times from search analytics
+    const responseTimeQuery = `
+      SELECT 
+        AVG(
+          CASE 
+            WHEN details->>'responseTime' ~ '^[0-9.]+$' 
+            THEN (details->>'responseTime')::numeric 
+            ELSE null 
+          END
+        ) as avg_response_time,
+        COUNT(*) as total_requests
+      FROM activity_logs
+      WHERE activity_type = 'search' 
+        AND ${timeCondition}
+        AND details IS NOT NULL
+    `;
+    
+    const responseTimeResult = await db.query(responseTimeQuery);
+    metrics.response_time = {
+      average_ms: parseFloat(responseTimeResult.rows[0].avg_response_time) || 0,
+      total_requests: parseInt(responseTimeResult.rows[0].total_requests) || 0
+    };
+  }
+
+  if (metric === 'all' || metric === 'user_engagement') {
+    // Get user engagement metrics
+    const engagementQuery = `
+      SELECT 
+        COUNT(DISTINCT user_id) as active_users,
+        COUNT(*) as total_activities,
+        ROUND(COUNT(*)::numeric / NULLIF(COUNT(DISTINCT user_id), 0), 2) as avg_activities_per_user,
+        COUNT(DISTINCT DATE(created_at)) as active_days
+      FROM activity_logs
+      WHERE ${timeCondition}
+    `;
+    
+    const engagementResult = await db.query(engagementQuery);
+    metrics.user_engagement = engagementResult.rows[0];
+  }
+
+  if (metric === 'all' || metric === 'content_performance') {
+    // Get content performance metrics
+    const contentQuery = `
+      SELECT 
+        'courses' as content_type,
+        COUNT(*) as total_items,
+        COUNT(CASE WHEN ${timeCondition} THEN 1 END) as created_in_period,
+        AVG(
+          CASE 
+            WHEN ce.course_count IS NOT NULL 
+            THEN ce.course_count 
+            ELSE 0 
+          END
+        ) as avg_engagement
+      FROM courses c
+      LEFT JOIN (
+        SELECT course_id, COUNT(*) as course_count
+        FROM course_enrollments
+        GROUP BY course_id
+      ) ce ON c.id = ce.course_id
+      
+      UNION ALL
+      
+      SELECT 
+        'assignments' as content_type,
+        COUNT(*) as total_items,
+        COUNT(CASE WHEN ${timeCondition} THEN 1 END) as created_in_period,
+        AVG(
+          CASE 
+            WHEN s.submission_count IS NOT NULL 
+            THEN s.submission_count 
+            ELSE 0 
+          END
+        ) as avg_engagement
+      FROM assignments a
+      LEFT JOIN (
+        SELECT assignment_id, COUNT(*) as submission_count
+        FROM assignment_submissions
+        GROUP BY assignment_id
+      ) s ON a.id = s.assignment_id
+      
+      UNION ALL
+      
+      SELECT 
+        'materials' as content_type,
+        COUNT(*) as total_items,
+        COUNT(CASE WHEN ${timeCondition} THEN 1 END) as created_in_period,
+        0 as avg_engagement
+      FROM materials m
+    `;
+    
+    const contentResult = await db.query(contentQuery);
+    metrics.content_performance = contentResult.rows;
+  }
+
+  if (metric === 'all' || metric === 'system_health') {
+    // Get system health metrics
+    const healthQuery = `
+      SELECT 
+        COUNT(CASE WHEN activity_type = 'login' THEN 1 END) as successful_logins,
+        COUNT(CASE WHEN activity_type = 'login_failed' THEN 1 END) as failed_logins,
+        COUNT(CASE WHEN activity_type = 'search' AND (details->>'resultCount')::int = 0 THEN 1 END) as zero_result_searches,
+        COUNT(CASE WHEN activity_type = 'error' THEN 1 END) as error_count
+      FROM activity_logs
+      WHERE ${timeCondition}
+    `;
+    
+    const healthResult = await db.query(healthQuery);
+    metrics.system_health = healthResult.rows[0];
+  }
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Performance metrics retrieved successfully',
+    data: {
+      timeframe,
+      metrics,
+      generatedAt: new Date().toISOString()
+    }
+  });
+});
+
+/**
+ * Get reports list and generate custom reports
+ * GET /api/analytics/reports?type={type}&format={format}
+ */
+const getReports = catchAsync(async (req, res) => {
+  const { type = 'summary', format = 'json' } = req.query;
+
+  // Check permissions
+  if (!['admin', 'guru'].includes(req.user.role)) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Access denied. Admin or Guru role required.');
+  }
+
+  const validTypes = ['summary', 'detailed', 'user_activity', 'content_usage', 'performance'];
+  const validFormats = ['json', 'csv'];
+
+  if (!validTypes.includes(type)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Invalid report type. Must be one of: ${validTypes.join(', ')}`);
+  }
+
+  if (!validFormats.includes(format)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Invalid format. Must be one of: ${validFormats.join(', ')}`);
+  }
+
+  const db = require('../config/db');
+  let reportData = {};
+
+  switch (type) {
+    case 'summary':
+      const summaryQuery = `
+        SELECT 
+          'users' as category,
+          COUNT(*) as total,
+          COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as recent
+        FROM users
+        UNION ALL
+        SELECT 
+          'courses' as category,
+          COUNT(*) as total,
+          COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as recent
+        FROM courses
+        UNION ALL
+        SELECT 
+          'assignments' as category,
+          COUNT(*) as total,
+          COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as recent
+        FROM assignments
+        UNION ALL
+        SELECT 
+          'submissions' as category,
+          COUNT(*) as total,
+          COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as recent
+        FROM assignment_submissions
+      `;
+      
+      const summaryResult = await db.query(summaryQuery);
+      reportData = {
+        summary: summaryResult.rows,
+        generatedAt: new Date().toISOString()
+      };
+      break;
+
+    case 'user_activity':
+      const activityQuery = `
+        SELECT 
+          u.id,
+          u.name,
+          u.email,
+          u.role,
+          COUNT(al.id) as total_activities,
+          MAX(al.created_at) as last_activity,
+          COUNT(CASE WHEN al.activity_type = 'login' THEN 1 END) as login_count,
+          COUNT(CASE WHEN al.activity_type = 'search' THEN 1 END) as search_count
+        FROM users u
+        LEFT JOIN activity_logs al ON u.id = al.user_id 
+          AND al.created_at > NOW() - INTERVAL '30 days'
+        WHERE u.role IN ('guru', 'siswa')
+        GROUP BY u.id, u.name, u.email, u.role
+        ORDER BY total_activities DESC
+        LIMIT 100
+      `;
+      
+      const activityResult = await db.query(activityQuery);
+      reportData = {
+        user_activity: activityResult.rows,
+        generatedAt: new Date().toISOString()
+      };
+      break;
+
+    case 'content_usage':
+      const usageQuery = `
+        SELECT 
+          c.id,
+          c.name as course_name,
+          u.name as teacher_name,
+          COUNT(DISTINCT ce.user_id) as enrolled_students,
+          COUNT(DISTINCT a.id) as assignments_count,
+          COUNT(DISTINCT m.id) as materials_count,
+          COUNT(DISTINCT s.id) as submissions_count,
+          ROUND(AVG(s.grade), 2) as avg_grade
+        FROM courses c
+        LEFT JOIN users u ON c.teacher_id = u.id
+        LEFT JOIN course_enrollments ce ON c.id = ce.course_id AND ce.status = 'active'
+        LEFT JOIN assignments a ON c.id = a.course_id
+        LEFT JOIN materials m ON c.id = m.course_id
+        LEFT JOIN assignment_submissions s ON a.id = s.assignment_id
+        GROUP BY c.id, c.name, u.name
+        ORDER BY enrolled_students DESC
+        LIMIT 50
+      `;
+      
+      const usageResult = await db.query(usageQuery);
+      reportData = {
+        content_usage: usageResult.rows,
+        generatedAt: new Date().toISOString()
+      };
+      break;
+
+    default:
+      reportData = {
+        message: `Report type '${type}' not implemented yet`,
+        availableTypes: validTypes
+      };
+  }
+
+  if (format === 'json') {
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: `${type} report generated successfully`,
+      data: reportData
+    });
+  } else {
+    // CSV format would need implementation
+    res.status(httpStatus.NOT_IMPLEMENTED).json({
+      success: false,
+      message: 'CSV format not yet implemented. Please use JSON format.'
+    });
+  }
+});
+
+/**
+ * Helper function to get time condition
+ */
+function getTimeCondition(timeframe) {
+  switch (timeframe) {
+    case 'day':
+      return 'created_at > NOW() - INTERVAL \'1 day\'';
+    case 'week':
+      return 'created_at > NOW() - INTERVAL \'1 week\'';
+    case 'month':
+      return 'created_at > NOW() - INTERVAL \'1 month\'';
+    case 'year':
+      return 'created_at > NOW() - INTERVAL \'1 year\'';
+    default:
+      return 'created_at > NOW() - INTERVAL \'1 month\'';
+  }
+}
+
+/**
  * Export analytics data
  * POST /api/analytics/export
  */
@@ -439,5 +741,7 @@ module.exports = {
   getUserPerformanceSummary,
   getGradeDistributionAnalytics,
   getActivityTimelineAnalytics,
+  getPerformanceMetrics,
+  getReports,
   exportAnalyticsData
 };

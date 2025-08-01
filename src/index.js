@@ -4,6 +4,7 @@ const app = require('./app');
 const config = require('./config/config');
 const logger = require('./utils/logger');
 const ConfigValidator = require('./utils/configValidator');
+const notificationService = require('./services/notification.service');
 
 // Validate configuration before starting the server
 logger.info('Validating application configuration...');
@@ -18,6 +19,14 @@ if (configValidation.valid) {
 // Create HTTP server
 const server = app.listen(config.port, () => {
   logger.info(`Server running on port ${config.port} in ${config.env} mode`);
+
+  // Initialize WebSocket notification service
+  try {
+    notificationService.initialize(server);
+    logger.info('WebSocket notification service initialized successfully');
+  } catch (error) {
+    logger.error(`Failed to initialize WebSocket service: ${error.message}`);
+  }
 
   // Log startup performance metrics
   if (process.env.NODE_ENV === 'development') {
@@ -38,6 +47,7 @@ process.on('unhandledRejection', (err) => {
 
   // Close server & exit process
   server.close(() => {
+    notificationService.shutdown();
     process.exit(1);
   });
 });
@@ -47,7 +57,8 @@ process.on('uncaughtException', (err) => {
   logger.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   logger.error(err);
 
-  // Exit process
+  // Shutdown services and exit process
+  notificationService.shutdown();
   process.exit(1);
 });
 

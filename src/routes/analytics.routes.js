@@ -180,6 +180,40 @@ router.get(
 );
 
 /**
+ * @route   GET /api/analytics/performance
+ * @desc    Get performance metrics
+ * @access  Private (Admin and Teachers only)
+ */
+router.get(
+  '/performance',
+  requireRole(['admin', 'guru']),
+  validate({
+    query: {
+      timeframe: Joi.string().valid('day', 'week', 'month', 'year').default('week').optional(),
+      metric: Joi.string().valid('all', 'response_time', 'user_engagement', 'content_performance', 'system_health').default('all').optional()
+    }
+  }),
+  analyticsController.getPerformanceMetrics
+);
+
+/**
+ * @route   GET /api/analytics/reports
+ * @desc    Generate custom analytics reports
+ * @access  Private (Admin and Teachers only)
+ */
+router.get(
+  '/reports',
+  requireRole(['admin', 'guru']),
+  validate({
+    query: {
+      type: Joi.string().valid('summary', 'detailed', 'user_activity', 'content_usage', 'performance').default('summary').optional(),
+      format: Joi.string().valid('json', 'csv').default('json').optional()
+    }
+  }),
+  analyticsController.getReports
+);
+
+/**
  * @route   POST /api/analytics/export
  * @desc    Export analytics data in various formats
  * @access  Private (Admin and Teachers only)

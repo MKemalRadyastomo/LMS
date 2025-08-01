@@ -12,6 +12,7 @@ const materialRoutes = require('./material.routes');
 const searchRoutes = require('./search.routes');
 const analyticsRoutes = require('./analytics.routes');
 const userStatsRoutes = require('./userStats.routes');
+const notificationRoutes = require('./notification.routes');
 
 const router = express.Router();
 
@@ -65,6 +66,9 @@ router.use('/search', searchRoutes);
 
 // Analytics routes
 router.use('/analytics', analyticsRoutes);
+
+// Notification routes
+router.use('/notifications', notificationRoutes);
 
 // User statistics routes
 router.use('/', userStatsRoutes);

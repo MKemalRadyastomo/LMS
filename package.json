@@ -39,7 +39,8 @@
     "pdf-lib": "^1.17.1",
     "pg": "^8.11.3",
     "sharp": "^0.34.2",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
