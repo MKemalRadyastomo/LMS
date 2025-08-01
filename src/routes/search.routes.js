@@ -2,6 +2,7 @@ const express = require('express');
 const searchController = require('../controllers/search.controller');
 const { authenticate, requireRole, requirePermission } = require('../middleware/rbac');
 const validate = require('../middleware/validate');
+const { searchCacheMiddleware } = require('../middleware/searchCache');
 const Joi = require('joi');
 
 const router = express.Router();
@@ -19,11 +20,18 @@ const searchQueryValidation = {
       'string.max': 'Search query cannot exceed 100 characters',
       'any.required': 'Search query is required'
     }),
-    type: Joi.string().valid('course', 'material', 'assignment').optional(),
+    type: Joi.string().valid('course', 'material', 'assignment', 'user', 'announcement').optional(),
+    contentType: Joi.alternatives().try(
+      Joi.string().valid('course', 'material', 'assignment', 'user', 'announcement'),
+      Joi.array().items(Joi.string().valid('course', 'material', 'assignment', 'user', 'announcement'))
+    ).optional(),
     courseId: Joi.number().integer().positive().optional(),
+    authorId: Joi.number().integer().positive().optional(),
     teacherId: Joi.number().integer().positive().optional(),
     page: Joi.number().integer().min(1).default(1).optional(),
-    limit: Joi.number().integer().min(1).max(50).default(20).optional()
+    limit: Joi.number().integer().min(1).max(50).default(20).optional(),
+    sort: Joi.string().valid('relevance', 'date', 'title', 'author').default('relevance').optional(),
+    sortOrder: Joi.string().valid('asc', 'desc').default('desc').optional()
   }
 };
 
@@ -81,6 +89,45 @@ const courseSearchValidation = {
   }
 };
 
+const saveSearchValidation = {
+  body: {
+    name: Joi.string().min(1).max(100).required().messages({
+      'string.min': 'Search name must be at least 1 character long',
+      'string.max': 'Search name cannot exceed 100 characters',
+      'any.required': 'Search name is required'
+    }),
+    query: Joi.string().min(1).max(100).required().messages({
+      'string.min': 'Search query must be at least 1 character long',
+      'string.max': 'Search query cannot exceed 100 characters',
+      'any.required': 'Search query is required'
+    }),
+    filters: Joi.object().optional(),
+    notificationEnabled: Joi.boolean().default(false).optional()
+  }
+};
+
+const updateSavedSearchValidation = {
+  params: {
+    id: Joi.string().required().messages({
+      'any.required': 'Search ID is required'
+    })
+  },
+  body: {
+    name: Joi.string().min(1).max(100).optional(),
+    query: Joi.string().min(1).max(100).optional(),
+    filters: Joi.object().optional(),
+    notificationEnabled: Joi.boolean().optional()
+  }
+};
+
+const trackAnalyticsValidation = {
+  body: {
+    query: Joi.string().min(1).max(100).required(),
+    resultCount: Joi.number().integer().min(0).required(),
+    responseTime: Joi.number().min(0).required()
+  }
+};
+
 /**
  * @route   GET /api/search
  * @desc    Search across all content types
@@ -88,6 +135,7 @@ const courseSearchValidation = {
  */
 router.get(
   '/',
+  searchCacheMiddleware({ skipInDev: false }),
   validate(searchQueryValidation),
   searchController.searchContent
 );
@@ -99,6 +147,7 @@ router.get(
  */
 router.get(
   '/suggestions',
+  searchCacheMiddleware({ skipInDev: false }),
   validate(suggestionsValidation),
   searchController.getSearchSuggestions
 );
@@ -110,6 +159,7 @@ router.get(
  */
 router.get(
   '/popular',
+  searchCacheMiddleware({ skipInDev: false }),
   validate(analyticsValidation),
   searchController.getPopularSearchTerms
 );
@@ -122,6 +172,7 @@ router.get(
 router.get(
   '/analytics',
   requireRole(['admin', 'guru']),
+  searchCacheMiddleware({ skipInDev: false }),
   validate(analyticsValidation),
   searchController.getSearchAnalytics
 );
@@ -167,6 +218,60 @@ router.get(
   validate(courseSearchValidation),
   // Note: Course-specific access will be checked in the controller
   searchController.searchInCourse
+);
+
+/**
+ * @route   POST /api/search/saved
+ * @desc    Save a search for later use
+ * @access  Private (All authenticated users)
+ */
+router.post(
+  '/saved',
+  validate(saveSearchValidation),
+  searchController.saveSearch
+);
+
+/**
+ * @route   GET /api/search/saved
+ * @desc    Get user's saved searches
+ * @access  Private (All authenticated users)
+ */
+router.get(
+  '/saved',
+  searchController.getSavedSearches
+);
+
+/**
+ * @route   PATCH /api/search/saved/:id
+ * @desc    Update a saved search
+ * @access  Private (All authenticated users)
+ */
+router.patch(
+  '/saved/:id',
+  validate(updateSavedSearchValidation),
+  searchController.updateSavedSearch
+);
+
+/**
+ * @route   DELETE /api/search/saved/:id
+ * @desc    Delete a saved search
+ * @access  Private (All authenticated users)
+ */
+router.delete(
+  '/saved/:id',
+  validate({ params: { id: Joi.string().required() } }),
+  searchController.deleteSavedSearch
+);
+
+/**
+ * @route   POST /api/search/analytics
+ * @desc    Track search analytics
+ * @access  Private (All authenticated users)
+ */
+router.post(
+  '/analytics',
+  validate(trackAnalyticsValidation),
+  searchController.trackSearchAnalytics
 );
 
 module.exports = router;

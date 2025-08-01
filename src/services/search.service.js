@@ -365,6 +365,22 @@ class SearchService {
       throw error;
     }
   }
+
+  /**
+   * Log search query for analytics (proxy to Search model)
+   * @param {number} userId - User ID
+   * @param {string} query - Search query
+   * @param {number} resultCount - Number of results
+   * @param {Object} metadata - Additional metadata
+   */
+  static async logSearchQuery(userId, query, resultCount, metadata = {}) {
+    try {
+      const Search = require('../models/search.model');
+      await Search.logSearchQuery(userId, query, resultCount, metadata);
+    } catch (error) {
+      logger.error(`Failed to log search query: ${error.message}`);
+    }
+  }
 }
 
 module.exports = SearchService;
