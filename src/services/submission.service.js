@@ -1,7 +1,7 @@
 const Submission = require('../models/submission.model');
 const Assignment = require('../models/assignment.model');
 const ApiError = require('../utils/ApiError');
-const httpStatus = require('http-status');
+const { default: httpStatus } = require('http-status');
 const path = require('path');
 const fs = require('fs');
 

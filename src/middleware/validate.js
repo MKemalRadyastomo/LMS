@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const Joi = require('joi');
 const logger = require('../utils/logger');
 
 /**
@@ -48,7 +49,10 @@ const validate = (schema) => {
 
     // Validate params
     if (schema.params) {
-      const { error } = schema.params.validate(req.params, validationOptions);
+      const paramsSchema = typeof schema.params.validate === 'function' 
+        ? schema.params 
+        : Joi.object(schema.params);
+      const { error } = paramsSchema.validate(req.params, validationOptions);
       if (error) {
         errors.push(...error.details.map(detail => ({
           field: detail.path.join('.'),
@@ -60,7 +64,10 @@ const validate = (schema) => {
 
     // Validate query
     if (schema.query) {
-      const { error } = schema.query.validate(req.query, validationOptions);
+      const querySchema = typeof schema.query.validate === 'function' 
+        ? schema.query 
+        : Joi.object(schema.query);
+      const { error } = querySchema.validate(req.query, validationOptions);
       if (error) {
         errors.push(...error.details.map(detail => ({
           field: detail.path.join('.'),
@@ -72,7 +79,10 @@ const validate = (schema) => {
 
     // Validate body
     if (schema.body) {
-      const { error } = schema.body.validate(req.body, validationOptions);
+      const bodySchema = typeof schema.body.validate === 'function' 
+        ? schema.body 
+        : Joi.object(schema.body);
+      const { error } = bodySchema.validate(req.body, validationOptions);
       if (error) {
         errors.push(...error.details.map(detail => ({
           field: detail.path.join('.'),

@@ -3,7 +3,7 @@ const Submission = require('../models/submission.model');
 const Course = require('../models/course.model');
 const logger = require('../utils/logger');
 const { ApiError } = require('../utils/ApiError');
-const httpStatus = require('http-status');
+const { default: httpStatus } = require('http-status');
 
 class AssignmentBulkService {
     /**

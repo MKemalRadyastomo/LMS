@@ -215,7 +215,7 @@ class Search {
 
       const query = `
         WITH suggestions AS (
-          SELECT DISTINCT title as suggestion, 'course' as type, 1 as priority
+          SELECT DISTINCT c.name as suggestion, 'course' as type, 1 as priority
           FROM courses c
           WHERE c.name ILIKE $1
             AND (

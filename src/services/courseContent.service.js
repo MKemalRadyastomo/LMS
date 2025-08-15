@@ -1,6 +1,6 @@
 const CourseContent = require('../models/courseContent.model');
 const ApiError = require('../utils/ApiError');
-const httpStatus = require('http-status');
+const { default: httpStatus } = require('http-status');
 
 const CourseContentService = {};
 

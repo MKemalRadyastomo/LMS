@@ -1,7 +1,7 @@
 const Assignment = require('../models/assignment.model');
 const logger = require('../utils/logger');
 const { ApiError } = require('../utils/ApiError');
-const httpStatus = require('http-status');
+const { default: httpStatus } = require('http-status');
 
 class AssignmentTemplateService {
     /**

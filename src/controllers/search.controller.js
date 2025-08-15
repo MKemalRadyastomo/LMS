@@ -3,7 +3,7 @@ const SearchTransformer = require('../utils/searchTransformer');
 const { ApiError } = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../utils/logger');
-const httpStatus = require('http-status');
+const { default: httpStatus } = require('http-status');
 
 /**
  * Search Controller - Handles search-related HTTP requests

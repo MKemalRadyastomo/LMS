@@ -3,7 +3,7 @@ const NotificationPreferences = require('../models/notificationPreferences.model
 const notificationService = require('../services/notification.service');
 const { ApiError } = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
-const httpStatus = require('http-status');
+const { default: httpStatus } = require('http-status');
 const logger = require('../utils/logger');
 
 /**
