@@ -4,9 +4,9 @@ const { body } = require('express-validator');
  * Validation rules for login
  */
 const loginValidation = [
-  body('username')
+  body('email')
     .isEmail()
-    .withMessage('Username must be a valid email address')
+    .withMessage('Email must be a valid email address')
     .normalizeEmail(),
 
   body('password')

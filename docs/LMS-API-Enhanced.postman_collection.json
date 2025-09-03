@@ -1,0 +1,1969 @@
+{
+  "info": {
+    "_postman_id": "f646348a-7538-42a4-8896-72b232ff96d2",
+    "name": "LMS API Enhanced - Complete Backend",
+    "description": "Comprehensive API collection for the enhanced Online Learning Platform with RBAC, advanced assignments, grading, analytics, search, and security features.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "45324042"
+  },
+  "item": [
+    {
+      "name": "🔐 Authentication & Security",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "    pm.environment.set('authToken', responseJson.token);",
+                  "    pm.environment.set('userId', responseJson.user.id);",
+                  "    pm.environment.set('userRole', responseJson.user.role);",
+                  "    console.log('Authentication successful');",
+                  "    console.log('User Role:', responseJson.user.role);",
+                  "} else {",
+                  "    console.log('Login failed:', responseJson.message);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"adminadmin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with email and password. Returns JWT token and user info."
+          }
+        },
+        {
+          "name": "Login as Teacher",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "    pm.environment.set('teacherToken', responseJson.token);",
+                  "    pm.environment.set('teacherId', responseJson.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"teacher@example.com\",\n  \"password\": \"teacher123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login as teacher for testing teacher-specific endpoints"
+          }
+        },
+        {
+          "name": "Login as Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "    pm.environment.set('studentToken', responseJson.token);",
+                  "    pm.environment.set('studentId', responseJson.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"student123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login as student for testing student-specific endpoints"
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Get current authenticated user info"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"oldpassword\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "change-password"]
+            },
+            "description": "Change user password"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Logout and invalidate session"
+          }
+        }
+      ],
+      "description": "Authentication, security, and session management endpoints"
+    },
+    {
+      "name": "👥 User Management",
+      "item": [
+        {
+          "name": "Create User (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New User\",\n  \"role\": \"siswa\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"]
+            },
+            "description": "Create new user (Admin only). Roles: admin, guru, siswa"
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?page=1&limit=20&role=siswa&search=john",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "role",
+                  "value": "siswa"
+                },
+                {
+                  "key": "search",
+                  "value": "john"
+                }
+              ]
+            },
+            "description": "List users with pagination and filtering"
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            },
+            "description": "Get user details by ID"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            },
+            "description": "Update user information"
+          }
+        },
+        {
+          "name": "Upload Profile Picture",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "profileImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/profile-image",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", "profile-image"]
+            },
+            "description": "Upload profile picture (max 2MB, jpg/png only)"
+          }
+        },
+        {
+          "name": "Get User Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", "statistics"]
+            },
+            "description": "Get user activity statistics and progress"
+          }
+        }
+      ],
+      "description": "User management and profile endpoints"
+    },
+    {
+      "name": "📚 Course Management",
+      "item": [
+        {
+          "name": "Create Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('courseId', responseJson.data.id);",
+                  "    pm.environment.set('courseCode', responseJson.data.code);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Advanced Mathematics\",\n  \"description\": \"Advanced mathematics course covering calculus and statistics\",\n  \"privacy\": \"public\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"]
+            },
+            "description": "Create new course (Admin/Teacher only)"
+          }
+        },
+        {
+          "name": "List Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?page=1&limit=10&search=math&teacherId={{teacherId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "math"
+                },
+                {
+                  "key": "teacherId",
+                  "value": "{{teacherId}}"
+                }
+              ]
+            },
+            "description": "List courses with pagination and filters"
+          }
+        },
+        {
+          "name": "Get Course Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}"]
+            },
+            "description": "Get detailed course information"
+          }
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Advanced Mathematics - Updated\",\n  \"description\": \"Updated course description\",\n  \"privacy\": \"private\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}"]
+            },
+            "description": "Update course details"
+          }
+        },
+        {
+          "name": "Generate Course Enrollment Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "    pm.environment.set('enrollmentCode', responseJson.data.code);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expiresAt\": \"2025-12-31T23:59:59Z\",\n  \"maxEnrollments\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollment-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "enrollment-code"]
+            },
+            "description": "Generate enrollment code for students to join course"
+          }
+        },
+        {
+          "name": "Get Course Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "analytics"]
+            },
+            "description": "Get course analytics and statistics"
+          }
+        }
+      ],
+      "description": "Course creation, management, and analytics"
+    },
+    {
+      "name": "📄 Materials Management",
+      "item": [
+        {
+          "name": "Create Material with Rich Text",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('materialId', responseJson.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Introduction to Calculus\",\n  \"description\": \"Basic concepts of calculus\",\n  \"content\": \"<h1>Calculus Basics</h1><p>This material covers the fundamental concepts of calculus including limits, derivatives, and integrals.</p>\",\n  \"videoUrl\": \"https://www.youtube.com/watch?v=example\",\n  \"publishDate\": \"2025-01-15T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "materials"]
+            },
+            "description": "Create material with rich text content and video URL"
+          }
+        },
+        {
+          "name": "Upload Material with File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Lecture Notes PDF",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Comprehensive lecture notes",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "<p>Additional notes and explanations</p>",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "publishDate",
+                  "value": "2025-01-15T10:00:00Z",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "materials"]
+            },
+            "description": "Upload material with file attachment (PDF/DOC/PPT up to 50MB)"
+          }
+        },
+        {
+          "name": "List Course Materials",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "materials"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List all materials for a course"
+          }
+        },
+        {
+          "name": "Get Material Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/materials/{{materialId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "materials", "{{materialId}}"]
+            },
+            "description": "Get detailed material information"
+          }
+        },
+        {
+          "name": "Update Material",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Material Title\",\n  \"description\": \"Updated description\",\n  \"content\": \"<h1>Updated Content</h1><p>Updated rich text content</p>\",\n  \"videoUrl\": \"https://www.youtube.com/watch?v=updated\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/materials/{{materialId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "materials", "{{materialId}}"]
+            },
+            "description": "Update material content and metadata"
+          }
+        },
+        {
+          "name": "Delete Material",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/materials/{{materialId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "materials", "{{materialId}}"]
+            },
+            "description": "Delete material and associated files"
+          }
+        }
+      ],
+      "description": "Material creation, file uploads, and content management"
+    },
+    {
+      "name": "📝 Advanced Assignments",
+      "item": [
+        {
+          "name": "Create Essay Assignment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('essayAssignmentId', responseJson.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Essay on Calculus Applications\",\n  \"description\": \"Write a 1000-word essay on real-world applications of calculus\",\n  \"type\": \"essay\",\n  \"dueDate\": \"2025-02-15T23:59:59Z\",\n  \"maxScore\": 100,\n  \"instructions\": \"<p>Write a comprehensive essay discussing at least 3 real-world applications of calculus. Include examples and explain the mathematical concepts involved.</p>\",\n  \"wordLimit\": 1000,\n  \"rubricId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "assignments"]
+            },
+            "description": "Create essay-type assignment with word limits"
+          }
+        },
+        {
+          "name": "Create Quiz Assignment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('quizAssignmentId', responseJson.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Calculus Quiz 1\",\n  \"description\": \"Quiz covering limits and derivatives\",\n  \"type\": \"quiz\",\n  \"dueDate\": \"2025-02-10T23:59:59Z\",\n  \"maxScore\": 50,\n  \"timeLimit\": 60,\n  \"questions\": [\n    {\n      \"type\": \"multiple_choice\",\n      \"question\": \"What is the derivative of x²?\",\n      \"options\": [\"2x\", \"x\", \"2\", \"x²\"],\n      \"correctAnswer\": \"2x\",\n      \"points\": 10,\n      \"explanation\": \"Using the power rule: d/dx(x²) = 2x\"\n    },\n    {\n      \"type\": \"true_false\",\n      \"question\": \"The limit of (x²-1)/(x-1) as x approaches 1 is 2\",\n      \"correctAnswer\": \"true\",\n      \"points\": 10,\n      \"explanation\": \"Factoring gives (x+1)(x-1)/(x-1) = x+1, so limit is 2\"\n    },\n    {\n      \"type\": \"short_answer\",\n      \"question\": \"Find the derivative of sin(x)\",\n      \"correctAnswer\": \"cos(x)\",\n      \"points\": 15,\n      \"explanation\": \"The derivative of sin(x) is cos(x)\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "assignments"]
+            },
+            "description": "Create quiz with multiple question types"
+          }
+        },
+        {
+          "name": "Create File Upload Assignment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('fileAssignmentId', responseJson.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Mathematics Project Report\",\n  \"description\": \"Submit your research project as a PDF document\",\n  \"type\": \"file_upload\",\n  \"dueDate\": \"2025-02-20T23:59:59Z\",\n  \"maxScore\": 100,\n  \"allowedFileTypes\": [\"pdf\", \"doc\", \"docx\"],\n  \"maxFileSizeMB\": 10,\n  \"instructions\": \"<p>Submit your completed project report. The file should be in PDF format and not exceed 10MB.</p>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "assignments"]
+            },
+            "description": "Create file upload assignment with restrictions"
+          }
+        },
+        {
+          "name": "List Course Assignments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments?type=quiz&status=active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "assignments"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "quiz"
+                },
+                {
+                  "key": "status",
+                  "value": "active"
+                }
+              ]
+            },
+            "description": "List assignments with filtering by type and status"
+          }
+        },
+        {
+          "name": "Get Assignment Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{quizAssignmentId}}"]
+            },
+            "description": "Get detailed assignment information including questions"
+          }
+        },
+        {
+          "name": "Update Assignment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Quiz Title\",\n  \"description\": \"Updated description\",\n  \"dueDate\": \"2025-02-12T23:59:59Z\",\n  \"maxScore\": 60\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{quizAssignmentId}}"]
+            },
+            "description": "Update assignment details"
+          }
+        }
+      ],
+      "description": "Advanced assignment types: essays, quizzes, and file uploads"
+    },
+    {
+      "name": "✍️ Student Submissions",
+      "item": [
+        {
+          "name": "Submit Essay",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('essaySubmissionId', responseJson.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"submissionText\": \"<h1>Real-World Applications of Calculus</h1><p>Calculus is fundamental to many real-world applications...</p><p>This essay will explore three major applications: physics, engineering, and economics.</p>\",\n  \"wordCount\": 950,\n  \"draft\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{essayAssignmentId}}", "submit"]
+            },
+            "description": "Submit essay assignment with rich text content"
+          }
+        },
+        {
+          "name": "Submit Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('quizSubmissionId', responseJson.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizAnswers\": {\n    \"1\": \"2x\",\n    \"2\": \"true\",\n    \"3\": \"cos(x)\"\n  },\n  \"timeSpent\": 45,\n  \"completedAt\": \"2025-01-12T10:30:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{quizAssignmentId}}", "submit"]
+            },
+            "description": "Submit quiz answers with timing information"
+          }
+        },
+        {
+          "name": "Submit File Upload",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('fileSubmissionId', responseJson.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "description",
+                  "value": "Mathematics project report on calculus applications",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{fileAssignmentId}}/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{fileAssignmentId}}", "submit"]
+            },
+            "description": "Submit file upload assignment"
+          }
+        },
+        {
+          "name": "Save Draft Submission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"submissionText\": \"<p>Draft content for my essay...</p>\",\n  \"draft\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{essayAssignmentId}}", "submit"]
+            },
+            "description": "Save submission as draft for later completion"
+          }
+        },
+        {
+          "name": "Get My Submissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{studentId}}/submissions?status=submitted&courseId={{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{studentId}}", "submissions"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "submitted"
+                },
+                {
+                  "key": "courseId",
+                  "value": "{{courseId}}"
+                }
+              ]
+            },
+            "description": "Get student's own submissions"
+          }
+        },
+        {
+          "name": "Get Assignment Submissions (Teacher)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}/submissions?status=submitted&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{quizAssignmentId}}", "submissions"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "submitted"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get all submissions for an assignment (Teacher/Admin only)"
+          }
+        }
+      ],
+      "description": "Student assignment submissions with different content types"
+    },
+    {
+      "name": "📊 Grading & Rubrics",
+      "item": [
+        {
+          "name": "Create Grading Rubric",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('rubricId', responseJson.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignmentId\": {{essayAssignmentId}},\n  \"name\": \"Essay Grading Rubric\",\n  \"totalPoints\": 100,\n  \"criteria\": [\n    {\n      \"name\": \"Content Quality\",\n      \"description\": \"Accuracy and depth of content\",\n      \"maxPoints\": 40,\n      \"levels\": [\n        {\n          \"name\": \"Excellent\",\n          \"description\": \"Comprehensive, accurate, and insightful\",\n          \"points\": 40\n        },\n        {\n          \"name\": \"Good\",\n          \"description\": \"Good understanding with minor gaps\",\n          \"points\": 32\n        },\n        {\n          \"name\": \"Satisfactory\",\n          \"description\": \"Basic understanding, some inaccuracies\",\n          \"points\": 24\n        },\n        {\n          \"name\": \"Needs Improvement\",\n          \"description\": \"Limited understanding, major gaps\",\n          \"points\": 16\n        }\n      ]\n    },\n    {\n      \"name\": \"Writing Quality\",\n      \"description\": \"Grammar, style, and organization\",\n      \"maxPoints\": 30,\n      \"levels\": [\n        {\n          \"name\": \"Excellent\",\n          \"description\": \"Clear, well-organized, error-free\",\n          \"points\": 30\n        },\n        {\n          \"name\": \"Good\",\n          \"description\": \"Generally clear with minor errors\",\n          \"points\": 24\n        },\n        {\n          \"name\": \"Satisfactory\",\n          \"description\": \"Adequate with some confusion\",\n          \"points\": 18\n        },\n        {\n          \"name\": \"Needs Improvement\",\n          \"description\": \"Unclear, many errors\",\n          \"points\": 12\n        }\n      ]\n    },\n    {\n      \"name\": \"Citations and Sources\",\n      \"description\": \"Proper use of citations and references\",\n      \"maxPoints\": 30,\n      \"levels\": [\n        {\n          \"name\": \"Excellent\",\n          \"description\": \"Proper citations, credible sources\",\n          \"points\": 30\n        },\n        {\n          \"name\": \"Good\",\n          \"description\": \"Good citations with minor issues\",\n          \"points\": 24\n        },\n        {\n          \"name\": \"Satisfactory\",\n          \"description\": \"Basic citations, some issues\",\n          \"points\": 18\n        },\n        {\n          \"name\": \"Needs Improvement\",\n          \"description\": \"Poor or missing citations\",\n          \"points\": 12\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rubrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rubrics"]
+            },
+            "description": "Create detailed grading rubric for assignments"
+          }
+        },
+        {
+          "name": "Grade Submission with Rubric",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rubricId\": {{rubricId}},\n  \"criteriaScores\": {\n    \"1\": 36,\n    \"2\": 28,\n    \"3\": 26\n  },\n  \"totalScore\": 90,\n  \"feedback\": \"<p>Excellent work overall! Your analysis of calculus applications was thorough and well-researched.</p><p><strong>Strengths:</strong> Clear explanations, good examples, proper mathematical notation.</p><p><strong>Areas for improvement:</strong> Could expand on the economic applications section.</p>\",\n  \"privateNotes\": \"Student shows strong understanding of concepts. Consider for advanced placement.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/submissions/{{essaySubmissionId}}/grade",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "submissions", "{{essaySubmissionId}}", "grade"]
+            },
+            "description": "Grade submission using rubric with detailed feedback"
+          }
+        },
+        {
+          "name": "Auto-Grade Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/submissions/{{quizSubmissionId}}/auto-grade",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "submissions", "{{quizSubmissionId}}", "auto-grade"]
+            },
+            "description": "Automatically grade quiz submission based on correct answers"
+          }
+        },
+        {
+          "name": "Bulk Grade Submissions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"submissions\": [\n    {\n      \"submissionId\": 1,\n      \"score\": 85,\n      \"feedback\": \"Good work!\"\n    },\n    {\n      \"submissionId\": 2,\n      \"score\": 92,\n      \"feedback\": \"Excellent!\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}/bulk-grade",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{quizAssignmentId}}", "bulk-grade"]
+            },
+            "description": "Grade multiple submissions at once"
+          }
+        },
+        {
+          "name": "Export Grades to Excel",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/grades/export?format=excel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "grades", "export"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "excel"
+                }
+              ]
+            },
+            "description": "Export course grades to Excel format"
+          }
+        },
+        {
+          "name": "Generate Grade Report PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/grade-report?format=pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{essayAssignmentId}}", "grade-report"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "pdf"
+                }
+              ]
+            },
+            "description": "Generate PDF grade report for assignment"
+          }
+        }
+      ],
+      "description": "Grading system with rubrics, feedback, and export capabilities"
+    },
+    {
+      "name": "👥 Enrollment Management",
+      "item": [
+        {
+          "name": "Enroll Student in Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": {{studentId}},\n  \"enrollmentMethod\": \"manual\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "enrollments"]
+            },
+            "description": "Manually enroll student in course"
+          }
+        },
+        {
+          "name": "Student Self-Enrollment with Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollmentCode\": \"{{enrollmentCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/join",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "join"]
+            },
+            "description": "Student enrolls using class code"
+          }
+        },
+        {
+          "name": "Bulk Enroll Students",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "csvFile",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "skipDuplicates",
+                  "value": "true",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollments/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "enrollments", "bulk"]
+            },
+            "description": "Bulk enroll students via CSV upload"
+          }
+        },
+        {
+          "name": "List Course Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollments?status=active&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{courseId}}", "enrollments"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List all enrollments for a course"
+          }
+        },
+        {
+          "name": "Update Enrollment Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inactive\",\n  \"reason\": \"Student requested withdrawal\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{enrollmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "{{enrollmentId}}"]
+            },
+            "description": "Update enrollment status"
+          }
+        }
+      ],
+      "description": "Student enrollment management and class codes"
+    },
+    {
+      "name": "🔍 Search & Discovery",
+      "item": [
+        {
+          "name": "Global Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=calculus&types=course,material,assignment&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "calculus"
+                },
+                {
+                  "key": "types",
+                  "value": "course,material,assignment"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Search across courses, materials, and assignments"
+          }
+        },
+        {
+          "name": "Search with Filters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=mathematics&types=course&teacherId={{teacherId}}&privacy=public",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "mathematics"
+                },
+                {
+                  "key": "types",
+                  "value": "course"
+                },
+                {
+                  "key": "teacherId",
+                  "value": "{{teacherId}}"
+                },
+                {
+                  "key": "privacy",
+                  "value": "public"
+                }
+              ]
+            },
+            "description": "Search with advanced filters"
+          }
+        },
+        {
+          "name": "Search Suggestions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/suggestions?q=calc&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "suggestions"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "calc"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Get search suggestions for autocomplete"
+          }
+        },
+        {
+          "name": "Advanced Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"calculus\",\n  \"filters\": {\n    \"contentTypes\": [\"course\", \"material\"],\n    \"dateRange\": {\n      \"from\": \"2025-01-01\",\n      \"to\": \"2025-12-31\"\n    },\n    \"difficulty\": \"intermediate\",\n    \"tags\": [\"mathematics\", \"calculus\"]\n  },\n  \"sortBy\": \"relevance\",\n  \"page\": 1,\n  \"limit\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/search/advanced",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "advanced"]
+            },
+            "description": "Advanced search with complex filters"
+          }
+        }
+      ],
+      "description": "Full-text search across platform content"
+    },
+    {
+      "name": "📈 Analytics & Reports",
+      "item": [
+        {
+          "name": "Dashboard Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "dashboard"]
+            },
+            "description": "Get role-specific dashboard analytics"
+          }
+        },
+        {
+          "name": "Course Analytics (Teacher)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/courses/{{courseId}}?period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "courses", "{{courseId}}"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            },
+            "description": "Get detailed course analytics for teachers"
+          }
+        },
+        {
+          "name": "Student Progress Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/students/{{studentId}}/progress?courseId={{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "students", "{{studentId}}", "progress"],
+              "query": [
+                {
+                  "key": "courseId",
+                  "value": "{{courseId}}"
+                }
+              ]
+            },
+            "description": "Get student progress analytics"
+          }
+        },
+        {
+          "name": "Assignment Performance Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/assignments/{{quizAssignmentId}}/performance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "assignments", "{{quizAssignmentId}}", "performance"]
+            },
+            "description": "Get assignment performance statistics"
+          }
+        },
+        {
+          "name": "System Analytics (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/system?period=7d",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "system"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "7d"
+                }
+              ]
+            },
+            "description": "Get system-wide analytics (Admin only)"
+          }
+        },
+        {
+          "name": "Export Analytics Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{teacherToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/courses/{{courseId}}/export?format=pdf&period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "courses", "{{courseId}}", "export"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "pdf"
+                },
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            },
+            "description": "Export analytics report in PDF/Excel format"
+          }
+        }
+      ],
+      "description": "Analytics, statistics, and reporting endpoints"
+    },
+    {
+      "name": "🔒 Security & Admin",
+      "item": [
+        {
+          "name": "Check Account Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/account-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "account-status"]
+            },
+            "description": "Check if account is locked or has security issues"
+          }
+        },
+        {
+          "name": "Unlock User Account (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"reason\": \"Account unlock requested by user\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/unlock-account",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "unlock-account"]
+            },
+            "description": "Unlock locked user account (Admin only)"
+          }
+        },
+        {
+          "name": "Get Security Logs (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/security-logs?page=1&limit=50&level=warning",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "security-logs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "level",
+                  "value": "warning"
+                }
+              ]
+            },
+            "description": "Get system security logs (Admin only)"
+          }
+        },
+        {
+          "name": "System Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Check system health and status"
+          }
+        },
+        {
+          "name": "API Version Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/version",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "version"]
+            },
+            "description": "Get API version and build information"
+          }
+        }
+      ],
+      "description": "Security monitoring and administrative endpoints"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-refresh token if needed",
+          "if (pm.request.url.toString().includes('/api/') && !pm.request.url.toString().includes('/auth/login')) {",
+          "    const token = pm.environment.get('authToken');",
+          "    if (!token) {",
+          "        console.log('No auth token found. Please login first.');",
+          "    }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Common test scripts",
+          "if (pm.response.code === 401) {",
+          "    console.log('Authentication failed. Please check your token.');",
+          "}",
+          "",
+          "if (pm.response.code === 403) {",
+          "    console.log('Access denied. Insufficient permissions.');",
+          "}",
+          "",
+          "if (pm.response.code >= 500) {",
+          "    console.log('Server error:', pm.response.code, pm.response.status);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "teacherToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "studentToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "teacherId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "studentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materialId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "essayAssignmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "quizAssignmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fileAssignmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "essaySubmissionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "quizSubmissionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fileSubmissionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rubricId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "enrollmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "enrollmentCode",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

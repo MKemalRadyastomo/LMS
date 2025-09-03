@@ -73,6 +73,108 @@ const gradeSubmission = {
     }),
 };
 
+// Enhanced submission validation
+const submitEnhanced = {
+    params: Joi.object().keys({
+        assignmentId: Joi.number().integer().required(),
+    }),
+    body: Joi.object().keys({
+        submission_text: Joi.string().optional().min(1).max(50000),
+        quiz_answers: Joi.object().optional(),
+        is_draft: Joi.boolean().default(false),
+        file_data: Joi.array().items(Joi.object()).optional()
+    })
+};
+
+const autoSave = {
+    params: Joi.object().keys({
+        assignmentId: Joi.number().integer().required(),
+    }),
+    body: Joi.object().keys({
+        text: Joi.string().optional(),
+        quiz_answers: Joi.object().optional(),
+        files: Joi.array().items(Joi.object()).optional()
+    })
+};
+
+const submitFinal = {
+    params: Joi.object().keys({
+        submissionId: Joi.number().integer().required(),
+    })
+};
+
+const getSubmissionVersions = {
+    params: Joi.object().keys({
+        submissionId: Joi.number().integer().required(),
+    })
+};
+
+const getLatestVersion = {
+    params: Joi.object().keys({
+        assignmentId: Joi.number().integer().required(),
+    })
+};
+
+const getSubmissionFiles = {
+    params: Joi.object().keys({
+        submissionId: Joi.number().integer().required(),
+    }),
+    query: Joi.object().keys({
+        versionId: Joi.number().integer().optional()
+    })
+};
+
+const deleteFile = {
+    params: Joi.object().keys({
+        fileId: Joi.number().integer().required(),
+    })
+};
+
+const gradeDetailed = {
+    params: Joi.object().keys({
+        submissionId: Joi.number().integer().required(),
+    }),
+    body: Joi.object().keys({
+        grade: Joi.number().min(0).max(100).required(),
+        feedback: Joi.string().optional().allow(''),
+        criterion_scores: Joi.object().optional(),
+        rubric_id: Joi.number().integer().optional(),
+        additional_points: Joi.number().default(0),
+        deductions: Joi.number().default(0)
+    })
+};
+
+const autoGrade = {
+    params: Joi.object().keys({
+        submissionId: Joi.number().integer().required(),
+    })
+};
+
+const getPlagiarismReport = {
+    params: Joi.object().keys({
+        submissionId: Joi.number().integer().required(),
+    })
+};
+
+const getStudentAnalytics = {
+    query: Joi.object().keys({
+        courseId: Joi.number().integer().optional()
+    })
+};
+
+const bulkGrade = {
+    body: Joi.object().keys({
+        grades: Joi.array().items(Joi.object({
+            submission_id: Joi.number().integer().required(),
+            grade: Joi.number().min(0).max(100).required(),
+            feedback: Joi.string().optional().allow('')
+        })).min(1).required().messages({
+            'array.min': 'At least one grade is required',
+            'any.required': 'Grades array is required'
+        })
+    })
+};
+
 module.exports = {
     submitEssay,
     submitFile,
@@ -81,4 +183,16 @@ module.exports = {
     getSubmissionsByAssignment,
     updateSubmission,
     gradeSubmission,
+    submitEnhanced,
+    autoSave,
+    submitFinal,
+    getSubmissionVersions,
+    getLatestVersion,
+    getSubmissionFiles,
+    deleteFile,
+    gradeDetailed,
+    autoGrade,
+    getPlagiarismReport,
+    getStudentAnalytics,
+    bulkGrade,
 };

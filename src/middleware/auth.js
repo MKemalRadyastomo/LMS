@@ -1,10 +1,12 @@
+const { authenticate: enhancedAuthenticate, requireRole, requirePermission } = require('./rbac');
 const { verifyToken } = require('../utils/jwt');
 const { unauthorized, forbidden } = require('../utils/ApiError');
 const db = require('../config/db');
 const logger = require('../utils/logger');
 
 /**
- * Middleware to authenticate requests using JWT token
+ * Legacy authentication middleware (maintained for backward compatibility)
+ * Note: Use enhancedAuthenticate from rbac.js for new implementations
  */
 const authenticate = async (req, res, next) => {
   try {
@@ -41,7 +43,8 @@ const authenticate = async (req, res, next) => {
 };
 
 /**
- * Middleware to authorize based on user roles
+ * Legacy authorization middleware (maintained for backward compatibility)
+ * Note: Use requireRole from rbac.js for new implementations
  * @param {string[]} roles - Allowed roles
  */
 const authorize = (roles = []) => {
@@ -58,7 +61,14 @@ const authorize = (roles = []) => {
   };
 };
 
+// Export both legacy and enhanced methods for flexibility
 module.exports = {
+  // Legacy methods (for backward compatibility)
   authenticate,
   authorize,
+  
+  // Enhanced methods (recommended for new code)
+  enhancedAuthenticate,
+  requireRole,
+  requirePermission
 };

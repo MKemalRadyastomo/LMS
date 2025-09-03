@@ -21,14 +21,14 @@ const apiLimiter = rateLimit({
  * More strict rate limiting for authentication endpoints
  */
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 99999, // limit each IP to 10 requests per windowMs
+  windowMs: config.authRateLimitConfig.windowMs,
+  max: config.authRateLimitConfig.max,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
     res.status(429).json({
       status: 429,
-      message: 'Too many login attempts, please try again later.',
+      message: 'Too many authentication attempts, please try again later.',
     });
   },
 });

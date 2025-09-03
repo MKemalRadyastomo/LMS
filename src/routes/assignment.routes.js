@@ -51,4 +51,34 @@ router
         assignmentController.getAssignmentAnalytics
     );
 
+// Comprehensive analytics route
+router
+    .route('/:assignmentId/analytics/comprehensive')
+    .get(
+        authenticate,
+        authorize(['admin', 'guru']),
+        validate(assignmentValidation.getAssignment),
+        assignmentController.getComprehensiveAnalytics
+    );
+
+// Duplicate assignment route
+router
+    .route('/:assignmentId/duplicate')
+    .post(
+        authenticate,
+        authorize(['admin', 'guru']),
+        validate(assignmentValidation.duplicateAssignment),
+        assignmentController.duplicateAssignment
+    );
+
+// Update analytics route
+router
+    .route('/:assignmentId/analytics/update')
+    .post(
+        authenticate,
+        authorize(['admin', 'guru']),
+        validate(assignmentValidation.getAssignment),
+        assignmentController.updateAnalytics
+    );
+
 module.exports = router;

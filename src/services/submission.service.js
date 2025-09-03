@@ -1,7 +1,7 @@
 const Submission = require('../models/submission.model');
 const Assignment = require('../models/assignment.model');
 const ApiError = require('../utils/ApiError');
-const httpStatus = require('http-status');
+const { default: httpStatus } = require('http-status');
 const path = require('path');
 const fs = require('fs');
 
@@ -258,6 +258,110 @@ SubmissionService.gradeSubmission = async (submissionId, grade, feedback, grader
         status: 'graded',
     };
     return SubmissionService.updateSubmission(submissionId, updateBody);
+};
+
+/**
+ * Create enhanced submission with version tracking
+ * @param {Object} submissionData
+ * @returns {Promise<Submission>}
+ */
+SubmissionService.createEnhanced = async (submissionData) => {
+    return await Submission.createEnhanced(submissionData);
+};
+
+/**
+ * Auto-save submission draft
+ * @param {number} assignmentId
+ * @param {number} studentId
+ * @param {Object} content
+ * @returns {Promise<Submission>}
+ */
+SubmissionService.autoSave = async (assignmentId, studentId, content) => {
+    return await Submission.autoSave(assignmentId, studentId, content);
+};
+
+/**
+ * Submit final version of submission
+ * @param {number} submissionId
+ * @returns {Promise<Submission>}
+ */
+SubmissionService.submitFinal = async (submissionId) => {
+    return await Submission.submitFinal(submissionId);
+};
+
+/**
+ * Get submission with version history
+ * @param {number} submissionId
+ * @returns {Promise<Object>}
+ */
+SubmissionService.getSubmissionWithVersions = async (submissionId) => {
+    return await Submission.getWithVersions(submissionId);
+};
+
+/**
+ * Get latest version of submission
+ * @param {number} assignmentId
+ * @param {number} studentId
+ * @returns {Promise<Submission>}
+ */
+SubmissionService.getLatestVersion = async (assignmentId, studentId) => {
+    return await Submission.getLatestVersion(assignmentId, studentId);
+};
+
+/**
+ * Get submission files
+ * @param {number} submissionId
+ * @param {number} versionId
+ * @returns {Promise<Array>}
+ */
+SubmissionService.getSubmissionFiles = async (submissionId, versionId = null) => {
+    return await Submission.getFiles(submissionId, versionId);
+};
+
+/**
+ * Delete submission file
+ * @param {number} fileId
+ * @returns {Promise<Object>}
+ */
+SubmissionService.deleteSubmissionFile = async (fileId) => {
+    return await Submission.deleteFile(fileId);
+};
+
+/**
+ * Apply automated grading to submission
+ * @param {number} submissionId
+ * @returns {Promise<number>}
+ */
+SubmissionService.applyAutomatedGrading = async (submissionId) => {
+    return await Submission.applyAutomatedGrading(submissionId);
+};
+
+/**
+ * Get plagiarism report for submission
+ * @param {number} submissionId
+ * @returns {Promise<Object>}
+ */
+SubmissionService.getPlagiarismReport = async (submissionId) => {
+    return await Submission.getPlagiarismReport(submissionId);
+};
+
+/**
+ * Get student analytics
+ * @param {number} studentId
+ * @param {number} courseId
+ * @returns {Promise<Object>}
+ */
+SubmissionService.getStudentAnalytics = async (studentId, courseId = null) => {
+    return await Submission.getStudentAnalytics(studentId, courseId);
+};
+
+/**
+ * Bulk grade submissions
+ * @param {Array} grades
+ * @returns {Promise<Array>}
+ */
+SubmissionService.bulkGradeSubmissions = async (grades) => {
+    return await Submission.bulkGrade(grades);
 };
 
 module.exports = SubmissionService;

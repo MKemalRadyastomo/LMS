@@ -135,4 +135,124 @@ router.patch('/submissions/:submissionId/grade',
     submissionController.gradeSubmission
 );
 
+// Enhanced submission with version tracking
+router.post('/submit/enhanced',
+    authenticate,
+    authorize(['student', 'siswa']),
+    (req, res, next) => {
+        upload.array('files', 10)(req, res, (err) => {
+            if (err) {
+                if (err instanceof multer.MulterError) {
+                    if (err.code === 'LIMIT_FILE_SIZE') {
+                        return res.status(413).json({
+                            error: 'File size too large',
+                            message: 'One or more files exceed the 10MB limit',
+                            code: 'FILE_TOO_LARGE'
+                        });
+                    }
+                    return res.status(400).json({
+                        error: 'File upload error',
+                        message: err.message,
+                        code: 'UPLOAD_ERROR'
+                    });
+                }
+                return res.status(415).json({
+                    error: 'Unsupported file type',
+                    message: err.message,
+                    code: 'INVALID_FILE_TYPE'
+                });
+            }
+            next();
+        });
+    },
+    validate(submissionValidation.submitEnhanced),
+    submissionController.submitEnhanced
+);
+
+// Auto-save submission draft
+router.post('/autosave',
+    authenticate,
+    authorize(['student', 'siswa']),
+    validate(submissionValidation.autoSave),
+    submissionController.autoSave
+);
+
+// Submit final version
+router.post('/submissions/:submissionId/submit',
+    authenticate,
+    authorize(['student', 'siswa']),
+    validate(submissionValidation.submitFinal),
+    submissionController.submitFinal
+);
+
+// Get submission with version history
+router.get('/submissions/:submissionId/versions',
+    authenticate,
+    validate(submissionValidation.getSubmissionVersions),
+    submissionController.getSubmissionWithVersions
+);
+
+// Get latest version of submission
+router.get('/submission/latest',
+    authenticate,
+    authorize(['student', 'siswa']),
+    validate(submissionValidation.getLatestVersion),
+    submissionController.getLatestVersion
+);
+
+// Get submission files
+router.get('/submissions/:submissionId/files',
+    authenticate,
+    validate(submissionValidation.getSubmissionFiles),
+    submissionController.getSubmissionFiles
+);
+
+// Delete submission file
+router.delete('/files/:fileId',
+    authenticate,
+    authorize(['student', 'siswa']),
+    validate(submissionValidation.deleteFile),
+    submissionController.deleteSubmissionFile
+);
+
+// Grade with detailed rubric
+router.post('/submissions/:submissionId/grade/detailed',
+    authenticate,
+    authorize(['admin', 'guru']),
+    validate(submissionValidation.gradeDetailed),
+    submissionController.gradeDetailed
+);
+
+// Apply automated grading
+router.post('/submissions/:submissionId/grade/auto',
+    authenticate,
+    authorize(['admin', 'guru']),
+    validate(submissionValidation.autoGrade),
+    submissionController.applyAutomatedGrading
+);
+
+// Get plagiarism report
+router.get('/submissions/:submissionId/plagiarism',
+    authenticate,
+    authorize(['admin', 'guru']),
+    validate(submissionValidation.getPlagiarismReport),
+    submissionController.getPlagiarismReport
+);
+
+// Student analytics
+router.get('/analytics/student',
+    authenticate,
+    authorize(['student', 'siswa']),
+    validate(submissionValidation.getStudentAnalytics),
+    submissionController.getStudentAnalytics
+);
+
+// Bulk grade submissions
+router.post('/bulk/grade',
+    authenticate,
+    authorize(['admin', 'guru']),
+    validate(submissionValidation.bulkGrade),
+    submissionController.bulkGradeSubmissions
+);
+
 module.exports = router;

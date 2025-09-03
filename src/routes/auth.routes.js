@@ -41,4 +41,11 @@ router.get('/me', authenticate, AuthController.me);
  */
 router.post('/logout', authenticate, AuthController.logout);
 
+/**
+ * @route POST /auth/refresh
+ * @desc Refresh JWT token
+ * @access Public (requires existing token in header)
+ */
+router.post('/refresh', authLimiter, AuthController.refresh);
+
 module.exports = router;

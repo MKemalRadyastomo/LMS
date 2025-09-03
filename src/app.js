@@ -34,8 +34,8 @@ app.use(apiLimiter);
 // Apply timeout middleware (uses environment variable or defaults to 60 seconds)
 app.use(timeoutMiddleware());
 
-// API routes with v1 prefix
-app.use('/v1', routes);
+// API routes with api prefix
+app.use('/api', routes);
 
 // Serve static files
 app.use(express.static('public'));

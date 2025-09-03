@@ -18,37 +18,38 @@ class AuthController {
 
     logger.info('Login attempt started', {
       requestId,
-      username: req.body.username,
+      email: req.body.email,
       ip: req.ip,
       userAgent: req.get('User-Agent')
     });
 
     try {
-      const { username, password } = req.body;
+      const { email, password } = req.body;
 
-      if (!username || !password) {
+      if (!email || !password) {
         const duration = Date.now() - startTime;
         logger.warn('Login failed: Missing credentials', {
           requestId,
           duration: `${duration}ms`,
-          hasUsername: !!username,
+          hasEmail: !!email,
           hasPassword: !!password
         });
-        return next(badRequest('Username and password are required'));
+        return next(badRequest('Email and password are required'));
       }
 
       logger.debug('Starting AuthService.login', {
         requestId,
-        username,
+        email,
         elapsed: `${Date.now() - startTime}ms`
       });
 
-      const result = await AuthService.login(username, password);
+      const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.ip;
+      const result = await AuthService.login(email, password, ipAddress);
 
       const duration = Date.now() - startTime;
       logger.info('Login successful', {
         requestId,
-        username,
+        email,
         userId: result.user_id,
         duration: `${duration}ms`
       });
@@ -58,7 +59,7 @@ class AuthController {
       const duration = Date.now() - startTime;
       logger.error('Login controller error', {
         requestId,
-        username: req.body.username,
+        email: req.body.email,
         duration: `${duration}ms`,
         error: error.message,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
@@ -173,6 +174,73 @@ class AuthController {
       return res.status(200).json({ message: 'Logout successful' });
     } catch (error) {
       logger.error(`Logout controller error: ${error.message}`);
+      return next(error);
+    }
+  }
+
+  /**
+   * Refresh token endpoint handler
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   * @param {Function} next - Express next middleware function
+   */
+  static async refresh(req, res, next) {
+    const startTime = Date.now();
+    const requestId = req.id || Math.random().toString(36).substr(2, 9);
+
+    logger.info('Token refresh attempt started', {
+      requestId,
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+
+    try {
+      // Get token from authorization header
+      const authHeader = req.headers.authorization;
+      
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        const duration = Date.now() - startTime;
+        logger.warn('Token refresh failed: Missing authorization header', {
+          requestId,
+          duration: `${duration}ms`
+        });
+        return next(badRequest('Authorization header with Bearer token is required'));
+      }
+
+      const token = authHeader.split(' ')[1];
+
+      if (!token) {
+        const duration = Date.now() - startTime;
+        logger.warn('Token refresh failed: Missing token', {
+          requestId,
+          duration: `${duration}ms`
+        });
+        return next(badRequest('Token is required'));
+      }
+
+      logger.debug('Starting AuthService.refreshToken', {
+        requestId,
+        elapsed: `${Date.now() - startTime}ms`
+      });
+
+      const result = await AuthService.refreshToken(token);
+
+      const duration = Date.now() - startTime;
+      logger.info('Token refresh successful', {
+        requestId,
+        userId: result.user_id,
+        duration: `${duration}ms`
+      });
+
+      return res.status(200).json(result);
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      logger.error('Token refresh controller error', {
+        requestId,
+        duration: `${duration}ms`,
+        error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
       return next(error);
     }
   }

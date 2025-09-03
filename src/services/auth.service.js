@@ -1,50 +1,84 @@
 const User = require('../models/user.model');
 const { comparePassword } = require('../utils/password');
-const { generateToken } = require('../utils/jwt');
+const { generateToken, verifyTokenForRefresh } = require('../utils/jwt');
 const { unauthorized, badRequest, conflict } = require('../utils/ApiError');
 const logger = require('../utils/logger');
+const { 
+  checkAccountLockout, 
+  recordFailedLoginAttempt, 
+  clearFailedLoginAttempts 
+} = require('../middleware/rbac');
 
 /**
  * Authentication Service
  */
 class AuthService {
   /**
-   * Login a user
-   * @param {string} username - User email (used as username)
+   * Login a user with enhanced security (account lockout)
+   * @param {string} email - User email
    * @param {string} password - User password
+   * @param {string} ipAddress - Client IP address for lockout tracking
    * @returns {Promise<Object>} Authentication data with token
-   * @throws {ApiError} If credentials are invalid
+   * @throws {ApiError} If credentials are invalid or account is locked
    */
-  static async login(username, password) {
+  static async login(email, password, ipAddress = null) {
     try {
+      // Check account lockout before attempting login
+      await checkAccountLockout(email, ipAddress);
+
       // Find the user by email
-      const user = await User.findByEmail(username);
+      const user = await User.findByEmail(email);
 
-      // Check if user exists
-      if (!user) {
-        throw unauthorized('Invalid credentials');
+      // Check if user exists and verify password
+      let isPasswordValid = false;
+      if (user) {
+        isPasswordValid = await comparePassword(password, user.password_hash);
       }
 
-      // Verify password
-      const isPasswordValid = await comparePassword(password, user.password_hash);
+      // If credentials are invalid, record failed attempt
+      if (!user || !isPasswordValid) {
+        logger.warn('Failed login attempt', {
+          email: email,
+          ip: ipAddress,
+          reason: !user ? 'user_not_found' : 'invalid_password'
+        });
 
-      if (!isPasswordValid) {
-        throw unauthorized('Invalid credentials');
+        // Record failed login attempt
+        await recordFailedLoginAttempt(email, ipAddress);
+        
+        // Always return the same generic error message
+        throw unauthorized('Invalid email or password');
       }
 
-      // Generate token
+      // Clear failed login attempts on successful login
+      await clearFailedLoginAttempts(email);
+
+      // Generate token with extended payload
       const token = generateToken({
         id: user.id,
-        email: user.email, // Keep user.email here as it's the actual email from the user object
+        email: user.email,
         role: user.role
+      });
+
+      logger.info('Successful login', {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        ip: ipAddress
       });
 
       return {
         token,
-        user_id: user.id
+        user_id: user.id,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
       };
     } catch (error) {
-      logger.error(`Login error for username ${username}: ${error.message}`);
+      logger.error(`Login error for email ${email}: ${error.message}`);
       throw error;
     }
   }
@@ -108,6 +142,61 @@ class AuthService {
       return userData;
     } catch (error) {
       logger.error(`Auth check error: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Refresh JWT token
+   * @param {string} token - Current JWT token (can be expired)
+   * @returns {Promise<Object>} New authentication data with fresh token
+   * @throws {ApiError} If token is invalid or user not found
+   */
+  static async refreshToken(token) {
+    try {
+      if (!token) {
+        throw unauthorized('Refresh token is required');
+      }
+
+      // Verify the token (allows expired tokens)
+      const decoded = verifyTokenForRefresh(token);
+
+      if (!decoded || !decoded.id) {
+        throw unauthorized('Invalid token payload');
+      }
+
+      // Verify user still exists and is active
+      const user = await User.findById(decoded.id);
+
+      if (!user) {
+        throw unauthorized('User not found');
+      }
+
+      // Generate new token
+      const newToken = generateToken({
+        id: user.id,
+        email: user.email,
+        role: user.role
+      });
+
+      logger.info('Token refreshed successfully', {
+        userId: user.id,
+        email: user.email,
+        role: user.role
+      });
+
+      return {
+        token: newToken,
+        user_id: user.id,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
+      };
+    } catch (error) {
+      logger.error(`Token refresh error: ${error.message}`);
       throw error;
     }
   }

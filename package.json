@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "db:setup": "./database/setup.sh development",
+    "db:setup:prod": "./database/setup.sh production",
     "db:init": "node src/utils/db-init.js",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -23,6 +25,7 @@
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
+    "exceljs": "^4.4.0",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "express-validator": "^7.0.1",
@@ -32,9 +35,12 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
+    "node-cron": "^4.2.1",
+    "pdf-lib": "^1.17.1",
     "pg": "^8.11.3",
     "sharp": "^0.34.2",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

@@ -1,11 +1,31 @@
 const { default: httpStatus } = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { assignmentService } = require('../services');
-const ApiError = require('../utils/ApiError');
+const { ApiError } = require('../utils/ApiError');
 const Course = require('../models/course.model');
 
 const getAssignments = catchAsync(async (req, res) => {
     const { courseId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Role-based access control
+    if (role === 'siswa') {
+        const Enrollment = require('../models/enrollment.model');
+        const enrollment = await Enrollment.findByCourseAndStudent(courseId, userId);
+        if (!enrollment || enrollment.status !== 'active') {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not enrolled in this course');
+        }
+    } else if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to view assignments for this course.');
+        }
+    }
+    // Admins can access all assignments (no additional check needed)
+
     const filter = { ...req.query, course_id: parseInt(courseId, 10) };
     const options = {
         limit: req.query.limit,
@@ -16,10 +36,34 @@ const getAssignments = catchAsync(async (req, res) => {
 });
 
 const getAssignment = catchAsync(async (req, res) => {
-    const assignment = await assignmentService.getAssignmentById(req.params.assignmentId);
-    if (assignment.course_id !== parseInt(req.params.courseId, 10)) {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
     }
+
+    // For students, check if they are enrolled in the course
+    if (role === 'siswa') {
+        const Enrollment = require('../models/enrollment.model');
+        const enrollment = await Enrollment.findByCourseAndStudent(courseId, userId);
+        if (!enrollment || enrollment.status !== 'active') {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not enrolled in this course');
+        }
+    }
+    // For teachers, check if they own the course
+    else if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to view assignments for this course.');
+        }
+    }
+    // Admins can access all assignments (no additional check needed)
+
     res.send(assignment);
 });
 
@@ -123,11 +167,105 @@ const createAssignment = catchAsync(async (req, res) => {
     const assignmentBody = { ...req.body, course_id: parseInt(courseId, 10) };
     const assignment = await assignmentService.createAssignment(assignmentBody);
 
-    console.log('--- DEBUG START ---');
-    console.log('Value of httpStatus.CREATED:', httpStatus.CREATED);
-    console.log('--- DEBUG END ---');
+    res.status(httpStatus.CREATED).send({
+        success: true,
+        message: 'Assignment created successfully',
+        data: assignment
+    });
+});
 
-    res.status(httpStatus.CREATED).send(assignment);
+const getComprehensiveAnalytics = catchAsync(async (req, res) => {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Check if assignment exists and belongs to the course
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
+    }
+
+    // Permission check - only teachers and admins can view analytics
+    if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to view analytics for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Only admins and teachers (guru) can view assignment analytics.');
+    }
+
+    const analytics = await assignmentService.getComprehensiveAnalytics(assignmentId);
+    res.send({
+        success: true,
+        data: analytics
+    });
+});
+
+const duplicateAssignment = catchAsync(async (req, res) => {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Check if assignment exists and belongs to the course
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
+    }
+
+    // Permission check for teachers
+    if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to duplicate assignments for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Only admins and teachers (guru) can duplicate assignments.');
+    }
+
+    const duplicateData = req.body || {};
+    const duplicate = await assignmentService.duplicateAssignment(assignmentId, duplicateData);
+    
+    res.status(httpStatus.CREATED).send({
+        success: true,
+        message: 'Assignment duplicated successfully',
+        data: duplicate
+    });
+});
+
+const updateAnalytics = catchAsync(async (req, res) => {
+    const { courseId, assignmentId } = req.params;
+    const { id: userId, role } = req.user;
+
+    // Check if assignment exists and belongs to the course
+    const assignment = await assignmentService.getAssignmentById(assignmentId);
+    if (assignment.course_id !== parseInt(courseId, 10)) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Assignment not found in this course');
+    }
+
+    // Permission check - only teachers and admins can update analytics
+    if (role === 'guru') {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Course not found.');
+        }
+        if (course.teacher_id !== userId) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'You are not authorized to update analytics for this course.');
+        }
+    } else if (role !== 'admin') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Only admins and teachers (guru) can update assignment analytics.');
+    }
+
+    const result = await assignmentService.updateAnalytics(assignmentId);
+    res.send({
+        success: true,
+        message: 'Analytics updated successfully',
+        data: { updated: result }
+    });
 });
 
 module.exports = {
@@ -137,4 +275,7 @@ module.exports = {
     updateAssignment,
     deleteAssignment,
     getAssignmentAnalytics,
+    getComprehensiveAnalytics,
+    duplicateAssignment,
+    updateAnalytics,
 };
