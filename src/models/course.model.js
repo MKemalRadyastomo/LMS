@@ -22,7 +22,7 @@ class Course {
         try {
             await client.query('BEGIN');
 
-            const { name, description, privacy = 'private', teacherId } = courseData;
+            const { name, description, privacy = 'private', status = 'active', teacherId } = courseData;
             
             // Validate required fields
             if (!name || !name.trim()) {
@@ -53,12 +53,12 @@ class Course {
             }
 
             const query = `
-                INSERT INTO courses (name, description, privacy, code, teacher_id)
-                VALUES ($1, $2, $3, $4, $5)
-                RETURNING id, name, description, privacy, code, teacher_id, created_at
+                INSERT INTO courses (name, description, privacy, status, code, teacher_id)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING id, name, description, privacy, status, code, teacher_id, created_at
             `;
 
-            const values = [name, description, privacy, code, teacherId];
+            const values = [name, description, privacy, status, code, teacherId];
             const result = await client.query(query, values);
 
             await client.query('COMMIT');
@@ -108,7 +108,7 @@ class Course {
                             COUNT(*) as student_count,
                             COUNT(*) FILTER (WHERE e.status = 'active') as active_count,
                             COUNT(*) FILTER (WHERE e.status = 'pending') as pending_count
-                        FROM enrollments e
+                        FROM course_enrollments e
                         WHERE e.course_id = c.id
                     ) enrollment_stats ON true
                     LEFT JOIN LATERAL (
@@ -122,9 +122,7 @@ class Course {
                         WHERE cc.course_id = c.id AND cc.content_type = 'assignment'
                     ) assignment_stats ON true
                     LEFT JOIN LATERAL (
-                        SELECT MAX(cc.created_at) as last_activity
-                        FROM course_contents cc
-                        WHERE cc.course_id = c.id
+                        SELECT c.created_at as last_activity
                     ) recent_activity ON true
                     LEFT JOIN LATERAL (
                         SELECT 
@@ -186,7 +184,7 @@ class Course {
                 query += `
                     LEFT JOIN LATERAL (
                         SELECT COUNT(*) as student_count
-                        FROM enrollments e
+                        FROM course_enrollments e
                         WHERE e.course_id = c.id AND e.status = 'active'
                     ) enrollment_stats ON true
                     LEFT JOIN LATERAL (
@@ -200,9 +198,7 @@ class Course {
                         WHERE cc.course_id = c.id AND cc.content_type = 'assignment'
                     ) assignment_stats ON true
                     LEFT JOIN LATERAL (
-                        SELECT MAX(created_at) as last_activity
-                        FROM course_contents cc
-                        WHERE cc.course_id = c.id
+                        SELECT c.created_at as last_activity
                     ) recent_activity ON true
                 `;
             }
@@ -271,7 +267,7 @@ class Course {
      */
     static async update(id, courseData) {
         try {
-            const allowedFields = ['name', 'description', 'privacy', 'teacher_id'];
+            const allowedFields = ['name', 'description', 'privacy', 'status', 'teacher_id'];
             const updates = [];
             const values = [];
             let paramCount = 1;
@@ -292,7 +288,7 @@ class Course {
                 UPDATE courses
                 SET ${updates.join(', ')}
                 WHERE id = $${paramCount}
-                RETURNING id, name, description, privacy, code, teacher_id, created_at
+                RETURNING id, name, description, privacy, status, code, teacher_id, created_at
             `;
 
             const result = await db.query(query, values);
@@ -400,7 +396,7 @@ class Course {
                     query += `
                         LEFT JOIN LATERAL (
                             SELECT COUNT(*) as student_count
-                            FROM enrollments e
+                            FROM course_enrollments e
                             WHERE e.course_id = c.id AND e.status = 'active'
                         ) enrollment_stats ON true
                     `;

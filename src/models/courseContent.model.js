@@ -41,7 +41,6 @@ class CourseContent {
                     cc.id,
                     cc.title,
                     cc.content_type,
-                    cc.created_at,
                     CASE 
                         WHEN cc.content_type = 'material' THEN m.title
                         WHEN cc.content_type = 'assignment' THEN a.title
@@ -56,7 +55,7 @@ class CourseContent {
                 LEFT JOIN materials m ON cc.content_type = 'material' AND cc.content_id = m.id
                 LEFT JOIN assignments a ON cc.content_type = 'assignment' AND cc.content_id = a.id
                 WHERE cc.course_id = $1
-                ORDER BY cc.created_at DESC
+                ORDER BY cc.order_index ASC
                 LIMIT $2`,
                 [courseId, limit]
             );

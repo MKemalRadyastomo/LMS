@@ -37,6 +37,7 @@ CREATE TABLE courses (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     privacy VARCHAR(50) DEFAULT 'private',
+    status VARCHAR(20) DEFAULT 'active' NOT NULL CHECK (status IN ('active', 'draft', 'archived')),
     code VARCHAR(6) UNIQUE NOT NULL,
     class_code VARCHAR(10), -- For student self-enrollment
     teacher_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
@@ -447,6 +448,13 @@ WHERE u.role = 'siswa' AND (ce.status = 'active' OR ce.status IS NULL)
 GROUP BY u.id, u.name, u.email, c.id, c.name;
 
 -- =====================================================
+-- INDEXES AND PERFORMANCE OPTIMIZATION
+-- =====================================================
+
+-- Index for course status queries
+CREATE INDEX IF NOT EXISTS idx_courses_status ON courses(status);
+
+-- =====================================================
 -- INITIAL DATA
 -- =====================================================
 
@@ -469,6 +477,7 @@ INSERT INTO users (email, password_hash, name, role) VALUES
 
 COMMENT ON TABLE users IS 'System users with role-based access (admin, guru, siswa)';
 COMMENT ON TABLE courses IS 'Courses created by teachers with enrollment capabilities';
+COMMENT ON COLUMN courses.status IS 'Course status: active (published), draft (unpublished), archived (hidden)';
 COMMENT ON TABLE course_enrollments IS 'Student enrollment in courses with status tracking';
 COMMENT ON TABLE materials IS 'Course materials with rich content and file support';
 COMMENT ON TABLE assignments IS 'Assignments with support for essays, quizzes, and file uploads';
