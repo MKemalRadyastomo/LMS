@@ -12,9 +12,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run test:coverage` - Run tests with coverage report
 
 ### Database
-- `npm run db:setup` - Set up development database (runs `./database/setup.sh development`)
-- `npm run db:setup:prod` - Set up production database
-- `npm run db:init` - Initialize database with Node.js utility
+- Initialize database: `psql -d your_database -f database/init_complete.sql`
+- Create test data: `psql -d your_database -f database/create_test_data.sql`
+- Full setup: `psql -d your_database -f database/init_complete.sql && psql -d your_database -f database/create_test_data.sql`
 
 ### Testing
 - Run single test: `npm test -- --testNamePattern="test name"`
@@ -52,7 +52,7 @@ This is a Node.js/Express REST API for a Learning Management System with Postgre
 3. **Database Management:**
    - PostgreSQL with connection pooling via `src/config/db.js`
    - Complete schema initialization via `database/init_complete.sql`
-   - Migration system in `database/migrations/`
+   - Comprehensive test data via `database/create_test_data.sql`
 
 4. **Error Handling:**
    - Centralized error handling via `src/middleware/error.js`

@@ -1,121 +1,96 @@
 # LMS Database Setup Guide
 
-This guide explains how to set up the database for the LMS project, both for development with teammates and for production.
+This guide explains how to set up the database for the LMS project with the simplified, consolidated approach.
 
-## Quick Setup (Recommended for Development)
+## Quick Setup (Recommended)
 
-For development with your friend, use the **single consolidated script** approach:
-
-```bash
-# Make sure PostgreSQL is running
-# Then run the setup script
-./database/setup.sh development
-```
-
-This will:
-- Create a fresh database named `lms_development`
-- Run the complete schema initialization
-- Insert test data with default admin/teacher/student accounts
-
-## Manual Setup
-
-If you prefer manual setup:
+The database has been streamlined to use only 2 SQL files for easy setup:
 
 ```bash
-# Create database
+# Create your PostgreSQL database
 createdb lms_development
 
-# Run the complete initialization script
+# Initialize complete schema
 psql -d lms_development -f database/init_complete.sql
+
+# Load comprehensive test data
+psql -d lms_development -f database/create_test_data.sql
+
+# Or run both commands together
+psql -d lms_development -f database/init_complete.sql && psql -d lms_development -f database/create_test_data.sql
 ```
 
-## Init vs Migration Approach
+## What's Included
 
-### 🟢 Init Approach (Current - Good for Development)
-- **File**: `init_complete.sql`
-- **Use case**: Development, new setups, team collaboration
-- **Pros**: 
-  - Single file to run
-  - No confusion about order
-  - Fresh start every time
-  - Easy for new team members
-- **Cons**: 
-  - Destroys existing data
-  - Not suitable for production updates
-
-### 🟡 Migration Approach (Future - Good for Production)
-- **Files**: `migrations/001_*.sql`, `migrations/002_*.sql`, etc.
-- **Use case**: Production, incremental updates, preserving data
-- **Pros**: 
-  - Preserves existing data
-  - Version controlled changes
-  - Can rollback changes
-  - Production safe
-- **Cons**: 
-  - More complex setup
-  - Must run in correct order
-  - Can be confusing for new developers
-
-## File Structure
-
+### 🗄️ **File Structure**
 ```
 database/
-├── init_complete.sql        # 🎯 USE THIS - Complete schema setup
-├── setup.sh                 # 🎯 USE THIS - Automated setup script
-├── README.md                # This file
-├── migrations/              # 📁 Future production migrations
-│   ├── 001_add_rbac_security_tables.sql
-│   ├── 002_add_search_indexes.sql
-│   └── 003_add_analytics_tables.sql
-└── old_files/              # 📁 Legacy files (moved for reference)
-    ├── init.sql            # Original init script
-    ├── grading_enhancement.sql
-    ├── rbac_enhancement.sql
-    └── ...
+├── init_complete.sql        # 🎯 Complete database schema
+├── create_test_data.sql     # 🎯 Comprehensive test data  
+└── README.md                # This documentation
 ```
 
-## What's Included in the Complete Schema
+### 📊 **Complete Database Schema** (`init_complete.sql`)
 
-The `init_complete.sql` includes everything your LMS needs:
+**Core Tables:**
+- ✅ `users` - Role-based users (admin, guru, siswa) 
+- ✅ `courses` - Course management with status tracking
+- ✅ `course_enrollments` - Student enrollment management
+- ✅ `materials` - Rich course materials with file support
+- ✅ `assignments` - Multi-type assignments (essay, quiz, file upload, mixed)
+- ✅ `assignment_submissions` - Student submissions with versioning
+- ✅ `grading_rubrics` - Detailed rubric-based grading system
 
-### Core Tables
-- ✅ `users` - Admin, teachers (guru), students (siswa) with RBAC
-- ✅ `courses` - Course management with teacher assignment
-- ✅ `course_enrollments` - Student enrollment with status tracking
-- ✅ `materials` - Rich content materials with file uploads
-- ✅ `assignments` - Essays, quizzes, file uploads with due dates
-- ✅ `assignment_submissions` - Student submissions with grading
-
-### Enhanced Features
-- ✅ `grading_rubrics` - Detailed rubric-based grading
-- ✅ `grading_details` - Comprehensive grading breakdown
-- ✅ `user_sessions` - Session timeout management
-- ✅ `failed_login_attempts` - Account lockout security
-- ✅ `activity_logs` - Audit trail for user actions
-- ✅ `user_statistics` - Student progress tracking
+**Enhanced Features:**
+- ✅ `assignment_templates` - Reusable assignment templates
+- ✅ `notifications` - Comprehensive notification system
+- ✅ `notification_preferences` - User notification settings
+- ✅ `user_statistics` - Learning analytics and gamification
 - ✅ `course_analytics` - Course performance metrics
-- ✅ `system_analytics` - System-wide usage analytics
+- ✅ `system_analytics` - System-wide usage tracking
+- ✅ `activity_logs` - Complete audit trail
+- ✅ `user_sessions` - Session management
+- ✅ `failed_login_attempts` - Security lockout system
 
-### Performance & Search
-- ✅ **Indexes** - Optimized for fast queries
-- ✅ **Full-text Search** - PostgreSQL search across all content
-- ✅ **Triggers** - Automatic timestamp updates
-- ✅ **Functions** - Grade calculation and session cleanup
-- ✅ **Views** - Pre-built analytics queries
+**Performance & Search:**
+- ✅ **Full-text search indexes** across all content
+- ✅ **Optimized indexes** for fast queries
+- ✅ **Database functions** for automated calculations
+- ✅ **Triggers** for timestamp and analytics updates
+- ✅ **Views** for complex analytics queries
 
-## Default Test Accounts
+### 🧪 **Comprehensive Test Data** (`create_test_data.sql`)
 
-After setup, you can login with these accounts:
+**Test Users (18 total):**
+- **2 Admins** - System administrators
+- **4 Teachers (Guru)** - Course instructors  
+- **12 Students (Siswa)** - Enrolled learners
 
-| Role    | Email               | Password   |
-|---------|---------------------|------------|
-| Admin   | admin@example.com   | adminadmin |
-| Teacher | teacher@example.com | adminadmin |
-| Student | student@example.com | adminadmin |
+**Rich Test Content:**
+- **7 Courses** - Various subjects and statuses
+- **4 Assignment Templates** - Reusable templates
+- **11+ Assignments** - Different types and complexity
+- **Course Materials** - PDFs, videos, documents
+- **Student Enrollments** - Realistic enrollment patterns
+- **Assignment Submissions** - Sample student work with grades
+- **Grading Rubrics** - Detailed assessment criteria
+- **Notifications** - System and user notifications
+- **Activity Logs** - User interaction history
+- **Analytics Data** - Course and user statistics
 
-## Environment Variables
+## 🔐 **Default Login Credentials**
 
-Make sure your `.env` file has these database settings:
+**All test accounts use the same password: `password123`**
+
+| Role | Email Examples | Password |
+|------|----------------|----------|
+| **Admin** | admin@lms.edu<br>admin.system@lms.edu | password123 |
+| **Teachers** | teacher.math@lms.edu<br>teacher.science@lms.edu<br>teacher.english@lms.edu<br>teacher.history@lms.edu | password123 |
+| **Students** | student1@lms.edu<br>student2@lms.edu<br>...<br>student12@lms.edu | password123 |
+
+## 🔧 **Environment Configuration**
+
+Ensure your `.env` file contains:
 
 ```env
 # Database Configuration
@@ -123,62 +98,131 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=lms_development
 DB_USER=postgres
-DB_PASSWORD=your_password
+DB_PASSWORD=your_postgres_password
 
-# For production
-DB_SSL=false
+# JWT Configuration  
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=30m
+
+# Development settings
+NODE_ENV=development
+PORT=3000
 ```
 
-## For Your Friend
+## 🚀 **Complete Development Setup**
 
-Tell your friend to simply run:
+For new team members or fresh setup:
 
 ```bash
-git pull
-./database/setup.sh development
+# 1. Clone repository
+git clone your-repo-url
+cd lms-backend
+
+# 2. Install dependencies
 npm install
+
+# 3. Set up environment
+cp .env.example .env
+# Edit .env with your database credentials
+
+# 4. Create PostgreSQL database
+createdb lms_development
+
+# 5. Initialize database schema
+psql -d lms_development -f database/init_complete.sql
+
+# 6. Load test data
+psql -d lms_development -f database/create_test_data.sql
+
+# 7. Start development server
 npm run dev
+
+# 8. Run tests (optional)
+npm test
 ```
 
-That's it! No confusion about which SQL files to run or in what order.
+## 📋 **Verification Commands**
 
-## Troubleshooting
+After setup, verify everything is working:
 
-### "Database exists" error
-```bash
-# Drop and recreate
-./database/setup.sh development
+```sql
+-- Check user counts by role
+SELECT role, COUNT(*) FROM users GROUP BY role;
+
+-- Check course enrollment summary  
+SELECT c.name, COUNT(ce.id) as enrollments 
+FROM courses c 
+LEFT JOIN course_enrollments ce ON c.id = ce.course_id 
+GROUP BY c.id, c.name;
+
+-- Check assignment types
+SELECT type, COUNT(*) FROM assignments GROUP BY type;
+
+-- Check notification system
+SELECT COUNT(*) FROM notifications;
 ```
 
-### Permission denied on setup.sh
-```bash
-chmod +x database/setup.sh
-```
+Expected results:
+- **Users**: 2 admin, 4 guru, 12 siswa
+- **Courses**: 7 courses with varying enrollment
+- **Assignments**: Multiple types (essay, quiz, file_upload, mixed)
+- **Notifications**: Sample notifications loaded
 
-### PostgreSQL not running
+## 🛠️ **Troubleshooting**
+
+### Database Connection Issues
 ```bash
+# Check PostgreSQL is running
+pg_isready
+
 # macOS with Homebrew
 brew services start postgresql
 
-# Ubuntu/Debian
+# Ubuntu/Debian  
 sudo systemctl start postgresql
-
-# Windows
-# Start PostgreSQL service from Services panel
 ```
 
-### Connection refused
-Check your PostgreSQL configuration:
-- Is PostgreSQL running?
-- Are the host/port correct?
-- Is the user allowed to connect?
+### Permission Issues
+```bash
+# Grant permissions to your user
+sudo -u postgres createuser --interactive your_username
+```
 
-## Production Migration (Future)
+### Schema Issues
+```bash
+# Reset database completely
+dropdb lms_development
+createdb lms_development
+psql -d lms_development -f database/init_complete.sql
+psql -d lms_development -f database/create_test_data.sql
+```
 
-When you're ready for production, you'll switch to the migration approach:
+### Test Data Issues
+```bash
+# Reload only test data
+psql -d lms_development -c "DELETE FROM users WHERE email LIKE '%@lms.edu';"
+psql -d lms_development -f database/create_test_data.sql
+```
 
-1. Create migration files for new features
-2. Run migrations in sequence
-3. Use tools like `node-pg-migrate` or `sequelize` for automation
+## 🎯 **Key Benefits of This Approach**
 
-But for now, the consolidated init approach is perfect for development! 🚀
+- ✅ **Simple Setup** - Only 2 files to run
+- ✅ **No Migration Complexity** - Single initialization
+- ✅ **Complete Feature Set** - All enhancements included
+- ✅ **Realistic Test Data** - Comprehensive scenarios
+- ✅ **Consistent Passwords** - Easy testing with `password123`
+- ✅ **Fresh Start** - Clean database every time
+- ✅ **Team Friendly** - Easy for new developers
+- ✅ **Production Ready** - Complete schema with optimizations
+
+## 📈 **What's Next?**
+
+After setup, you can:
+
+1. **Test the API** using the Postman collection in `/docs`
+2. **Login** with any test account using `password123`
+3. **Explore Features** - courses, assignments, notifications
+4. **Run Tests** with `npm test`
+5. **Start Development** - all tables and test data ready!
+
+**Your LMS database is now ready for development! 🚀**

@@ -22,8 +22,31 @@ app.use(express.json({ limit: '10mb' }));
 // Parse URL-encoded request body
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Enable CORS
-app.use(cors());
+// Configure CORS for frontend-backend communication
+const corsOptions = {
+  origin: [
+    'http://localhost:9876', // Frontend development server (primary)
+    'http://localhost:3001', // Alternative frontend port
+    'http://localhost:3000', // Alternative frontend port
+    'http://127.0.0.1:9876', // Alternative localhost format (primary)
+    'http://127.0.0.1:3001', // Alternative localhost format
+    'http://127.0.0.1:3000'  // Alternative localhost format
+  ],
+  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'X-CSRF-Token'
+  ],
+  exposedHeaders: ['X-Total-Count'], // Expose headers for pagination
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+
+app.use(cors(corsOptions));
 
 // Request logging
 app.use(morgan('combined', { stream: logger.stream }));
