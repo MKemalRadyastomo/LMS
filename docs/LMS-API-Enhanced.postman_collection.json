@@ -8,7 +8,7 @@
   },
   "item": [
     {
-      "name": "🔐 Authentication & Security",
+      "name": "\ud83d\udd10 Authentication & Security",
       "item": [
         {
           "name": "Login",
@@ -46,8 +46,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login with email and password. Returns JWT token and user info."
           }
@@ -83,8 +89,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login as teacher for testing teacher-specific endpoints"
           }
@@ -120,8 +132,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login as student for testing student-specific endpoints"
           }
@@ -138,8 +156,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
             },
             "description": "Get current authenticated user info"
           }
@@ -164,8 +188,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/change-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "change-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
             },
             "description": "Change user password"
           }
@@ -182,17 +212,116 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
             },
             "description": "Logout and invalidate session"
           }
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user account - Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\",\n  \"full_name\": \"New User\",\n  \"role\": \"siswa\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    console.log('User registered successfully:', responseJson.user.email);",
+                  "} else {",
+                  "    console.log('Registration failed:', responseJson.message);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Refresh JWT token using existing token"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "    pm.environment.set('authToken', responseJson.token);",
+                  "    console.log('Token refreshed successfully');",
+                  "} else {",
+                  "    console.log('Token refresh failed:', responseJson.message);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ],
       "description": "Authentication, security, and session management endpoints"
     },
     {
-      "name": "👥 User Management",
+      "name": "\ud83d\udc65 User Management",
       "item": [
         {
           "name": "Create User (Admin)",
@@ -214,8 +343,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/users",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
             },
             "description": "Create new user (Admin only). Roles: admin, guru, siswa"
           }
@@ -232,8 +366,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/users?page=1&limit=20&role=siswa&search=john",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -268,8 +407,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
             },
             "description": "Get user details by ID"
           }
@@ -294,8 +439,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
             },
             "description": "Update user information"
           }
@@ -322,8 +473,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}/profile-image",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}", "profile-image"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "profile-image"
+              ]
             },
             "description": "Upload profile picture (max 2MB, jpg/png only)"
           }
@@ -340,17 +498,127 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}/statistics",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}", "statistics"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "statistics"
+              ]
             },
             "description": "Get user activity statistics and progress"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Delete a user account - Admin access only"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('User deleted successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Change User Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "password"
+              ]
+            },
+            "description": "Change user password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"oldpassword\",\n  \"newPassword\": \"newpassword123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get User Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "stats"
+              ]
+            },
+            "description": "Get detailed user statistics and analytics"
           }
         }
       ],
       "description": "User management and profile endpoints"
     },
     {
-      "name": "📚 Course Management",
+      "name": "\ud83d\udcda Course Management",
       "item": [
         {
           "name": "Create Course",
@@ -387,8 +655,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ]
             },
             "description": "Create new course (Admin/Teacher only)"
           }
@@ -405,8 +678,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/courses?page=1&limit=10&search=math&teacherId={{teacherId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -441,8 +719,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}"
+              ]
             },
             "description": "Get detailed course information"
           }
@@ -467,8 +751,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}"
+              ]
             },
             "description": "Update course details"
           }
@@ -507,8 +797,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollment-code",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "enrollment-code"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "enrollment-code"
+              ]
             },
             "description": "Generate enrollment code for students to join course"
           }
@@ -525,17 +822,423 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/analytics",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "analytics"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "analytics"
+              ]
             },
             "description": "Get course analytics and statistics"
+          }
+        },
+        {
+          "name": "Course Search Suggestions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/search/suggestions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "search",
+                "suggestions"
+              ]
+            },
+            "description": "Get course search suggestions with autocomplete"
+          }
+        },
+        {
+          "name": "Advanced Course Filter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/search/advanced",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "search",
+                "advanced"
+              ]
+            },
+            "description": "Advanced course filtering with multiple criteria"
+          }
+        },
+        {
+          "name": "Find Course by Code",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/code/{{courseCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "code",
+                "{{courseCode}}"
+              ]
+            },
+            "description": "Find course by class code"
+          }
+        },
+        {
+          "name": "Bulk Enroll Students",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollments/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "enrollments",
+                "bulk"
+              ]
+            },
+            "description": "Bulk enroll multiple students - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentEmails\": [\"student1@example.com\", \"student2@example.com\"],\n  \"enrollmentStatus\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Bulk Update Enrollment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollments/bulk-status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "enrollments",
+                "bulk-status"
+              ]
+            },
+            "description": "Update enrollment status for multiple students - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollmentIds\": [1, 2, 3],\n  \"status\": \"inactive\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Enrollment Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollments/analytics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "enrollments",
+                "analytics"
+              ]
+            },
+            "description": "Get course enrollment analytics - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Add Content to Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "content"
+              ]
+            },
+            "description": "Add content to course - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Course Introduction\",\n  \"type\": \"material\",\n  \"content\": \"Welcome to the course\",\n  \"order\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Course Content",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "content"
+              ]
+            },
+            "description": "Get all content for a course"
+          }
+        },
+        {
+          "name": "Get Specific Content",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/content/{{contentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "content",
+                "{{contentId}}"
+              ]
+            },
+            "description": "Get specific content by ID"
+          }
+        },
+        {
+          "name": "Update Content Order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/content/order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "content",
+                "order"
+              ]
+            },
+            "description": "Update content order - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contentOrders\": [{\"id\": 1, \"order\": 2}, {\"id\": 2, \"order\": 1}]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Course Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/statistics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "statistics"
+              ]
+            },
+            "description": "Get detailed course statistics - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Get Course Activities",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/activities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "activities"
+              ]
+            },
+            "description": "Get course activity log - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Get Activity Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/activities/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "activities",
+                "summary"
+              ]
+            },
+            "description": "Get course activity summary - Guru/Admin access only"
           }
         }
       ],
       "description": "Course creation, management, and analytics"
     },
     {
-      "name": "📄 Materials Management",
+      "name": "\ud83d\udcc4 Materials Management",
       "item": [
         {
           "name": "Create Material with Rich Text",
@@ -571,8 +1274,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "materials"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "materials"
+              ]
             },
             "description": "Create material with rich text content and video URL"
           }
@@ -619,8 +1329,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "materials"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "materials"
+              ]
             },
             "description": "Upload material with file attachment (PDF/DOC/PPT up to 50MB)"
           }
@@ -637,8 +1354,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials?page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "materials"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "materials"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -665,8 +1389,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/materials/{{materialId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "materials", "{{materialId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materials",
+                "{{materialId}}"
+              ]
             },
             "description": "Get detailed material information"
           }
@@ -691,8 +1421,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/materials/{{materialId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "materials", "{{materialId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materials",
+                "{{materialId}}"
+              ]
             },
             "description": "Update material content and metadata"
           }
@@ -709,17 +1445,171 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/materials/{{materialId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "materials", "{{materialId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materials",
+                "{{materialId}}"
+              ]
             },
             "description": "Delete material and associated files"
+          }
+        },
+        {
+          "name": "Get Recent Materials",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials/recent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "materials",
+                "recent"
+              ]
+            },
+            "description": "Get recently added materials"
+          }
+        },
+        {
+          "name": "Get Materials by Type",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials/type/{{fileType}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "materials",
+                "type",
+                "{{fileType}}"
+              ]
+            },
+            "description": "Get materials filtered by file type"
+          }
+        },
+        {
+          "name": "Get Material Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/materials/statistics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "materials",
+                "statistics"
+              ]
+            },
+            "description": "Get course material statistics - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Get Material Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/materials/{{materialId}}/analytics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materials",
+                "{{materialId}}",
+                "analytics"
+              ]
+            },
+            "description": "Get material usage analytics - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Search Materials",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/materials/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materials",
+                "search"
+              ]
+            },
+            "description": "Search through materials"
           }
         }
       ],
       "description": "Material creation, file uploads, and content management"
     },
     {
-      "name": "📝 Advanced Assignments",
+      "name": "\ud83d\udcdd Advanced Assignments",
       "item": [
         {
           "name": "Create Essay Assignment",
@@ -755,8 +1645,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "assignments"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "assignments"
+              ]
             },
             "description": "Create essay-type assignment with word limits"
           }
@@ -791,12 +1688,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Calculus Quiz 1\",\n  \"description\": \"Quiz covering limits and derivatives\",\n  \"type\": \"quiz\",\n  \"dueDate\": \"2025-02-10T23:59:59Z\",\n  \"maxScore\": 50,\n  \"timeLimit\": 60,\n  \"questions\": [\n    {\n      \"type\": \"multiple_choice\",\n      \"question\": \"What is the derivative of x²?\",\n      \"options\": [\"2x\", \"x\", \"2\", \"x²\"],\n      \"correctAnswer\": \"2x\",\n      \"points\": 10,\n      \"explanation\": \"Using the power rule: d/dx(x²) = 2x\"\n    },\n    {\n      \"type\": \"true_false\",\n      \"question\": \"The limit of (x²-1)/(x-1) as x approaches 1 is 2\",\n      \"correctAnswer\": \"true\",\n      \"points\": 10,\n      \"explanation\": \"Factoring gives (x+1)(x-1)/(x-1) = x+1, so limit is 2\"\n    },\n    {\n      \"type\": \"short_answer\",\n      \"question\": \"Find the derivative of sin(x)\",\n      \"correctAnswer\": \"cos(x)\",\n      \"points\": 15,\n      \"explanation\": \"The derivative of sin(x) is cos(x)\"\n    }\n  ]\n}"
+              "raw": "{\n  \"title\": \"Calculus Quiz 1\",\n  \"description\": \"Quiz covering limits and derivatives\",\n  \"type\": \"quiz\",\n  \"dueDate\": \"2025-02-10T23:59:59Z\",\n  \"maxScore\": 50,\n  \"timeLimit\": 60,\n  \"questions\": [\n    {\n      \"type\": \"multiple_choice\",\n      \"question\": \"What is the derivative of x\u00b2?\",\n      \"options\": [\"2x\", \"x\", \"2\", \"x\u00b2\"],\n      \"correctAnswer\": \"2x\",\n      \"points\": 10,\n      \"explanation\": \"Using the power rule: d/dx(x\u00b2) = 2x\"\n    },\n    {\n      \"type\": \"true_false\",\n      \"question\": \"The limit of (x\u00b2-1)/(x-1) as x approaches 1 is 2\",\n      \"correctAnswer\": \"true\",\n      \"points\": 10,\n      \"explanation\": \"Factoring gives (x+1)(x-1)/(x-1) = x+1, so limit is 2\"\n    },\n    {\n      \"type\": \"short_answer\",\n      \"question\": \"Find the derivative of sin(x)\",\n      \"correctAnswer\": \"cos(x)\",\n      \"points\": 15,\n      \"explanation\": \"The derivative of sin(x) is cos(x)\"\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "assignments"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "assignments"
+              ]
             },
             "description": "Create quiz with multiple question types"
           }
@@ -835,8 +1739,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "assignments"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "assignments"
+              ]
             },
             "description": "Create file upload assignment with restrictions"
           }
@@ -853,8 +1764,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments?type=quiz&status=active",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "assignments"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "assignments"
+              ],
               "query": [
                 {
                   "key": "type",
@@ -881,8 +1799,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{quizAssignmentId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{quizAssignmentId}}"
+              ]
             },
             "description": "Get detailed assignment information including questions"
           }
@@ -907,17 +1831,183 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{quizAssignmentId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{quizAssignmentId}}"
+              ]
             },
             "description": "Update assignment details"
+          }
+        },
+        {
+          "name": "Delete Assignment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments/{{essayAssignmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "assignments",
+                "{{essayAssignmentId}}"
+              ]
+            },
+            "description": "Delete assignment - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Get Assignment Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments/{{essayAssignmentId}}/analytics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "analytics"
+              ]
+            },
+            "description": "Get basic assignment analytics - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Get Comprehensive Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments/{{essayAssignmentId}}/analytics/comprehensive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "analytics",
+                "comprehensive"
+              ]
+            },
+            "description": "Get comprehensive assignment analytics - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Duplicate Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments/{{essayAssignmentId}}/duplicate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "duplicate"
+              ]
+            },
+            "description": "Create duplicate of assignment - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newTitle\": \"Copy of Assignment\",\n  \"newDueDate\": \"2024-03-01T23:59:59Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Assignment Analytics",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/assignments/{{essayAssignmentId}}/analytics/update",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "analytics",
+                "update"
+              ]
+            },
+            "description": "Update assignment analytics - Guru/Admin access only"
           }
         }
       ],
       "description": "Advanced assignment types: essays, quizzes, and file uploads"
     },
     {
-      "name": "✍️ Student Submissions",
+      "name": "\u270d\ufe0f Student Submissions",
       "item": [
         {
           "name": "Submit Essay",
@@ -953,8 +2043,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submit",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{essayAssignmentId}}", "submit"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submit"
+              ]
             },
             "description": "Submit essay assignment with rich text content"
           }
@@ -993,8 +2090,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}/submit",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{quizAssignmentId}}", "submit"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{quizAssignmentId}}",
+                "submit"
+              ]
             },
             "description": "Submit quiz answers with timing information"
           }
@@ -1040,8 +2144,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/assignments/{{fileAssignmentId}}/submit",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{fileAssignmentId}}", "submit"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{fileAssignmentId}}",
+                "submit"
+              ]
             },
             "description": "Submit file upload assignment"
           }
@@ -1066,8 +2177,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submit",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{essayAssignmentId}}", "submit"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submit"
+              ]
             },
             "description": "Save submission as draft for later completion"
           }
@@ -1084,8 +2202,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/users/{{studentId}}/submissions?status=submitted&courseId={{courseId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{studentId}}", "submissions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{studentId}}",
+                "submissions"
+              ],
               "query": [
                 {
                   "key": "status",
@@ -1112,8 +2237,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}/submissions?status=submitted&page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{quizAssignmentId}}", "submissions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{quizAssignmentId}}",
+                "submissions"
+              ],
               "query": [
                 {
                   "key": "status",
@@ -1131,12 +2263,395 @@
             },
             "description": "Get all submissions for an assignment (Teacher/Admin only)"
           }
+        },
+        {
+          "name": "Enhanced Submit Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submit/enhanced",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submit",
+                "enhanced"
+              ]
+            },
+            "description": "Enhanced submission with version tracking - Siswa access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"My enhanced essay submission\",\n  \"version\": \"v2.0\",\n  \"metadata\": {\n    \"wordCount\": 850,\n    \"timeSpent\": 3600\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Auto-save Draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/autosave",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "autosave"
+              ]
+            },
+            "description": "Auto-save submission draft - Siswa access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Draft content being saved\",\n  \"isDraft\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Submit Final Version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submissions/{{essaySubmissionId}}/submit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submissions",
+                "{{essaySubmissionId}}",
+                "submit"
+              ]
+            },
+            "description": "Submit final version - Siswa access only"
+          }
+        },
+        {
+          "name": "Get Submission Versions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submissions/{{essaySubmissionId}}/versions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submissions",
+                "{{essaySubmissionId}}",
+                "versions"
+              ]
+            },
+            "description": "Get all submission versions"
+          }
+        },
+        {
+          "name": "Get Latest Submission",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submission/latest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submission",
+                "latest"
+              ]
+            },
+            "description": "Get latest submission version"
+          }
+        },
+        {
+          "name": "Get Submission Files",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submissions/{{essaySubmissionId}}/files",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submissions",
+                "{{essaySubmissionId}}",
+                "files"
+              ]
+            },
+            "description": "Get submission attached files"
+          }
+        },
+        {
+          "name": "Delete Submission File",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/files/{{fileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "files",
+                "{{fileId}}"
+              ]
+            },
+            "description": "Delete submission file - Siswa access only"
+          }
+        },
+        {
+          "name": "Grade with Detailed Rubric",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submissions/{{essaySubmissionId}}/grade/detailed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submissions",
+                "{{essaySubmissionId}}",
+                "grade",
+                "detailed"
+              ]
+            },
+            "description": "Grade with detailed rubric - Guru access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"overallGrade\": 85,\n  \"rubricScores\": {\n    \"content\": 90,\n    \"grammar\": 80,\n    \"structure\": 85\n  },\n  \"feedback\": \"Good work overall\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Apply Automated Grading",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submissions/{{essaySubmissionId}}/grade/auto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submissions",
+                "{{essaySubmissionId}}",
+                "grade",
+                "auto"
+              ]
+            },
+            "description": "Apply automated grading - Guru access only"
+          }
+        },
+        {
+          "name": "Get Plagiarism Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/submissions/{{essaySubmissionId}}/plagiarism",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "submissions",
+                "{{essaySubmissionId}}",
+                "plagiarism"
+              ]
+            },
+            "description": "Get plagiarism check report - Guru access only"
+          }
+        },
+        {
+          "name": "Get Student Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/analytics/student",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "analytics",
+                "student"
+              ]
+            },
+            "description": "Get student-specific analytics"
+          }
+        },
+        {
+          "name": "Bulk Grade Submissions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/bulk/grade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "bulk",
+                "grade"
+              ]
+            },
+            "description": "Bulk grade multiple submissions - Guru access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"submissions\": [{\"id\": 1, \"grade\": 85}, {\"id\": 2, \"grade\": 92}]\n}"
+            }
+          }
         }
       ],
       "description": "Student assignment submissions with different content types"
     },
     {
-      "name": "📊 Grading & Rubrics",
+      "name": "\ud83d\udcca Grading & Rubrics",
       "item": [
         {
           "name": "Create Grading Rubric",
@@ -1172,8 +2687,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/rubrics",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "rubrics"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rubrics"
+              ]
             },
             "description": "Create detailed grading rubric for assignments"
           }
@@ -1198,8 +2718,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/submissions/{{essaySubmissionId}}/grade",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "submissions", "{{essaySubmissionId}}", "grade"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "submissions",
+                "{{essaySubmissionId}}",
+                "grade"
+              ]
             },
             "description": "Grade submission using rubric with detailed feedback"
           }
@@ -1216,8 +2743,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/submissions/{{quizSubmissionId}}/auto-grade",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "submissions", "{{quizSubmissionId}}", "auto-grade"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "submissions",
+                "{{quizSubmissionId}}",
+                "auto-grade"
+              ]
             },
             "description": "Automatically grade quiz submission based on correct answers"
           }
@@ -1242,8 +2776,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/assignments/{{quizAssignmentId}}/bulk-grade",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{quizAssignmentId}}", "bulk-grade"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{quizAssignmentId}}",
+                "bulk-grade"
+              ]
             },
             "description": "Grade multiple submissions at once"
           }
@@ -1260,8 +2801,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/grades/export?format=excel",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "grades", "export"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "grades",
+                "export"
+              ],
               "query": [
                 {
                   "key": "format",
@@ -1284,8 +2833,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/assignments/{{essayAssignmentId}}/grade-report?format=pdf",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{essayAssignmentId}}", "grade-report"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{essayAssignmentId}}",
+                "grade-report"
+              ],
               "query": [
                 {
                   "key": "format",
@@ -1300,7 +2856,7 @@
       "description": "Grading system with rubrics, feedback, and export capabilities"
     },
     {
-      "name": "👥 Enrollment Management",
+      "name": "\ud83d\udc65 Enrollment Management",
       "item": [
         {
           "name": "Enroll Student in Course",
@@ -1322,8 +2878,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "enrollments"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "enrollments"
+              ]
             },
             "description": "Manually enroll student in course"
           }
@@ -1348,8 +2911,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/enrollments/join",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "enrollments", "join"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "join"
+              ]
             },
             "description": "Student enrolls using class code"
           }
@@ -1381,8 +2950,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollments/bulk",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "enrollments", "bulk"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "enrollments",
+                "bulk"
+              ]
             },
             "description": "Bulk enroll students via CSV upload"
           }
@@ -1399,8 +2976,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/courses/{{courseId}}/enrollments?status=active&page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "courses", "{{courseId}}", "enrollments"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "enrollments"
+              ],
               "query": [
                 {
                   "key": "status",
@@ -1439,8 +3023,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/enrollments/{{enrollmentId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "enrollments", "{{enrollmentId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "{{enrollmentId}}"
+              ]
             },
             "description": "Update enrollment status"
           }
@@ -1449,7 +3039,7 @@
       "description": "Student enrollment management and class codes"
     },
     {
-      "name": "🔍 Search & Discovery",
+      "name": "\ud83d\udd0d Search & Discovery",
       "item": [
         {
           "name": "Global Search",
@@ -1463,8 +3053,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/search?q=calculus&types=course,material,assignment&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "search"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search"
+              ],
               "query": [
                 {
                   "key": "q",
@@ -1495,8 +3090,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/search?q=mathematics&types=course&teacherId={{teacherId}}&privacy=public",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "search"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search"
+              ],
               "query": [
                 {
                   "key": "q",
@@ -1531,8 +3131,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/search/suggestions?q=calc&limit=5",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "search", "suggestions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "suggestions"
+              ],
               "query": [
                 {
                   "key": "q",
@@ -1567,17 +3173,318 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/search/advanced",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "search", "advanced"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "advanced"
+              ]
             },
             "description": "Advanced search with complex filters"
+          }
+        },
+        {
+          "name": "Get Popular Search Terms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/popular",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "popular"
+              ]
+            },
+            "description": "Get popular search terms"
+          }
+        },
+        {
+          "name": "Get Search Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/analytics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "analytics"
+              ]
+            },
+            "description": "Get search analytics - Admin/Guru access only"
+          }
+        },
+        {
+          "name": "Get Search History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "history"
+              ]
+            },
+            "description": "Get user's search history"
+          }
+        },
+        {
+          "name": "Clear Search History",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "history"
+              ]
+            },
+            "description": "Clear user's search history"
+          }
+        },
+        {
+          "name": "Search within Course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/course/{{courseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "course",
+                "{{courseId}}"
+              ]
+            },
+            "description": "Search within specific course"
+          }
+        },
+        {
+          "name": "Save Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/saved",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "saved"
+              ]
+            },
+            "description": "Save search for later use",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"machine learning\",\n  \"filters\": {\n    \"type\": \"assignment\",\n    \"courseId\": \"{{courseId}}\"\n  },\n  \"name\": \"ML Assignments\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Saved Searches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/saved",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "saved"
+              ]
+            },
+            "description": "Get user's saved searches"
+          }
+        },
+        {
+          "name": "Update Saved Search",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/saved/{{searchId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "saved",
+                "{{searchId}}"
+              ]
+            },
+            "description": "Update saved search",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Search Name\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Saved Search",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/saved/{{searchId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "saved",
+                "{{searchId}}"
+              ]
+            },
+            "description": "Delete saved search"
+          }
+        },
+        {
+          "name": "Track Search Analytics",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/analytics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "search",
+                "analytics"
+              ]
+            },
+            "description": "Track search analytics",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"linear algebra\",\n  \"resultsCount\": 15,\n  \"selectedResult\": \"assignment_123\"\n}"
+            }
           }
         }
       ],
       "description": "Full-text search across platform content"
     },
     {
-      "name": "📈 Analytics & Reports",
+      "name": "\ud83d\udcc8 Analytics & Reports",
       "item": [
         {
           "name": "Dashboard Analytics",
@@ -1591,8 +3498,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/analytics/dashboard",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "analytics", "dashboard"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "dashboard"
+              ]
             },
             "description": "Get role-specific dashboard analytics"
           }
@@ -1609,8 +3522,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/analytics/courses/{{courseId}}?period=30d",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "analytics", "courses", "{{courseId}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "courses",
+                "{{courseId}}"
+              ],
               "query": [
                 {
                   "key": "period",
@@ -1633,8 +3553,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/analytics/students/{{studentId}}/progress?courseId={{courseId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "analytics", "students", "{{studentId}}", "progress"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "students",
+                "{{studentId}}",
+                "progress"
+              ],
               "query": [
                 {
                   "key": "courseId",
@@ -1657,8 +3585,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/analytics/assignments/{{quizAssignmentId}}/performance",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "analytics", "assignments", "{{quizAssignmentId}}", "performance"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "assignments",
+                "{{quizAssignmentId}}",
+                "performance"
+              ]
             },
             "description": "Get assignment performance statistics"
           }
@@ -1675,8 +3611,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/analytics/system?period=7d",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "analytics", "system"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "system"
+              ],
               "query": [
                 {
                   "key": "period",
@@ -1699,8 +3641,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/analytics/courses/{{courseId}}/export?format=pdf&period=30d",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "analytics", "courses", "{{courseId}}", "export"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "courses",
+                "{{courseId}}",
+                "export"
+              ],
               "query": [
                 {
                   "key": "format",
@@ -1714,12 +3664,334 @@
             },
             "description": "Export analytics report in PDF/Excel format"
           }
+        },
+        {
+          "name": "Get Student Learning Insights",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/students/{{studentId}}/insights",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "students",
+                "{{studentId}}",
+                "insights"
+              ]
+            },
+            "description": "Get student learning insights and recommendations - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Get System Usage Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/system/usage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "system",
+                "usage"
+              ]
+            },
+            "description": "Get system-wide usage analytics - Admin access only"
+          }
+        },
+        {
+          "name": "Get User Performance Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/users/{{userId}}/performance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "users",
+                "{{userId}}",
+                "performance"
+              ]
+            },
+            "description": "Get user performance summary - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Get Grade Distribution",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/grades/distribution",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "grades",
+                "distribution"
+              ]
+            },
+            "description": "Get grade distribution analytics - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Get Activity Timeline",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/activity/timeline",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "activity",
+                "timeline"
+              ]
+            },
+            "description": "Get activity timeline analytics - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Get Performance Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/performance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "performance"
+              ]
+            },
+            "description": "Get system performance metrics - Admin access only"
+          }
+        },
+        {
+          "name": "Generate Custom Reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/reports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "reports"
+              ]
+            },
+            "description": "Generate custom analytics reports - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Export Analytics Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "export"
+              ]
+            },
+            "description": "Export analytics data - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"format\": \"csv\",\n  \"dateRange\": {\"start\": \"2024-01-01\", \"end\": \"2024-02-01\"},\n  \"metrics\": [\"grades\", \"submissions\", \"activity\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Teacher Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/teacher/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "teacher",
+                "summary"
+              ]
+            },
+            "description": "Get teacher-specific analytics summary - Guru access only"
+          }
+        },
+        {
+          "name": "Get Student Progress",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/student/progress",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "student",
+                "progress"
+              ]
+            },
+            "description": "Get comprehensive student progress analytics"
+          }
+        },
+        {
+          "name": "Get Admin Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/admin/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "admin",
+                "overview"
+              ]
+            },
+            "description": "Get admin dashboard overview - Admin access only"
+          }
         }
       ],
       "description": "Analytics, statistics, and reporting endpoints"
     },
     {
-      "name": "🔒 Security & Admin",
+      "name": "\ud83d\udd12 Security & Admin",
       "item": [
         {
           "name": "Check Account Status",
@@ -1733,8 +4005,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/auth/account-status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "account-status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "account-status"
+              ]
             },
             "description": "Check if account is locked or has security issues"
           }
@@ -1759,8 +4037,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/admin/unlock-account",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "unlock-account"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "unlock-account"
+              ]
             },
             "description": "Unlock locked user account (Admin only)"
           }
@@ -1777,8 +4061,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/security-logs?page=1&limit=50&level=warning",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "security-logs"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "security-logs"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -1804,8 +4094,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
             },
             "description": "Check system health and status"
           }
@@ -1817,14 +4112,1504 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/version",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "version"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "version"
+              ]
             },
             "description": "Get API version and build information"
           }
         }
       ],
       "description": "Security monitoring and administrative endpoints"
+    },
+    {
+      "name": "\ud83d\udd14 Notification Management",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
+            },
+            "description": "Get notifications for current user"
+          }
+        },
+        {
+          "name": "Get Notification Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "stats"
+              ]
+            },
+            "description": "Get notification statistics"
+          }
+        },
+        {
+          "name": "Get Notification Preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "preferences"
+              ]
+            },
+            "description": "Get user notification preferences"
+          }
+        },
+        {
+          "name": "Update Notification Preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "preferences"
+              ]
+            },
+            "description": "Update notification preferences",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailNotifications\": true,\n  \"pushNotifications\": true,\n  \"assignments\": true,\n  \"grades\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Notification Preferences",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/preferences/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "preferences",
+                "reset"
+              ]
+            },
+            "description": "Reset notification preferences to default"
+          }
+        },
+        {
+          "name": "Get WebSocket Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/ws-stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "ws-stats"
+              ]
+            },
+            "description": "Get WebSocket connection statistics - Admin access only"
+          }
+        },
+        {
+          "name": "Cleanup Expired Notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/cleanup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "cleanup"
+              ]
+            },
+            "description": "Clean up expired notifications - Admin access only"
+          }
+        },
+        {
+          "name": "Create Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
+            },
+            "description": "Create a new notification - Admin/Guru access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Assignment\",\n  \"message\": \"A new assignment has been posted\",\n  \"type\": \"assignment\",\n  \"recipientIds\": [1, 2, 3]\n}"
+            }
+          }
+        },
+        {
+          "name": "Create from Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/template",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "template"
+              ]
+            },
+            "description": "Create notification from template",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateId\": \"assignment-due\",\n  \"data\": {\n    \"assignmentName\": \"Math Quiz\",\n    \"dueDate\": \"2024-02-15\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Send Announcement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/announcement",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "announcement"
+              ]
+            },
+            "description": "Send system-wide announcement - Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"System Maintenance\",\n  \"message\": \"The system will be under maintenance tomorrow\",\n  \"priority\": \"high\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark Multiple as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/read-multiple",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "read-multiple"
+              ]
+            },
+            "description": "Mark multiple notifications as read",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notificationIds\": [1, 2, 3, 4]\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "read-all"
+              ]
+            },
+            "description": "Mark all notifications as read"
+          }
+        },
+        {
+          "name": "Get Notification by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notificationId}}"
+              ]
+            },
+            "description": "Get specific notification by ID"
+          }
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notificationId}}",
+                "read"
+              ]
+            },
+            "description": "Mark notification as read"
+          }
+        },
+        {
+          "name": "Archive Notification",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}/archive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notificationId}}",
+                "archive"
+              ]
+            },
+            "description": "Archive notification"
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notificationId}}"
+              ]
+            },
+            "description": "Delete notification"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udccb Assignment Templates",
+      "item": [
+        {
+          "name": "Create Assignment Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignment-templates",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignment-templates"
+              ]
+            },
+            "description": "Create a new assignment template - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Essay Template\",\n  \"description\": \"Standard essay assignment template\",\n  \"type\": \"essay\",\n  \"settings\": {\n    \"wordLimit\": 1000,\n    \"allowLateSubmission\": false\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Assignment Templates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignment-templates",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignment-templates"
+              ]
+            },
+            "description": "Get all assignment templates - Guru/Admin access only"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (pm.response.code === 200 && responseJson.data && responseJson.data.length > 0) {",
+                  "    pm.environment.set('assignmentTemplateId', responseJson.data[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Assignment Template",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignment-templates/{{assignmentTemplateId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignment-templates",
+                "{{assignmentTemplateId}}"
+              ]
+            },
+            "description": "Get specific assignment template - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Update Assignment Template",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignment-templates/{{assignmentTemplateId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignment-templates",
+                "{{assignmentTemplateId}}"
+              ]
+            },
+            "description": "Update assignment template - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Template\",\n  \"description\": \"Updated description\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Assignment Template",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignment-templates/{{assignmentTemplateId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignment-templates",
+                "{{assignmentTemplateId}}"
+              ]
+            },
+            "description": "Delete assignment template - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Create Assignment from Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignment-templates/{{assignmentTemplateId}}/assignments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignment-templates",
+                "{{assignmentTemplateId}}",
+                "assignments"
+              ]
+            },
+            "description": "Create assignment from template - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"title\": \"Assignment from Template\",\n  \"dueDate\": \"2024-02-20T23:59:59Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Bulk Delete Templates",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignment-templates/bulk/delete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignment-templates",
+                "bulk",
+                "delete"
+              ]
+            },
+            "description": "Bulk delete assignment templates - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateIds\": [1, 2, 3]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcca User Statistics & Gamification",
+      "item": [
+        {
+          "name": "Get User Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/statistics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "statistics"
+              ]
+            },
+            "description": "Get comprehensive user statistics"
+          }
+        },
+        {
+          "name": "Update User Statistics",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/statistics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "statistics"
+              ]
+            },
+            "description": "Update user statistics",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totalTimeSpent\": 3600,\n  \"assignmentsCompleted\": 5,\n  \"averageGrade\": 85.5\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh User Statistics",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/statistics/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "statistics",
+                "refresh"
+              ]
+            },
+            "description": "Refresh and recalculate user statistics"
+          }
+        },
+        {
+          "name": "Get User Course Progress",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/courses/{{courseId}}/progress",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "courses",
+                "{{courseId}}",
+                "progress"
+              ]
+            },
+            "description": "Get user progress in specific course"
+          }
+        },
+        {
+          "name": "Get User Learning Streak",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/streak",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "streak"
+              ]
+            },
+            "description": "Get user's learning streak information"
+          }
+        },
+        {
+          "name": "Get User Achievements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/achievements",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "achievements"
+              ]
+            },
+            "description": "Get user's achievements and badges"
+          }
+        },
+        {
+          "name": "Log User Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/activity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "activity"
+              ]
+            },
+            "description": "Log user activity",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"assignment_submitted\",\n  \"resourceType\": \"assignment\",\n  \"resourceId\": \"{{essayAssignmentId}}\",\n  \"timeSpent\": 1800\n}"
+            }
+          }
+        },
+        {
+          "name": "Get User Activity History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/activity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "activity"
+              ]
+            },
+            "description": "Get user activity history"
+          }
+        },
+        {
+          "name": "Get User Leaderboard Position",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/leaderboard/{{metric}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "leaderboard",
+                "{{metric}}"
+              ]
+            },
+            "description": "Get user position on leaderboard"
+          }
+        },
+        {
+          "name": "Get System Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/statistics/system",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "system"
+              ]
+            },
+            "description": "Get system-wide statistics - Admin access only"
+          }
+        },
+        {
+          "name": "Get Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/statistics/leaderboard/{{metric}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "leaderboard",
+                "{{metric}}"
+              ]
+            },
+            "description": "Get leaderboard for specific metric - Admin/Guru access only"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udfe5 System Health & Version",
+      "item": [
+        {
+          "name": "Get API Version",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/api-version",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "api-version"
+              ]
+            },
+            "description": "Get current API version information"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "description": "Check system health and status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udce6 Assignment Bulk Operations",
+      "item": [
+        {
+          "name": "Bulk Create Assignments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/bulk/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "bulk",
+                "create"
+              ]
+            },
+            "description": "Create multiple assignments at once - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignments\": [\n    {\"title\": \"Quiz 1\", \"type\": \"quiz\", \"courseId\": \"{{courseId}}\"},\n    {\"title\": \"Essay 1\", \"type\": \"essay\", \"courseId\": \"{{courseId}}\"}\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Bulk Update Assignments",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/bulk/update",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "bulk",
+                "update"
+              ]
+            },
+            "description": "Update multiple assignments - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"updates\": [\n    {\"id\": 1, \"dueDate\": \"2024-03-01T23:59:59Z\"},\n    {\"id\": 2, \"points\": 100}\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Bulk Delete Assignments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/bulk/delete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "bulk",
+                "delete"
+              ]
+            },
+            "description": "Delete multiple assignments - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignmentIds\": [1, 2, 3]\n}"
+            }
+          }
+        },
+        {
+          "name": "Bulk Grade Assignments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/bulk/grade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "bulk",
+                "grade"
+              ]
+            },
+            "description": "Grade multiple assignments - Guru access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grades\": [\n    {\"assignmentId\": 1, \"submissionId\": 1, \"grade\": 85},\n    {\"assignmentId\": 2, \"submissionId\": 2, \"grade\": 92}\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Bulk Update Analytics",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/bulk/analytics/update",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "bulk",
+                "analytics",
+                "update"
+              ]
+            },
+            "description": "Update analytics for multiple assignments - Guru/Admin access only"
+          }
+        },
+        {
+          "name": "Export Assignment Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/bulk/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "bulk",
+                "export"
+              ]
+            },
+            "description": "Export assignment data - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"format\": \"xlsx\",\n  \"assignmentIds\": [1, 2, 3],\n  \"includeSubmissions\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Import Assignment Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/bulk/import",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "bulk",
+                "import"
+              ]
+            },
+            "description": "Import assignment data from file - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileUrl\": \"https://example.com/assignments.xlsx\",\n  \"courseId\": \"{{courseId}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcda Course Content Management",
+      "item": [
+        {
+          "name": "Create Course Content",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/contents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "contents"
+              ]
+            },
+            "description": "Create new course content - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Course Introduction\",\n  \"content\": \"Welcome to this course\",\n  \"contentType\": \"text\",\n  \"order\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Course Contents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/contents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "contents"
+              ]
+            },
+            "description": "Get all course contents"
+          }
+        },
+        {
+          "name": "Get Course Content",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/contents/{{contentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "contents",
+                "{{contentId}}"
+              ]
+            },
+            "description": "Get specific course content"
+          }
+        },
+        {
+          "name": "Update Course Content",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/contents/{{contentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "contents",
+                "{{contentId}}"
+              ]
+            },
+            "description": "Update course content - Guru/Admin access only",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"content\": \"Updated content\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Course Content",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}/contents/{{contentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}",
+                "contents",
+                "{{contentId}}"
+              ]
+            },
+            "description": "Delete course content - Guru/Admin access only"
+          }
+        }
+      ]
     }
   ],
   "auth": {
