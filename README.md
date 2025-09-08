@@ -135,16 +135,16 @@ After running the test data script, you can use these accounts:
 
 ```bash
 # Admin Account
-Email: admin@example.com
-Password: adminadmin
+Email: admin@lms.edu
+Password: password123
 
 # Teacher Account
-Email: teacher@example.com
-Password: teacher123
+Email: john.smith@lms.edu
+Password: password123
 
 # Student Account
-Email: student@example.com
-Password: student123
+Email: alice.wilson@student.lms.edu
+Password: password123
 ```
 
 ### Quick Testing Workflow

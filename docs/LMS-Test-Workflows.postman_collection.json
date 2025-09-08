@@ -22,6 +22,14 @@
                   "    pm.expect(responseJson.user.role).to.eql('guru');",
                   "    pm.environment.set('teacherToken', responseJson.token);",
                   "    pm.environment.set('teacherId', responseJson.user.id);",
+                  "    pm.environment.set('authToken', responseJson.token);",
+                  "    pm.environment.set('userId', responseJson.user.id);",
+                  "    pm.environment.set('userRole', responseJson.user.role);",
+                  "    pm.environment.set('currentUserEmail', responseJson.user.email);",
+                  "    pm.environment.set('currentUserRole', responseJson.user.role);",
+                  "    const expirationTime = new Date(Date.now() + (30 * 60 * 1000)).toISOString();",
+                  "    pm.environment.set('tokenExpiresAt', expirationTime);",
+                  "    console.log('Teacher workflow login successful');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -38,7 +46,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{teacherEmail}}\",\n  \"password\": \"{{teacherPassword}}\"\n}"
+              "raw": "{\n  \"email\": \"john.smith@lms.edu\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -307,6 +315,14 @@
                   "    pm.expect(responseJson.user.role).to.eql('siswa');",
                   "    pm.environment.set('studentToken', responseJson.token);",
                   "    pm.environment.set('studentId', responseJson.user.id);",
+                  "    pm.environment.set('authToken', responseJson.token);",
+                  "    pm.environment.set('userId', responseJson.user.id);",
+                  "    pm.environment.set('userRole', responseJson.user.role);",
+                  "    pm.environment.set('currentUserEmail', responseJson.user.email);",
+                  "    pm.environment.set('currentUserRole', responseJson.user.role);",
+                  "    const expirationTime = new Date(Date.now() + (30 * 60 * 1000)).toISOString();",
+                  "    pm.environment.set('tokenExpiresAt', expirationTime);",
+                  "    console.log('Student workflow login successful');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -323,7 +339,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{studentEmail}}\",\n  \"password\": \"{{studentPassword}}\"\n}"
+              "raw": "{\n  \"email\": \"alice.wilson@student.lms.edu\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",

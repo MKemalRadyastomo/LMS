@@ -2,10 +2,44 @@
   "info": {
     "_postman_id": "f646348a-7538-42a4-8896-72b232ff96d2",
     "name": "LMS API Enhanced - Complete Backend",
-    "description": "Comprehensive API collection for the enhanced Online Learning Platform with RBAC, advanced assignments, grading, analytics, search, and security features.",
+    "description": "Comprehensive API collection for the enhanced Online Learning Platform with RBAC, advanced assignments, grading, analytics, search, and security features.\n\n## Authentication Setup\n1. Run any of the Login requests in the 'Authentication & Security' folder\n2. The JWT token will be automatically stored in environment variables\n3. All subsequent requests will use this token automatically\n\n## Default Test Accounts (Development)\n- Admin: admin@lms.edu / password123\n- Teacher: john.smith@lms.edu / password123\n- Student: alice.wilson@student.lms.edu / password123",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "45324042"
   },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "// Check if token is expired",
+          "const tokenExpiresAt = pm.environment.get('tokenExpiresAt');",
+          "if (tokenExpiresAt) {",
+          "    const expirationTime = new Date(tokenExpiresAt);",
+          "    const currentTime = new Date();",
+          "    if (currentTime > expirationTime) {",
+          "        console.warn('Authentication token has expired. Please re-login.');",
+          "    }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script for authentication error handling",
+          "if (pm.response.code === 401) {",
+          "    console.error('Authentication failed. Token may be expired or invalid.');",
+          "    console.log('Current user:', pm.environment.get('currentUserEmail'));",
+          "    console.log('Token expires at:', pm.environment.get('tokenExpiresAt'));",
+          "}"
+        ]
+      }
+    }
+  ],
   "item": [
     {
       "name": "\ud83d\udd10 Authentication & Security",
@@ -22,8 +56,16 @@
                   "    pm.environment.set('authToken', responseJson.token);",
                   "    pm.environment.set('userId', responseJson.user.id);",
                   "    pm.environment.set('userRole', responseJson.user.role);",
+                  "    pm.environment.set('currentUserEmail', responseJson.user.email);",
+                  "    pm.environment.set('currentUserRole', responseJson.user.role);",
+                  "    // Calculate token expiration time",
+                  "    const expiresIn = responseJson.expiresIn || '30m';",
+                  "    const expirationTime = new Date(Date.now() + (30 * 60 * 1000)).toISOString();",
+                  "    pm.environment.set('tokenExpiresAt', expirationTime);",
                   "    console.log('Authentication successful');",
-                  "    console.log('User Role:', responseJson.user.role);",
+                  "    console.log('User:', responseJson.user.email);",
+                  "    console.log('Role:', responseJson.user.role);",
+                  "    console.log('Token expires at:', expirationTime);",
                   "} else {",
                   "    console.log('Login failed:', responseJson.message);",
                   "}"
@@ -42,7 +84,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"adminadmin\"\n}"
+              "raw": "{\n  \"email\": \"admin@lms.edu\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -69,6 +111,16 @@
                   "if (pm.response.code === 200) {",
                   "    pm.environment.set('teacherToken', responseJson.token);",
                   "    pm.environment.set('teacherId', responseJson.user.id);",
+                  "    pm.environment.set('authToken', responseJson.token);",
+                  "    pm.environment.set('userId', responseJson.user.id);",
+                  "    pm.environment.set('userRole', responseJson.user.role);",
+                  "    pm.environment.set('currentUserEmail', responseJson.user.email);",
+                  "    pm.environment.set('currentUserRole', responseJson.user.role);",
+                  "    const expirationTime = new Date(Date.now() + (30 * 60 * 1000)).toISOString();",
+                  "    pm.environment.set('tokenExpiresAt', expirationTime);",
+                  "    console.log('Teacher login successful');",
+                  "    console.log('User:', responseJson.user.email);",
+                  "    console.log('Role:', responseJson.user.role);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -85,7 +137,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"teacher@example.com\",\n  \"password\": \"teacher123\"\n}"
+              "raw": "{\n  \"email\": \"john.smith@lms.edu\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -112,6 +164,16 @@
                   "if (pm.response.code === 200) {",
                   "    pm.environment.set('studentToken', responseJson.token);",
                   "    pm.environment.set('studentId', responseJson.user.id);",
+                  "    pm.environment.set('authToken', responseJson.token);",
+                  "    pm.environment.set('userId', responseJson.user.id);",
+                  "    pm.environment.set('userRole', responseJson.user.role);",
+                  "    pm.environment.set('currentUserEmail', responseJson.user.email);",
+                  "    pm.environment.set('currentUserRole', responseJson.user.role);",
+                  "    const expirationTime = new Date(Date.now() + (30 * 60 * 1000)).toISOString();",
+                  "    pm.environment.set('tokenExpiresAt', expirationTime);",
+                  "    console.log('Student login successful');",
+                  "    console.log('User:', responseJson.user.email);",
+                  "    console.log('Role:', responseJson.user.role);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -128,7 +190,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"student123\"\n}"
+              "raw": "{\n  \"email\": \"alice.wilson@student.lms.edu\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
