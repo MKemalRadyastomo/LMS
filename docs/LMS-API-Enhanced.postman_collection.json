@@ -5684,43 +5684,6 @@
       }
     ]
   },
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "// Auto-refresh token if needed",
-          "if (pm.request.url.toString().includes('/api/') && !pm.request.url.toString().includes('/auth/login')) {",
-          "    const token = pm.environment.get('authToken');",
-          "    if (!token) {",
-          "        console.log('No auth token found. Please login first.');",
-          "    }",
-          "}"
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "// Common test scripts",
-          "if (pm.response.code === 401) {",
-          "    console.log('Authentication failed. Please check your token.');",
-          "}",
-          "",
-          "if (pm.response.code === 403) {",
-          "    console.log('Access denied. Insufficient permissions.');",
-          "}",
-          "",
-          "if (pm.response.code >= 500) {",
-          "    console.log('Server error:', pm.response.code, pm.response.status);",
-          "}"
-        ]
-      }
-    }
-  ],
   "variable": [
     {
       "key": "baseUrl",
