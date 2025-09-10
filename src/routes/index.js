@@ -5,6 +5,7 @@ const courseRoutes = require('./course.routes');
 const assignmentRoutes = require('./assignment.routes');
 const assignmentTemplateRoutes = require('./assignmentTemplate.routes');
 const assignmentBulkRoutes = require('./assignmentBulk.routes');
+// const globalAssignmentRoutes = require('./globalAssignments.routes');
 const submissionRoutes = require('./submission.routes');
 const courseContentRoutes = require('./courseContent.routes');
 // const gradingRoutes = require('./grading.routes'); // Temporarily disabled - missing controller functions
@@ -52,6 +53,9 @@ router.use('/users', userRoutes);
 router.use('/courses/:courseId/assignments', assignmentRoutes);
 router.use('/assignments/:assignmentId', submissionRoutes);
 router.use('/courses/:courseId/contents', courseContentRoutes);
+
+// Global assignment routes (frontend compatibility) - temporarily disabled for testing
+// router.use('/assignments', globalAssignmentRoutes);
 
 // Assignment template and bulk operation routes
 router.use('/assignment-templates', assignmentTemplateRoutes);

@@ -1076,4 +1076,83 @@ Assignment.duplicate = async (assignmentId, newAssignmentData = {}) => {
     }
 };
 
+Assignment.findByMultipleCourseIds = async (courseIds, filters = {}) => {
+    try {
+        const placeholders = courseIds.map((_, index) => `$${index + 1}`).join(',');
+        let query = `
+            SELECT a.*, 
+                   c.title as course_title,
+                   c.code as course_code
+            FROM assignments a
+            LEFT JOIN courses c ON a.course_id = c.id
+            WHERE a.course_id IN (${placeholders})
+        `;
+        
+        let values = [...courseIds];
+        let paramIndex = courseIds.length + 1;
+        
+        if (filters.status) {
+            query += ` AND a.status = $${paramIndex}`;
+            values.push(filters.status);
+            paramIndex++;
+        }
+        
+        if (filters.search) {
+            query += ` AND (a.title ILIKE $${paramIndex} OR a.description ILIKE $${paramIndex})`;
+            values.push(`%${filters.search}%`);
+            paramIndex++;
+        }
+        
+        query += ` ORDER BY a.due_date ASC`;
+        
+        const result = await db.query(query, values);
+        return result.rows;
+    } catch (error) {
+        logger.error(`Failed to find assignments by multiple course IDs: ${error.message}`);
+        throw error;
+    }
+};
+
+Assignment.findByTeacherId = async (teacherId, filters = {}) => {
+    try {
+        let query = `
+            SELECT a.*, 
+                   c.title as course_title,
+                   c.code as course_code
+            FROM assignments a
+            LEFT JOIN courses c ON a.course_id = c.id
+            WHERE c.teacher_id = $1
+        `;
+        
+        let values = [teacherId];
+        let paramIndex = 2;
+        
+        if (filters.status) {
+            query += ` AND a.status = $${paramIndex}`;
+            values.push(filters.status);
+            paramIndex++;
+        }
+        
+        if (filters.course_id) {
+            query += ` AND a.course_id = $${paramIndex}`;
+            values.push(filters.course_id);
+            paramIndex++;
+        }
+        
+        if (filters.search) {
+            query += ` AND (a.title ILIKE $${paramIndex} OR a.description ILIKE $${paramIndex})`;
+            values.push(`%${filters.search}%`);
+            paramIndex++;
+        }
+        
+        query += ` ORDER BY a.due_date ASC`;
+        
+        const result = await db.query(query, values);
+        return result.rows;
+    } catch (error) {
+        logger.error(`Failed to find assignments by teacher ID: ${error.message}`);
+        throw error;
+    }
+};
+
 module.exports = Assignment;

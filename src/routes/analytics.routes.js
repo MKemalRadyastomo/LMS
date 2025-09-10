@@ -264,4 +264,50 @@ router.get(
   analyticsController.getDashboardAnalytics
 );
 
+/**
+ * Frontend-specific analytics endpoints
+ */
+
+/**
+ * @route   GET /api/analytics/dashboard/widgets
+ * @desc    Get dashboard widget data (role-specific)
+ * @access  Private (All authenticated users)
+ */
+router.get(
+  '/dashboard/widgets',
+  analyticsController.getDashboardWidgets
+);
+
+/**
+ * @route   GET /api/analytics/recent-activity
+ * @desc    Get recent activity data (role-specific)
+ * @access  Private (All authenticated users)
+ */
+router.get(
+  '/recent-activity',
+  validate({
+    query: {
+      limit: Joi.number().integer().min(1).max(100).default(10).optional()
+    }
+  }),
+  analyticsController.getRecentActivity
+);
+
+/**
+ * @route   GET /api/analytics/assignments
+ * @desc    Get assignments analytics with filtering
+ * @access  Private (All authenticated users)
+ */
+router.get(
+  '/assignments',
+  validate({
+    query: {
+      filter: Joi.string().valid('due-soon', 'overdue', 'needs-grading', 'not-submitted').optional(),
+      courseId: Joi.number().integer().positive().optional(),
+      limit: Joi.number().integer().min(1).max(100).default(50).optional()
+    }
+  }),
+  analyticsController.getAssignmentsAnalytics
+);
+
 module.exports = router;

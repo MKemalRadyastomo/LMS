@@ -1,0 +1,68 @@
+# LMS Backend Environment Configuration Template
+# Copy this file to .env and customize values for your environment
+
+NODE_ENV=development
+PORT=3000
+
+# CORS Configuration (Frontend integration)
+CORS_ORIGINS=http://localhost:3001,http://127.0.0.1:3001
+
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=password123
+DB_NAME=test_project
+
+# Database Connection Pool Settings
+DB_MAX_CONNECTIONS=20
+DB_MIN_CONNECTIONS=2
+
+# Database Timeout Settings (in milliseconds)
+DB_CONNECTION_TIMEOUT=10000
+DB_STATEMENT_TIMEOUT=30000
+DB_IDLE_TIMEOUT=30000
+DB_QUERY_TIMEOUT=30000
+DB_CLIENT_CHECKOUT_TIMEOUT=30000
+
+# JWT Configuration
+JWT_SECRET=your_super_secure_jwt_secret_key_here_change_this_in_production
+JWT_EXPIRATION=1d
+JWT_EXPIRES_IN=30m
+
+# Rate Limiting
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX=100
+
+# Password Hashing Configuration
+BCRYPT_SALT_ROUNDS=8
+BCRYPT_HASH_TIMEOUT=20000
+BCRYPT_COMPARE_TIMEOUT=10000
+
+# Request Timeout (in milliseconds)
+REQUEST_TIMEOUT=60000
+
+# File Upload Configuration
+MAX_FILE_SIZE=52428800  # 50MB
+ALLOWED_FILE_TYPES=pdf,doc,docx,ppt,pptx,jpg,jpeg,png
+
+# Account Lockout Configuration
+MAX_LOGIN_ATTEMPTS=5
+LOCKOUT_DURATION=1800000  # 30 minutes in milliseconds
+
+# Search Configuration
+SEARCH_MIN_CHARS=3
+SEARCH_MAX_RESULTS=50
+
+# Security Configuration
+SESSION_TIMEOUT=1800000  # 30 minutes in milliseconds
+
+# Production Environment Variables (uncomment for production)
+# NODE_ENV=production
+# PORT=3001
+# DB_HOST=your-production-db-host
+# DB_USER=your-production-user
+# DB_PASSWORD=your-secure-production-password
+# DB_NAME=lms_production
+# JWT_SECRET=your-super-secure-256-bit-production-jwt-secret-key
+# CORS_ORIGINS=https://your-frontend-domain.com,https://www.your-frontend-domain.com
