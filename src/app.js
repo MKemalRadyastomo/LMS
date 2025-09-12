@@ -60,6 +60,16 @@ app.use(timeoutMiddleware());
 // API routes with api prefix
 app.use('/api', routes);
 
+// Fallback root route to handle logout redirects and prevent 404 errors
+app.get('/', (req, res) => {
+  res.json({
+    message: 'LMS Backend API',
+    status: 'active',
+    version: '1.0.0',
+    api: '/api'
+  });
+});
+
 // Serve static files
 app.use(express.static('public'));
 app.use('/profile_pictures', express.static(path.join(__dirname, '../public/profile_pictures')));
