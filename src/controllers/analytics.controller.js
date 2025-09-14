@@ -667,6 +667,312 @@ function getTimeCondition(timeframe) {
 }
 
 /**
+ * Get dashboard widgets data (frontend specific)
+ * GET /api/analytics/dashboard/widgets
+ */
+const getDashboardWidgets = catchAsync(async (req, res) => {
+  const db = require('../config/db');
+  
+  let widgets = {};
+
+  switch (req.user.role) {
+    case 'admin':
+      // Admin dashboard widgets
+      const adminQuery = `
+        SELECT 
+          (SELECT COUNT(*) FROM users WHERE role = 'siswa') as total_students,
+          (SELECT COUNT(*) FROM users WHERE role = 'guru') as total_instructors,
+          (SELECT COUNT(*) FROM courses WHERE is_active = true) as active_courses,
+          (SELECT COUNT(*) FROM assignments WHERE status = 'active') as total_assignments,
+          (SELECT COUNT(*) FROM assignment_submissions WHERE status = 'submitted') as pending_submissions,
+          (SELECT ROUND(AVG(grade), 1) FROM assignment_submissions WHERE grade IS NOT NULL) as avg_grade,
+          (SELECT COUNT(*) FROM users WHERE created_at > NOW() - INTERVAL '30 days') as new_users_month,
+          (SELECT COUNT(*) FROM assignment_submissions WHERE created_at > NOW() - INTERVAL '7 days') as weekly_submissions
+      `;
+      
+      const adminResult = await db.query(adminQuery);
+      const adminData = adminResult.rows[0];
+      
+      widgets = {
+        userStats: {
+          totalStudents: parseInt(adminData.total_students) || 0,
+          totalInstructors: parseInt(adminData.total_instructors) || 0,
+          newUsersThisMonth: parseInt(adminData.new_users_month) || 0
+        },
+        courseStats: {
+          activeCourses: parseInt(adminData.active_courses) || 0,
+          totalAssignments: parseInt(adminData.total_assignments) || 0,
+          avgGrade: parseFloat(adminData.avg_grade) || 0
+        },
+        activityStats: {
+          pendingSubmissions: parseInt(adminData.pending_submissions) || 0,
+          weeklySubmissions: parseInt(adminData.weekly_submissions) || 0
+        }
+      };
+      break;
+
+    case 'guru':
+      // Teacher dashboard widgets
+      const teacherQuery = `
+        SELECT 
+          COUNT(DISTINCT c.id) as my_courses,
+          COUNT(DISTINCT ce.user_id) as my_students,
+          COUNT(DISTINCT a.id) as my_assignments,
+          COUNT(s.id) as total_submissions,
+          COUNT(CASE WHEN s.status = 'submitted' THEN 1 END) as pending_grading,
+          ROUND(AVG(s.grade), 1) as avg_grade,
+          COUNT(CASE WHEN s.created_at > NOW() - INTERVAL '7 days' THEN 1 END) as recent_submissions
+        FROM courses c
+        LEFT JOIN course_enrollments ce ON c.id = ce.course_id AND ce.status = 'active'
+        LEFT JOIN assignments a ON c.id = a.course_id
+        LEFT JOIN assignment_submissions s ON a.id = s.assignment_id
+        WHERE c.teacher_id = $1
+      `;
+      
+      const teacherResult = await db.query(teacherQuery, [req.user.id]);
+      const teacherData = teacherResult.rows[0];
+      
+      widgets = {
+        courseStats: {
+          myCourses: parseInt(teacherData.my_courses) || 0,
+          myStudents: parseInt(teacherData.my_students) || 0,
+          myAssignments: parseInt(teacherData.my_assignments) || 0
+        },
+        gradingStats: {
+          pendingGrading: parseInt(teacherData.pending_grading) || 0,
+          totalSubmissions: parseInt(teacherData.total_submissions) || 0,
+          avgGrade: parseFloat(teacherData.avg_grade) || 0
+        },
+        activityStats: {
+          recentSubmissions: parseInt(teacherData.recent_submissions) || 0
+        }
+      };
+      break;
+
+    case 'siswa':
+      // Student dashboard widgets
+      const studentQuery = `
+        SELECT 
+          COUNT(DISTINCT ce.course_id) as enrolled_courses,
+          COUNT(s.id) as completed_assignments,
+          COUNT(a.id) as available_assignments,
+          COUNT(CASE WHEN s.grade IS NOT NULL THEN 1 END) as graded_assignments,
+          ROUND(AVG(s.grade), 1) as avg_grade,
+          COUNT(CASE WHEN a.due_date < NOW() AND s.id IS NULL THEN 1 END) as overdue_assignments,
+          COUNT(CASE WHEN a.due_date BETWEEN NOW() AND NOW() + INTERVAL '7 days' AND s.id IS NULL THEN 1 END) as due_soon
+        FROM course_enrollments ce
+        LEFT JOIN assignments a ON ce.course_id = a.course_id AND a.status = 'active'
+        LEFT JOIN assignment_submissions s ON a.id = s.assignment_id AND s.student_id = $1
+        WHERE ce.user_id = $1 AND ce.status = 'active'
+      `;
+      
+      const studentResult = await db.query(studentQuery, [req.user.id]);
+      const studentData = studentResult.rows[0];
+      
+      widgets = {
+        courseStats: {
+          enrolledCourses: parseInt(studentData.enrolled_courses) || 0,
+          availableAssignments: parseInt(studentData.available_assignments) || 0,
+          completedAssignments: parseInt(studentData.completed_assignments) || 0
+        },
+        performanceStats: {
+          avgGrade: parseFloat(studentData.avg_grade) || 0,
+          gradedAssignments: parseInt(studentData.graded_assignments) || 0
+        },
+        urgentStats: {
+          overdueAssignments: parseInt(studentData.overdue_assignments) || 0,
+          dueSoonAssignments: parseInt(studentData.due_soon) || 0
+        }
+      };
+      break;
+  }
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    data: widgets,
+    generatedAt: new Date().toISOString()
+  });
+});
+
+/**
+ * Get recent activity data
+ * GET /api/analytics/recent-activity
+ */
+const getRecentActivity = catchAsync(async (req, res) => {
+  const { limit = 10 } = req.query;
+  const db = require('../config/db');
+
+  let query = '';
+  let params = [];
+
+  switch (req.user.role) {
+    case 'admin':
+      // Admin sees all activities
+      query = `
+        SELECT 
+          al.created_at,
+          al.action_type,
+          al.activity_type,
+          al.description,
+          u.name as user_name,
+          u.role as user_role,
+          al.metadata
+        FROM activity_logs al
+        JOIN users u ON al.user_id = u.id
+        ORDER BY al.created_at DESC
+        LIMIT $1
+      `;
+      params = [limit];
+      break;
+
+    case 'guru':
+      // Teachers see activities from their students and their own
+      query = `
+        SELECT 
+          al.created_at,
+          al.action_type,
+          al.activity_type,
+          al.description,
+          u.name as user_name,
+          u.role as user_role,
+          al.metadata
+        FROM activity_logs al
+        JOIN users u ON al.user_id = u.id
+        WHERE al.user_id = $1 
+          OR al.user_id IN (
+            SELECT DISTINCT ce.user_id 
+            FROM course_enrollments ce
+            JOIN courses c ON ce.course_id = c.id
+            WHERE c.teacher_id = $1
+          )
+        ORDER BY al.created_at DESC
+        LIMIT $2
+      `;
+      params = [req.user.id, limit];
+      break;
+
+    case 'siswa':
+      // Students see only their own activities
+      query = `
+        SELECT 
+          created_at,
+          action_type,
+          activity_type,
+          description,
+          metadata
+        FROM activity_logs
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT $2
+      `;
+      params = [req.user.id, limit];
+      break;
+  }
+
+  const result = await db.query(query, params);
+  
+  res.status(httpStatus.OK).json({
+    success: true,
+    data: result.rows,
+    total: result.rows.length
+  });
+});
+
+/**
+ * Get assignments analytics with filtering
+ * GET /api/analytics/assignments?filter=due-soon|overdue|needs-grading
+ */
+const getAssignmentsAnalytics = catchAsync(async (req, res) => {
+  const { filter, courseId, limit = 50 } = req.query;
+  const db = require('../config/db');
+
+  let baseQuery = `
+    SELECT 
+      a.id,
+      a.title,
+      a.due_date,
+      a.max_score,
+      a.type,
+      c.name as course_name,
+      c.id as course_id,
+      COUNT(s.id) as submission_count,
+      COUNT(CASE WHEN s.grade IS NOT NULL THEN 1 END) as graded_count,
+      ROUND(AVG(s.grade), 1) as avg_grade
+    FROM assignments a
+    JOIN courses c ON a.course_id = c.id
+    LEFT JOIN assignment_submissions s ON a.id = s.assignment_id
+  `;
+
+  const conditions = ['a.status = \'active\''];
+  const params = [];
+  let paramCount = 0;
+
+  // Role-based filtering
+  if (req.user.role === 'guru') {
+    conditions.push(`c.teacher_id = $${++paramCount}`);
+    params.push(req.user.id);
+  } else if (req.user.role === 'siswa') {
+    conditions.push(`c.id IN (
+      SELECT course_id FROM course_enrollments 
+      WHERE user_id = $${++paramCount} AND status = 'active'
+    )`);
+    params.push(req.user.id);
+  }
+
+  // Course filtering
+  if (courseId) {
+    conditions.push(`c.id = $${++paramCount}`);
+    params.push(courseId);
+  }
+
+  // Filter-specific conditions
+  if (filter) {
+    switch (filter) {
+      case 'due-soon':
+        conditions.push('a.due_date BETWEEN NOW() AND NOW() + INTERVAL \'7 days\'');
+        break;
+      case 'overdue':
+        conditions.push('a.due_date < NOW()');
+        break;
+      case 'needs-grading':
+        if (req.user.role !== 'siswa') {
+          baseQuery += ` AND s.status = 'submitted' AND s.grade IS NULL`;
+        }
+        break;
+      case 'not-submitted':
+        if (req.user.role === 'siswa') {
+          baseQuery += ` AND s.id IS NULL`;
+        }
+        break;
+    }
+  }
+
+  const query = `
+    ${baseQuery}
+    ${conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''}
+    GROUP BY a.id, a.title, a.due_date, a.max_score, a.type, c.name, c.id
+    ORDER BY 
+      CASE 
+        WHEN '$filter' = 'due-soon' THEN a.due_date
+        WHEN '$filter' = 'overdue' THEN a.due_date
+        ELSE a.created_at
+      END DESC
+    LIMIT $${++paramCount}
+  `.replace(/\$filter/g, filter || '');
+  
+  params.push(limit);
+
+  const result = await db.query(query, params);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    data: result.rows,
+    filter,
+    total: result.rows.length
+  });
+});
+
+/**
  * Export analytics data
  * POST /api/analytics/export
  */
@@ -743,5 +1049,8 @@ module.exports = {
   getActivityTimelineAnalytics,
   getPerformanceMetrics,
   getReports,
-  exportAnalyticsData
+  exportAnalyticsData,
+  getDashboardWidgets,
+  getRecentActivity,
+  getAssignmentsAnalytics
 };

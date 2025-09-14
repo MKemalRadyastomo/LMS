@@ -1,0 +1,24 @@
+ID Kasus Uji,Fitur,Deskripsi Kasus Uji,Metode HTTP,Endpoint API,Hasil yang Diharapkan,Status
+AUTH-001,Otentikasi,Pengguna berhasil mendaftar dengan email dan password yang valid.,POST,/api/auth/register,Pengguna baru berhasil dibuat dan mendapatkan token JWT.,To Do
+AUTH-002,Otentikasi,Pengguna gagal mendaftar dengan email yang sudah ada.,POST,/api/auth/register,API mengembalikan error 400 karena email sudah terdaftar.,To Do
+AUTH-003,Otentikasi,Pengguna berhasil login dengan kredensial yang benar.,POST,/api/auth/login,API mengembalikan token akses dan refresh.,To Do
+AUTH-004,Otentikasi,Pengguna gagal login dengan password yang salah.,POST,/api/auth/login,API mengembalikan error 401 Unauthorized.,To Do
+KURSUS-001,Manajemen Kursus,Pengajar (instructor) berhasil membuat kursus baru.,POST,/api/courses,Kursus baru berhasil dibuat dan data kursus dikembalikan.,To Do
+KURSUS-002,Manajemen Kursus,Semua pengguna bisa mendapatkan daftar semua kursus yang tersedia.,GET,/api/courses,API mengembalikan daftar kursus yang dipaginasi.,To Do
+KURSUS-003,Manajemen Kursus,Pengajar berhasil memperbarui informasi kursus miliknya.,PUT,/api/courses/:courseId,Informasi kursus berhasil diperbarui.,To Do
+KURSUS-004,Manajemen Kursus,Pengajar berhasil menghapus kursus miliknya.,DELETE,/api/courses/:courseId,Kursus berhasil dihapus dari sistem.,To Do
+KURSUS-005,Manajemen Kursus,Siswa berhasil mendaftarkan diri ke sebuah kursus.,POST,/api/courses/:courseId/enroll,Siswa berhasil terdaftar di kursus.,To Do
+TUGAS-001,Manajemen Tugas,Pengajar berhasil membuat tugas baru untuk sebuah kursus.,POST,/api/assignments,Tugas baru berhasil dibuat.,To Do
+TUGAS-002,Manajemen Tugas,Pengguna terdaftar bisa melihat semua tugas dalam sebuah kursus.,GET,/api/courses/:courseId/assignments,API mengembalikan daftar semua tugas untuk kursus tersebut.,To Do
+TUGAS-003,Manajemen Tugas,Pengajar berhasil memperbarui detail sebuah tugas.,PUT,/api/assignments/:assignmentId,Detail tugas berhasil diperbarui.,To Do
+PENGUMPULAN-001,Pengumpulan Tugas,Siswa yang terdaftar di kursus berhasil mengumpulkan tugas.,POST,/api/submissions,Pengumpulan tugas berhasil disimpan.,To Do
+PENGUMPULAN-002,Pengumpulan Tugas,Pengajar bisa melihat semua pengumpulan tugas dari siswa untuk sebuah tugas.,GET,/api/assignments/:assignmentId/submissions,API mengembalikan daftar pengumpulan tugas dari semua siswa.,To Do
+PENILAIAN-001,Penilaian,Pengajar berhasil memberikan nilai untuk sebuah pengumpulan tugas.,POST,/api/grading,Nilai berhasil disimpan dan siswa mendapatkan notifikasi.,To Do
+PENGGUNA-001,Manajemen Pengguna,Pengguna yang terotentikasi bisa mendapatkan detail profilnya sendiri.,GET,/api/users/me,API mengembalikan detail profil pengguna yang sedang login.,To Do
+PENGGUNA-002,Manajemen Pengguna,Pengguna yang terotentikasi bisa memperbarui profilnya sendiri.,PUT,/api/users/me,Informasi profil pengguna berhasil diperbarui.,To Do
+PENCARIAN-001,Pencarian,Pengguna bisa mencari kursus berdasarkan nama atau deskripsi.,GET,/api/search?q=[query],API mengembalikan daftar kursus yang cocok dengan kueri pencarian.,To Do
+VALIDASI-001,Validasi Input,API menolak pembuatan kursus dengan judul kosong.,POST,/api/courses,API mengembalikan error 400 Bad Request dengan pesan validasi.,To Do
+RBAC-002,Kontrol Akses,Siswa tidak dapat menghapus kursus.,DELETE,/api/courses/:courseId,API mengembalikan error 403 Forbidden.,To Do
+RBAC-003,Kontrol Akses,Siswa tidak dapat memberikan nilai pada tugas.,POST,/api/grading,API mengembalikan error 403 Forbidden.,To Do
+ERROR-001,Penanganan Error,API mengembalikan 404 Not Found saat mengakses tugas yang tidak ada.,GET,/api/assignments/99999,API mengembalikan error 404 Not Found.,To Do
+NOTIF-001,Notifikasi,Pengguna mendapatkan notifikasi setelah tugasnya dinilai.,GET,/api/notifications/me,Daftar notifikasi berisi informasi tentang nilai yang baru diterima.,To Do

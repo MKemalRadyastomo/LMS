@@ -338,6 +338,38 @@ class Enrollment {
             throw error;
         }
     }
+
+    /**
+     * Find all enrollments for a student
+     * @param {number} studentId - Student ID
+     * @param {string} status - Optional status filter
+     * @returns {Promise<Array>} List of enrollments
+     */
+    static async findByStudent(studentId, status = null) {
+        try {
+            let query = `
+                SELECT ce.*, c.title as course_title, c.code as course_code
+                FROM course_enrollments ce
+                LEFT JOIN courses c ON ce.course_id = c.id
+                WHERE ce.user_id = $1
+            `;
+            
+            const values = [studentId];
+            
+            if (status) {
+                query += ` AND ce.status = $2`;
+                values.push(status);
+            }
+            
+            query += ` ORDER BY ce.enrollment_date DESC`;
+            
+            const result = await db.query(query, values);
+            return result.rows;
+        } catch (error) {
+            logger.error(`Error finding enrollments by student: ${error.message}`);
+            throw error;
+        }
+    }
 }
 
 module.exports = Enrollment;

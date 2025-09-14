@@ -214,4 +214,52 @@ AssignmentService.getAssignmentWithSubmissions = async (assignmentId) => {
     return await Assignment.getSubmissionsWithStudents(assignmentId);
 };
 
+/**
+ * Query assignments by multiple course IDs (for students)
+ * @param {Object} filter - Query filter including course_ids array
+ * @param {Object} options - Query options
+ * @returns {Promise<QueryResult>}
+ */
+AssignmentService.queryAssignmentsByMultipleCourses = async (filter, options) => {
+    const { course_ids, ...otherFilters } = filter;
+    
+    if (!course_ids || !Array.isArray(course_ids) || course_ids.length === 0) {
+        return {
+            results: [],
+            page: options.page || 1,
+            limit: options.limit || 0,
+            totalPages: 0,
+            totalResults: 0
+        };
+    }
+
+    const assignments = await Assignment.findByMultipleCourseIds(course_ids, otherFilters);
+    
+    return {
+        results: assignments,
+        page: options.page || 1,
+        limit: options.limit || assignments.length,
+        totalPages: 1,
+        totalResults: assignments.length
+    };
+};
+
+/**
+ * Query assignments by teacher ID (for teachers)
+ * @param {Object} filter - Query filter including teacher_id
+ * @param {Object} options - Query options
+ * @returns {Promise<QueryResult>}
+ */
+AssignmentService.queryAssignmentsByTeacher = async (filter, options) => {
+    const assignments = await Assignment.findByTeacherId(filter.teacher_id, filter);
+    
+    return {
+        results: assignments,
+        page: options.page || 1,
+        limit: options.limit || assignments.length,
+        totalPages: 1,
+        totalResults: assignments.length
+    };
+};
+
 module.exports = AssignmentService;

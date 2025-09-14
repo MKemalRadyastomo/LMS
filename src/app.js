@@ -28,9 +28,11 @@ const corsOptions = {
     'http://localhost:9876', // Frontend development server (primary)
     'http://localhost:3001', // Alternative frontend port
     'http://localhost:3000', // Alternative frontend port
+    'http://localhost:3003', // Alternative frontend port (auto-detected)
     'http://127.0.0.1:9876', // Alternative localhost format (primary)
     'http://127.0.0.1:3001', // Alternative localhost format
-    'http://127.0.0.1:3000'  // Alternative localhost format
+    'http://127.0.0.1:3000', // Alternative localhost format
+    'http://127.0.0.1:3003'  // Alternative localhost format (auto-detected)
   ],
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -59,6 +61,16 @@ app.use(timeoutMiddleware());
 
 // API routes with api prefix
 app.use('/api', routes);
+
+// Fallback root route to handle logout redirects and prevent 404 errors
+app.get('/', (req, res) => {
+  res.json({
+    message: 'LMS Backend API',
+    status: 'active',
+    version: '1.0.0',
+    api: '/api'
+  });
+});
 
 // Serve static files
 app.use(express.static('public'));

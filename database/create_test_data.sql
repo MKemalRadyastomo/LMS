@@ -66,7 +66,17 @@ INSERT INTO users (email, password_hash, name, role, created_at) VALUES
 ('ivan.white@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Ivan White', 'siswa', '2024-01-03 12:00:00'),
 ('jessica.harris@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Jessica Harris', 'siswa', '2024-01-03 12:15:00'),
 ('kevin.clark@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Kevin Clark', 'siswa', '2024-01-03 12:30:00'),
-('laura.lewis@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Laura Lewis', 'siswa', '2024-01-03 12:45:00');
+('laura.lewis@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Laura Lewis', 'siswa', '2024-01-03 12:45:00'),
+
+-- Enhanced Students (Additional for better test data)
+('demo@example.com', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Demo User', 'admin', '2024-01-01 08:00:00'),
+('marcus.robinson@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Marcus Robinson', 'siswa', '2024-01-03 13:00:00'),
+('natalie.walker@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Natalie Walker', 'siswa', '2024-01-03 13:15:00'),
+('oliver.hall@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Oliver Hall', 'siswa', '2024-01-03 13:30:00'),
+('patricia.allen@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Patricia Allen', 'siswa', '2024-01-03 13:45:00'),
+('quincy.young@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Quincy Young', 'siswa', '2024-01-03 14:00:00'),
+('rachel.king@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Rachel King', 'siswa', '2024-01-03 14:15:00'),
+('samuel.wright@student.lms.edu', '$2a$10$t37wSRokkwpx1OzhtMxjNuITPX1SxepaPBzPdLBtlos6KGQuKzSEG', 'Samuel Wright', 'siswa', '2024-01-03 14:30:00');
 
 -- =====================================================
 -- ASSIGNMENT TEMPLATES
@@ -79,7 +89,11 @@ INSERT INTO assignment_templates (name, description, type, template_data, instru
 
 ('File Upload Assignment', 'Template for file submission assignments', 'file_upload', '{"allowedTypes": [".pdf", ".doc", ".docx"], "maxFileSize": 10, "multipleFiles": false}', 'Upload your completed assignment as a PDF or Word document. Maximum file size: 10MB.', 100, 4, true, 3, '2024-01-05 09:30:00'),
 
-('Lab Report Template', 'Template for scientific lab reports', 'mixed', '{"components": ["theory", "procedure", "results", "analysis"], "format": "scientific"}', 'Submit a complete lab report including theoretical background, experimental procedure, results, and analysis.', 100, 5, true, 2, '2024-01-05 09:45:00');
+('Lab Report Template', 'Template for scientific lab reports', 'mixed', '{"components": ["theory", "procedure", "results", "analysis"], "format": "scientific"}', 'Submit a complete lab report including theoretical background, experimental procedure, results, and analysis.', 100, 5, true, 2, '2024-01-05 09:45:00'),
+
+-- Enhanced Assignment Templates
+('Programming Project', 'Template for coding assignments', 'file_upload', '{"allowedTypes": [".zip", ".tar.gz", ".py", ".js", ".java"], "maxFileSize": 20, "multipleFiles": true}', 'Submit your complete programming project with source code, documentation, and test files.', 150, 3, true, 22, '2024-01-05 10:00:00'),
+('Video Presentation', 'Template for video submission assignments', 'file_upload', '{"allowedTypes": [".mp4", ".mov", ".avi"], "maxFileSize": 100, "multipleFiles": false}', 'Record and submit a video presentation. Maximum length: 10 minutes, file size: 100MB.', 100, 4, true, 6, '2024-01-05 10:15:00');
 
 -- =====================================================
 -- TEST COURSES
@@ -139,7 +153,28 @@ INSERT INTO course_enrollments (course_id, user_id, enrollment_date, enrollment_
 (5, 10, '2024-01-19 15:15:00', 'code', 'active', '2024-01-19 15:15:00'),
 (5, 12, '2024-01-19 15:30:00', 'manual', 'active', '2024-01-19 15:30:00'),
 (5, 14, '2024-01-19 15:45:00', 'code', 'active', '2024-01-19 15:45:00'),
-(5, 18, '2024-01-19 16:00:00', 'code', 'active', '2024-01-19 16:00:00');
+(5, 18, '2024-01-19 16:00:00', 'code', 'active', '2024-01-19 16:00:00'),
+
+-- Enhanced Course Enrollments (Additional students for better test data)
+-- CS101 additional enrollments (to reach 15+ students)
+(1, 19, '2024-01-15 13:45:00', 'code', 'active', '2024-01-15 13:45:00'),
+(1, 20, '2024-01-15 14:00:00', 'manual', 'active', '2024-01-15 14:00:00'),
+(1, 21, '2024-01-15 14:15:00', 'code', 'active', '2024-01-15 14:15:00'),
+(1, 22, '2024-01-15 14:30:00', 'code', 'active', '2024-01-15 14:30:00'),
+(1, 23, '2024-01-15 14:45:00', 'manual', 'active', '2024-01-15 14:45:00'),
+(1, 24, '2024-01-15 15:00:00', 'code', 'active', '2024-01-15 15:00:00'),
+(1, 25, '2024-01-15 15:15:00', 'code', 'active', '2024-01-15 15:15:00'),
+(1, 26, '2024-01-15 15:30:00', 'manual', 'active', '2024-01-15 15:30:00'),
+
+-- More enrollments across other courses
+(2, 19, '2024-01-16 11:00:00', 'code', 'active', '2024-01-16 11:00:00'),
+(2, 20, '2024-01-16 11:15:00', 'manual', 'active', '2024-01-16 11:15:00'),
+(3, 21, '2024-01-17 15:30:00', 'manual', 'active', '2024-01-17 15:30:00'),
+(3, 22, '2024-01-17 15:45:00', 'manual', 'active', '2024-01-17 15:45:00'),
+(4, 23, '2024-01-18 15:00:00', 'code', 'active', '2024-01-18 15:00:00'),
+(4, 24, '2024-01-18 15:15:00', 'manual', 'active', '2024-01-18 15:15:00'),
+(5, 25, '2024-01-19 16:45:00', 'code', 'active', '2024-01-19 16:45:00'),
+(5, 26, '2024-01-19 17:00:00', 'manual', 'active', '2024-01-19 17:00:00');
 
 -- =====================================================
 -- COURSE MATERIALS
@@ -203,7 +238,29 @@ INSERT INTO assignments (course_id, template_id, title, description, instruction
 -- WEB150 Assignments
 (5, 3, 'Personal Portfolio Website', 'Create your personal portfolio website', 'Build a responsive personal portfolio website using HTML, CSS, and JavaScript. Include sections for about, projects, and contact information.', 'file_upload', '2024-02-22 23:59:59', 200, 'active', true, 7, 5.00, '2024-02-05 15:00:00'),
 
-(5, 2, 'HTML/CSS Knowledge Check', 'Quick assessment of HTML and CSS skills', 'Multiple choice and short answer questions covering HTML structure, CSS selectors, and responsive design principles.', 'quiz', '2024-02-11 23:59:59', 40, 'active', true, 2, 15.00, '2024-02-03 15:00:00');
+(5, 2, 'HTML/CSS Knowledge Check', 'Quick assessment of HTML and CSS skills', 'Multiple choice and short answer questions covering HTML structure, CSS selectors, and responsive design principles.', 'quiz', '2024-02-11 23:59:59', 40, 'active', true, 2, 15.00, '2024-02-03 15:00:00'),
+
+-- Enhanced Assignments (Additional for better test data)
+-- CS101 Additional Assignments
+(1, 2, 'Control Structures Quiz', 'Test your understanding of loops and conditionals', 'Quiz covering if statements, for loops, while loops, and nested structures. Focus on code reading and logic analysis.', 'quiz', '2024-02-12 23:59:59', 60, 'active', true, 2, 15.00, '2024-02-03 10:00:00'),
+(1, 5, 'Array Processing Assignment', 'Work with arrays and data processing', 'Write a program that reads an array of integers, sorts them, and calculates statistical measures (mean, median, mode). Include error handling.', 'file_upload', '2024-02-20 23:59:59', 120, 'active', true, 4, 8.00, '2024-02-05 10:00:00'),
+(1, 1, 'Algorithm Analysis Report', 'Compare sorting algorithm efficiencies', 'Research and compare the time complexity of bubble sort, merge sort, and quicksort. Provide examples and performance analysis.', 'essay', '2024-02-25 23:59:59', 100, 'active', true, 3, 10.00, '2024-02-08 10:00:00'),
+
+-- MATH301 Additional Assignments  
+(2, 3, 'Calculus Problem Set', 'Solve complex calculus problems', 'Submit solutions to differential and integral calculus problems. Include step-by-step solutions and graphical representations where applicable.', 'file_upload', '2024-02-18 23:59:59', 150, 'active', true, 3, 12.00, '2024-02-02 11:00:00'),
+(2, 2, 'Differential Equations Quiz', 'Test knowledge of differential equations', 'Solve first and second-order differential equations. Include both analytical and numerical solution methods.', 'quiz', '2024-02-22 23:59:59', 80, 'active', true, 1, 20.00, '2024-02-10 11:00:00'),
+
+-- MKT201 Additional Assignments
+(3, 6, 'Social Media Campaign Presentation', 'Create and present a social media campaign', 'Design a complete social media campaign for a product launch. Record a 5-minute video presentation explaining your strategy.', 'file_upload', '2024-02-24 23:59:59', 130, 'active', true, 4, 8.00, '2024-02-05 14:00:00'),
+(3, 2, 'Digital Analytics Quiz', 'Test your knowledge of digital analytics tools', 'Quiz covering Google Analytics, social media metrics, conversion tracking, and ROI calculation.', 'quiz', '2024-02-16 23:59:59', 60, 'active', true, 2, 15.00, '2024-02-03 14:00:00'),
+
+-- DS200 Additional Assignments
+(4, 5, 'Machine Learning Implementation', 'Implement a basic machine learning algorithm', 'Code a linear regression algorithm from scratch using Python. Compare your results with scikit-learn implementation.', 'file_upload', '2024-02-25 23:59:59', 180, 'active', true, 5, 6.00, '2024-02-08 13:00:00'),
+(4, 1, 'Data Ethics Essay', 'Discuss ethical considerations in data science', 'Write about privacy, bias, and fairness in data collection and analysis. Include real-world case studies and proposed solutions.', 'essay', '2024-02-28 23:59:59', 100, 'active', true, 3, 10.00, '2024-02-12 13:00:00'),
+
+-- WEB150 Additional Assignments
+(5, 5, 'JavaScript Interactive Game', 'Build an interactive browser game', 'Create a simple browser-based game using vanilla JavaScript. Focus on DOM manipulation, event handling, and game logic.', 'file_upload', '2024-02-26 23:59:59', 160, 'active', true, 5, 7.00, '2024-02-10 15:00:00'),
+(5, 5, 'React Component Library', 'Build reusable React components', 'Create a small library of reusable React components (button, card, modal, form). Include documentation and usage examples.', 'file_upload', '2024-03-05 23:59:59', 180, 'active', true, 6, 8.00, '2024-02-15 15:00:00');
 
 -- =====================================================
 -- ASSIGNMENT SUBMISSIONS
@@ -245,7 +302,31 @@ INSERT INTO assignment_submissions (assignment_id, student_id, submission_text, 
 -- WEB150 Submissions
 (11, 9, null, null, 35, 'Basic HTML structure is correct but CSS styling needs improvement. Focus on responsive design principles and accessibility.', 'graded', 6, '2024-02-10 20:45:00', '2024-02-13 16:30:00'),
 
-(11, 10, null, null, 38, 'Good quiz performance overall. Review CSS flexbox and grid concepts. Strong understanding of HTML semantics.', 'graded', 6, '2024-02-11 15:20:00', '2024-02-13 17:15:00');
+(11, 10, null, null, 38, 'Good quiz performance overall. Review CSS flexbox and grid concepts. Strong understanding of HTML semantics.', 'graded', 6, '2024-02-11 15:20:00', '2024-02-13 17:15:00'),
+
+-- Enhanced Assignment Submissions (Additional realistic submissions with grading)
+-- CS101 Programming Essay Submissions (Assignment ID 1)
+(1, 19, 'Programming has revolutionized modern society in countless ways. From the smartphones we carry to the cars we drive, programming forms the backbone of our digital world. In healthcare, electronic medical records have improved patient care coordination...', null, 85, 'Good analysis of programming impact. Could benefit from more specific examples in healthcare and finance sectors. Well-structured arguments overall.', 'graded', 3, '2024-02-08 14:30:00', '2024-02-12 09:15:00'),
+(1, 20, 'In todays digital age, programming is not just a technical skill but a fundamental literacy. It enables automation, creates new possibilities for communication, and drives innovation across industries...', null, 92, 'Excellent essay with comprehensive coverage of programming applications. Strong use of examples and well-cited sources. Outstanding work!', 'graded', 3, '2024-02-09 16:45:00', '2024-02-12 10:20:00'),
+(1, 21, 'Programming languages serve as the bridge between human ideas and computer execution. The importance of programming extends beyond software development into fields like medicine, education, and entertainment...', null, 78, 'Good understanding of the topic. Some arguments could be stronger with more supporting evidence. Check grammar and sentence structure.', 'graded', 3, '2024-02-10 20:15:00', '2024-02-13 11:30:00'),
+
+-- CS101 Quiz Submissions (Assignment ID 2)
+(2, 19, null, null, 42, 'Good understanding of basic concepts. Review array handling and loop structures for better performance. Focus on variable scope rules.', 'graded', 3, '2024-02-04 19:20:00', '2024-02-06 08:45:00'),
+(2, 20, null, null, 48, 'Excellent work! Strong grasp of data types and variable scope. Perfect score on advanced questions. Keep up the great work!', 'graded', 3, '2024-02-05 10:30:00', '2024-02-06 09:15:00'),
+(2, 21, null, null, 35, 'Need to review basic programming concepts. Focus on variable declaration and type conversion. Office hours recommended.', 'graded', 3, '2024-02-05 22:45:00', '2024-02-07 14:20:00'),
+
+-- CS101 Calculator Program Submissions (Assignment ID 3)
+(3, 19, 'This calculator program implements basic arithmetic operations using a clean object-oriented design. The Calculator class handles input validation and error checking...', '/uploads/assignments/calculator_alice_v1.zip', 92, 'Excellent implementation with proper error handling and clean code structure. Good use of OOP principles.', 'graded', 3, '2024-02-14 16:20:00', '2024-02-18 10:45:00'),
+(3, 20, 'My calculator application features a graphical user interface built with HTML/CSS/JavaScript. It supports basic operations plus advanced functions...', '/uploads/assignments/calculator_bob_final.zip', 88, 'Great UI design and functionality. Consider adding keyboard input support and improving decimal precision.', 'graded', 3, '2024-02-15 14:10:00', '2024-02-19 09:30:00'),
+
+-- MATH301 Submissions
+(4, 19, 'Linear algebra finds extensive applications in computer graphics, particularly in 3D transformations and rendering. Matrix operations enable efficient rotation, scaling, and translation...', null, 88, 'Strong mathematical foundation and good real-world connections. Include more detailed calculations in examples.', 'graded', 4, '2024-02-11 13:45:00', '2024-02-14 16:30:00'),
+(4, 21, 'The applications of linear algebra in machine learning are profound and numerous. From principal component analysis to neural network computations...', null, 95, 'Outstanding analysis! Excellent mathematical rigor combined with practical applications.', 'graded', 4, '2024-02-12 09:20:00', '2024-02-15 10:15:00'),
+
+-- Pending submissions (not yet graded) to show workflow
+(1, 22, 'Programming has transformed every aspect of modern life, from the way we communicate to how we solve complex problems. This transformation is most evident in fields like healthcare...', null, null, null, 'submitted', null, '2024-02-10 23:45:00', null),
+(3, 23, 'Implemented a scientific calculator with advanced mathematical functions including trigonometry, logarithms, and statistical calculations...', '/uploads/assignments/advanced_calc_charlie.zip', null, null, 'submitted', null, '2024-02-15 19:45:00', null),
+(13, 19, 'Bubble sort, merge sort, and quicksort represent three fundamentally different approaches to sorting algorithms. Bubble sort, with its O(n²) complexity...', null, null, null, 'submitted', null, '2024-02-24 18:30:00', null);
 
 -- =====================================================
 -- GRADING RUBRICS
@@ -308,7 +389,28 @@ INSERT INTO notifications (user_id, title, message, type, priority, status, rela
 
 (9, 'New Material: Control Structures', 'New learning material "Control Structures" has been added to Introduction to Computer Science.', 'course', 'low', 'unread', 'material', 3, '/courses/1/materials/3', '2024-01-25 08:15:00', '2024-01-25 08:15:00'),
 
-(10, 'Enrolled in Course: Digital Marketing Strategies', 'You have been successfully enrolled in "Digital Marketing Strategies".', 'course', 'medium', 'read', 'course', 3, '/courses/3', '2024-01-17 14:20:00', '2024-01-17 14:20:00');
+(10, 'Enrolled in Course: Digital Marketing Strategies', 'You have been successfully enrolled in "Digital Marketing Strategies".', 'course', 'medium', 'read', 'course', 3, '/courses/3', '2024-01-17 14:20:00', '2024-01-17 14:20:00'),
+
+-- Enhanced Notifications to match frontend expectations (using correct schema)
+-- Student notifications
+(19, 'Assignment Graded: Programming Essay', 'Your Programming Fundamentals Essay has been graded. Score: 85/100', 'assignment', 'medium', 'read', 'grade', 1, '/assignments/1/results', '2024-02-12 09:15:00', '2024-02-12 09:15:00'),
+(19, 'New Assignment Posted', 'Control Structures Quiz is now available in CS101', 'assignment', 'medium', 'unread', 'assignment', 12, '/assignments/12', '2024-02-03 10:00:00', '2024-02-03 10:00:00'),
+(19, 'Assignment Due Tomorrow', 'Algorithm Analysis Report is due tomorrow at 11:59 PM', 'assignment', 'high', 'unread', 'deadline', 13, '/assignments/13', '2024-02-24 12:00:00', '2024-02-24 12:00:00'),
+
+(20, 'Assignment Graded: Programming Essay', 'Your Programming Fundamentals Essay has been graded. Score: 92/100', 'assignment', 'medium', 'read', 'grade', 1, '/assignments/1/results', '2024-02-12 10:20:00', '2024-02-12 10:20:00'),
+(20, 'Assignment Graded: Calculator Program', 'Your Simple Calculator Program has been graded. Score: 88/100', 'assignment', 'medium', 'unread', 'grade', 3, '/assignments/3/results', '2024-02-19 09:30:00', '2024-02-19 09:30:00'),
+
+(21, 'Assignment Graded: Programming Essay', 'Your Programming Fundamentals Essay has been graded. Score: 78/100', 'assignment', 'medium', 'read', 'grade', 1, '/assignments/1/results', '2024-02-13 11:30:00', '2024-02-13 11:30:00'),
+(21, 'Study Group Invitation', 'Join the CS101 study group for exam preparation', 'course', 'low', 'unread', 'social', 1, '/courses/1/study-group', '2024-02-16 14:20:00', '2024-02-16 14:20:00'),
+
+-- Teacher notifications  
+(3, 'New Submission Received', 'Charlie Martinez submitted Algorithm Analysis Report', 'assignment', 'medium', 'read', 'submission', 13, '/assignments/13/submissions', '2024-02-24 18:30:00', '2024-02-24 18:30:00'),
+(3, 'Grading Reminder', '5 assignments pending grading in CS101', 'assignment', 'high', 'unread', 'grading', 1, '/courses/1/grading', '2024-02-25 09:00:00', '2024-02-25 09:00:00'),
+(3, 'Course Enrollment Alert', '8 new students enrolled in Introduction to Computer Science this week', 'course', 'medium', 'unread', 'enrollment', 1, '/courses/1/students', '2024-02-20 11:15:00', '2024-02-20 11:15:00'),
+
+-- Admin notifications
+(1, 'System Maintenance Scheduled', 'Scheduled maintenance window: Sunday 2 AM - 4 AM', 'system', 'high', 'unread', 'system', null, '/admin/maintenance', '2024-02-25 15:00:00', '2024-02-25 15:00:00'),
+(1, 'New User Registration', '5 new student accounts created today', 'system', 'low', 'read', 'registration', null, '/admin/users', '2024-02-25 16:30:00', '2024-02-25 16:30:00');
 
 -- =====================================================
 -- SAMPLE ACTIVITY LOGS

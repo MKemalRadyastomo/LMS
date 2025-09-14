@@ -268,6 +268,85 @@ const updateAnalytics = catchAsync(async (req, res) => {
     });
 });
 
+const getAllAssignmentsForUser = catchAsync(async (req, res) => {
+    const { id: userId, role } = req.user;
+    const { status, course_id, search, sortBy = 'due_date', sortOrder = 'asc' } = req.query;
+
+    let assignments = [];
+
+    if (role === 'siswa') {
+        // For students, get assignments from enrolled courses
+        const Enrollment = require('../models/enrollment.model');
+        const enrollments = await Enrollment.findByStudent(userId);
+        
+        if (enrollments && enrollments.length > 0) {
+            const courseIds = enrollments
+                .filter(enrollment => enrollment.status === 'active')
+                .map(enrollment => enrollment.course_id);
+            
+            if (courseIds.length > 0) {
+                const filter = { 
+                    course_ids: courseIds,
+                    ...(status && { status }),
+                    ...(course_id && { course_id: parseInt(course_id, 10) }),
+                    ...(search && { search })
+                };
+                
+                const options = {
+                    sortBy,
+                    sortOrder,
+                    limit: req.query.limit,
+                    page: req.query.page,
+                };
+                
+                const result = await assignmentService.queryAssignmentsByMultipleCourses(filter, options);
+                assignments = result.results || [];
+            }
+        }
+    } else if (role === 'guru') {
+        // For teachers, get assignments from courses they teach
+        const filter = { 
+            teacher_id: userId,
+            ...(status && { status }),
+            ...(course_id && { course_id: parseInt(course_id, 10) }),
+            ...(search && { search })
+        };
+        
+        const options = {
+            sortBy,
+            sortOrder,
+            limit: req.query.limit,
+            page: req.query.page,
+        };
+        
+        const result = await assignmentService.queryAssignmentsByTeacher(filter, options);
+        assignments = result.results || [];
+    } else if (role === 'admin') {
+        // For admins, get all assignments
+        const filter = { 
+            ...(status && { status }),
+            ...(course_id && { course_id: parseInt(course_id, 10) }),
+            ...(search && { search })
+        };
+        
+        const options = {
+            sortBy,
+            sortOrder,
+            limit: req.query.limit,
+            page: req.query.page,
+        };
+        
+        const result = await assignmentService.queryAssignments(filter, options);
+        assignments = result.results || [];
+    }
+
+    res.send({
+        success: true,
+        data: assignments,
+        message: 'Assignments retrieved successfully'
+    });
+});
+
 module.exports = {
     createAssignment,
     getAssignments,
@@ -278,4 +357,5 @@ module.exports = {
     getComprehensiveAnalytics,
     duplicateAssignment,
     updateAnalytics,
+    getAllAssignmentsForUser,
 };
